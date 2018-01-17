@@ -26,7 +26,6 @@ trait DisplayNomineesTrait
         ];
         $data = [];
         foreach ($nominees as $nominee) {
-            var_dump($nominee);
             $data[] = [
                 $nominee->getAuthor(),
                 $nominee->getArtist(),
