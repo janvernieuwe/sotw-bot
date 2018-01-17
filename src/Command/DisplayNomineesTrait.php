@@ -2,14 +2,18 @@
 
 namespace App\Command;
 
-use App\Entity\SotwContender;
+use App\Entity\SotwNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Trait DisplayNomineesTrait
+ * @package App\Command
+ */
 trait DisplayNomineesTrait
 {
     /**
      * @param SymfonyStyle $io
-     * @param SotwContender[] $nominees
+     * @param SotwNomination[] $nominees
      */
     public function displayNominees(SymfonyStyle $io, array $nominees): void
     {
@@ -22,6 +26,7 @@ trait DisplayNomineesTrait
         ];
         $data = [];
         foreach ($nominees as $nominee) {
+            var_dump($nominee);
             $data[] = [
                 $nominee->getAuthor(),
                 $nominee->getArtist(),

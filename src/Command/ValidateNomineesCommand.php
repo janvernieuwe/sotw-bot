@@ -3,25 +3,24 @@
 namespace App\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class StartVotingCommand
+ * Class ValidateNomineesCommand
  * @package App\Command
  */
-class StartVotingCommand extends ContainerAwareCommand
+class ValidateNomineesCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
 
     protected function configure(): void
     {
         $this
-            ->setName('haamc:sotw:start')
-            ->setDescription('Start the voting for Song Of The Week')
-            ->setHelp('Locks the channel and adds an upvote to each nomination');
+            ->setName('haamc:sotw:validate')
+            ->setDescription('Validate the nominations')
+            ->setHelp('Checks if all nominations are valid');
     }
 
     /**
@@ -36,16 +35,20 @@ class StartVotingCommand extends ContainerAwareCommand
         $nominations = $sotw->getLastNominations();
         $this->displayNominees($io, $nominations);
 
-        // Check that we have a clear winner
-        if (\count($nominations) !== 10) {
-            throw new RuntimeException('Not enough nominations!');
+        // Check count
+        $nominationCount = \count($nominations);
+        if ($nominationCount !== 10) {
+            $io->note(sprintf('Not enough nominations (%s/10)', $nominationCount));
         }
-
-        $io->section('Close nominations');
-        $sotw->closeNominations();
-        $io->section('Add reactions');
-        foreach ($nominations as $nominee) {
-            $sotw->addReaction($nominee, '🔼');
+        foreach ($nominations as $nomination) {
+            $errors = $sotw->validate($nomination);
+            if (count($errors)) {
+                $sotw->addReaction($nomination, '❌');
+                $io->error($nomination.PHP_EOL.$errors);
+                continue;
+            }
+            $io->success($nomination);
+            $sotw->removeReaction($nomination, '❌');
         }
     }
 }

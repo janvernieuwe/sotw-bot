@@ -2,18 +2,18 @@
 
 namespace App\Formatter;
 
-use App\Entity\SotwContender;
+use App\Entity\SotwNomination;
 
 class BBCodeFormatter
 {
     /**
-     * @var SotwContender[]
+     * @var SotwNomination[]
      */
     private $nominations;
 
     /**
      * BBCodeFormatter constructor.
-     * @param SotwContender[] $nominations
+     * @param SotwNomination[] $nominations
      */
     public function __construct(array $nominations)
     {

@@ -2,11 +2,20 @@
 
 namespace App\Discord;
 
-use App\Entity\SotwContender;
+use App\Entity\SotwNomination;
 use RestCord\DiscordClient;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class SongOfTheWeek
+ * @package App\Discord
+ */
 class SongOfTheWeek
 {
+    /**
+     *
+     */
     public const ROLE_SEND_MESSAGES = 0x00000800;
 
     /**
@@ -22,18 +31,30 @@ class SongOfTheWeek
      * @var string
      */
     private $role;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
-    public function __construct(DiscordClient $discord, string $channelId, string $role)
+    /**
+     * SongOfTheWeek constructor.
+     * @param DiscordClient $discord
+     * @param ValidatorInterface $validator
+     * @param string $channelId
+     * @param string $role
+     */
+    public function __construct(DiscordClient $discord, ValidatorInterface $validator, string $channelId, string $role)
     {
 
         $this->channelId = (int)$channelId;
         $this->discord = $discord;
         $this->role = $role;
+        $this->validator = $validator;
     }
 
     /**
      * @param int $limit
-     * @return SotwContender[]
+     * @return SotwNomination[]
      */
     public function getLastNominations(int $limit = 10): array
     {
@@ -50,14 +71,14 @@ class SongOfTheWeek
             if (preg_match('/^Bij deze zijn de nominaties voor week/', $message['content'])) {
                 break;
             }
-            if (SotwContender::isContenter($message['content'])) {
-                $contenders[] = new SotwContender($message);
+            if (SotwNomination::isContenter($message['content'])) {
+                $contenders[] = SotwNomination::fromMessage($message);
             }
         }
         $contenders = \array_slice($contenders, 0, $limit);
         uasort(
             $contenders,
-            function (SotwContender $a, SotwContender $b) {
+            function (SotwNomination $a, SotwNomination $b) {
                 return $a->getVotes() < $b->getVotes();
             }
         );
@@ -65,7 +86,10 @@ class SongOfTheWeek
         return array_values($contenders);
     }
 
-    public function announceWinner(SotwContender $nomination): void
+    /**
+     * @param SotwNomination $nomination
+     */
+    public function announceWinner(SotwNomination $nomination): void
     {
         $this->discord->channel->createMessage(
             [
@@ -75,7 +99,11 @@ class SongOfTheWeek
         );
     }
 
-    private function createWinningMessage(SotwContender $nomination): string
+    /**
+     * @param SotwNomination $nomination
+     * @return string
+     */
+    private function createWinningMessage(SotwNomination $nomination): string
     {
         return sprintf(
             "\nDe winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
@@ -87,6 +115,9 @@ class SongOfTheWeek
         );
     }
 
+    /**
+     *
+     */
     public function openNominations(): void
     {
         $this->discord->channel->createMessage(
@@ -105,6 +136,17 @@ class SongOfTheWeek
         );
     }
 
+    /**
+     * @return string
+     */
+    private function createOpenNominationsMessage(): string
+    {
+        return sprintf('Bij deze zijn de nominaties voor week %s geopend!', date('W') + 1);
+    }
+
+    /**
+     *
+     */
     public function closeNominations(): void
     {
         $this->discord->channel->createMessage(
@@ -126,24 +168,49 @@ class SongOfTheWeek
     /**
      * @return string
      */
-    private function createOpenNominationsMessage(): string
-    {
-        return sprintf('Bij deze zijn de nominaties voor week %s geopend!', date('W') + 1);
-    }
-
     private function createCloseNominationsMessage(): string
     {
         return 'Laat het stemmen beginnen!';
     }
 
-    public function addReaction(SotwContender $contender): void
+    /**
+     * @param SotwNomination $contender
+     * @param string $emoji
+     */
+    public function addReaction(SotwNomination $contender, string $emoji): void
     {
         $this->discord->channel->createReaction(
             [
                 'channel.id' => $this->channelId,
                 'message.id' => $contender->getMessageId(),
-                'emoji'      => '🔼',
+                'emoji'      => $emoji,
             ]
         );
+        sleep(1);
+    }
+
+    /**
+     * @param SotwNomination $contender
+     * @param string $emoji
+     */
+    public function removeReaction(SotwNomination $contender, string $emoji): void
+    {
+        $this->discord->channel->deleteOwnReaction(
+            [
+                'channel.id' => $this->channelId,
+                'message.id' => $contender->getMessageId(),
+                'emoji'      => $emoji,
+            ]
+        );
+        sleep(1);
+    }
+
+    /**
+     * @param SotwNomination $nomination
+     * @return ConstraintViolationListInterface
+     */
+    public function validate(SotwNomination $nomination): ConstraintViolationListInterface
+    {
+        return $this->validator->validate($nomination);
     }
 }

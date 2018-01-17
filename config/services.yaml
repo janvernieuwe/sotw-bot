@@ -3,6 +3,7 @@
 imports:
     - { resource: 'parameters.yaml' }
 parameters:
+    locale: 'en'
 
 services:
     # default configuration for services in *this* file
@@ -42,6 +43,7 @@ services:
         class: App\Discord\SongOfTheWeek
         arguments:
           - "@discord"
+          - "@validator"
           - "%channel_id%"
           - "%permissions_role%"
         public: true
