@@ -46,7 +46,8 @@ class FinishRoundCommand extends ContainerAwareCommand
         }
 
         $this->displayNominees($io, $nominations);
-        // Check that we have a clear winner
+        $sotw->validateNominees($nominations);
+        // Validate results
         if (!\count($nominations)) {
             throw new RuntimeException('No nominations found');
         }

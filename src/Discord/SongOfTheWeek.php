@@ -4,6 +4,7 @@ namespace App\Discord;
 
 use App\Entity\SotwNomination;
 use RestCord\DiscordClient;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -218,11 +219,42 @@ MESSAGE;
     }
 
     /**
+     * @param SotwNomination[] $nominees
+     * @param bool $throwException
+     * @return array
+     */
+    public function validateNominees(array $nominees, bool $throwException = true): array
+    {
+        $errors = [];
+        foreach ($nominees as $nominee) {
+            $tmpErr = $this->validate($nominee);
+            if (count($tmpErr)) {
+                $errors[] = $nominee.PHP_EOL.$tmpErr;
+            }
+        }
+        $hasErrors = count($errors);
+        if ($throwException && $hasErrors) {
+            throw new RuntimeException("[ERROR] Invalid nominations: \n\n".implode(PHP_EOL, $errors));
+        }
+
+        return $errors;
+    }
+
+    /**
      * @param SotwNomination $nomination
      * @return ConstraintViolationListInterface
      */
     public function validate(SotwNomination $nomination): ConstraintViolationListInterface
     {
         return $this->validator->validate($nomination);
+    }
+
+    /**
+     * @param SotwNomination $nomination
+     * @return bool
+     */
+    public function isValid(SotwNomination $nomination): bool
+    {
+        return count($this->validate($nomination)) === 0;
     }
 }
