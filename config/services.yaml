@@ -27,3 +27,21 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    log.null:
+        class: Psr\Log\NullLogger
+
+    discord:
+        class: RestCord\DiscordClient
+        arguments:
+          -
+            token:      "%token%"
+            logger:     "@log.null"
+        public: true
+
+    song_of_the_week:
+        class: App\Discord\SongOfTheWeek
+        arguments:
+          - "@discord"
+          - "%channel_id%"
+          - "%permissions_role%"
+        public: true
