@@ -37,8 +37,6 @@ class FinishRoundCommand extends ContainerAwareCommand
         $io = new SymfonyStyle($input, $output);
         $sotw = $this->getContainer()->get('song_of_the_week');
         $nominations = $sotw->getLastNominations();
-        $this->displayNominees($io, $nominations);
-
         // When forcing, just only open the nominations
         $force = $input->hasParameterOption('--force');
         if ($force) {
@@ -47,6 +45,7 @@ class FinishRoundCommand extends ContainerAwareCommand
             return;
         }
 
+        $this->displayNominees($io, $nominations);
         // Check that we have a clear winner
         if (!\count($nominations)) {
             throw new RuntimeException('No nominations found');
