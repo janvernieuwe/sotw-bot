@@ -141,7 +141,19 @@ class SongOfTheWeek
      */
     private function createOpenNominationsMessage(): string
     {
-        return sprintf('Bij deze zijn de nominaties voor week %s geopend!', date('W') + 1);
+        $message = <<<MESSAGE
+Bij deze zijn de nominaties voor week %s geopend!
+
+Nomineer volgens onderstaande template (copieer en plak deze, en zet er dan de gegevens in):
+```
+artist: 
+title: 
+anime:  
+url: 
+```
+MESSAGE;
+
+        return sprintf($message, date('W') + 1);
     }
 
     /**

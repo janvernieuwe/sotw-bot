@@ -6,9 +6,14 @@ use App\Formatter\BBCodeFormatter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class FinishRoundCommand
+ * @package App\Command
+ */
 class FinishRoundCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
@@ -18,7 +23,8 @@ class FinishRoundCommand extends ContainerAwareCommand
         $this
             ->setName('haamc:sotw:finish')
             ->setDescription('Finish a round of Song Of The Week')
-            ->setHelp('Counts the votes, announces the winner and opens the chat for new nominations');
+            ->setHelp('Counts the votes, announces the winner and opens the chat for new nominations')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Force start even without a winner');
     }
 
     /**
@@ -32,6 +38,14 @@ class FinishRoundCommand extends ContainerAwareCommand
         $sotw = $this->getContainer()->get('song_of_the_week');
         $nominations = $sotw->getLastNominations();
         $this->displayNominees($io, $nominations);
+
+        // When forcing, just only open the nominations
+        $force = $input->hasParameterOption('--force');
+        if ($force) {
+            $sotw->openNominations();
+
+            return;
+        }
 
         // Check that we have a clear winner
         if (!\count($nominations)) {
