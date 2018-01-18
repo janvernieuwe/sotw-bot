@@ -234,4 +234,29 @@ class SotwNomination
     {
         return $this->messageId;
     }
+
+    /**
+     * @param string $emoji
+     * @param bool $onlyMe
+     * @return bool
+     */
+    public function hasReaction(string $emoji, bool $onlyMe = true): bool
+    {
+        if (!isset($this->message['reactions'])) {
+            return false;
+        }
+        /** @noinspection ForeachSourceInspection */
+        foreach ($this->message['reactions'] as $reaction) {
+            if ($reaction['emoji']['name'] !== $emoji) {
+                continue;
+            }
+            if ($onlyMe && !$reaction['me']) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 }

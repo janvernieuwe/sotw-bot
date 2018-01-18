@@ -187,15 +187,18 @@ MESSAGE;
     }
 
     /**
-     * @param SotwNomination $contender
+     * @param SotwNomination $nomination
      * @param string $emoji
      */
-    public function addReaction(SotwNomination $contender, string $emoji): void
+    public function addReaction(SotwNomination $nomination, string $emoji): void
     {
+        if ($nomination->hasReaction($emoji)) {
+            return;
+        }
         $this->discord->channel->createReaction(
             [
                 'channel.id' => $this->channelId,
-                'message.id' => $contender->getMessageId(),
+                'message.id' => $nomination->getMessageId(),
                 'emoji'      => $emoji,
             ]
         );
@@ -203,15 +206,18 @@ MESSAGE;
     }
 
     /**
-     * @param SotwNomination $contender
+     * @param SotwNomination $nomination
      * @param string $emoji
      */
-    public function removeReaction(SotwNomination $contender, string $emoji): void
+    public function removeReaction(SotwNomination $nomination, string $emoji): void
     {
+        if (!$nomination->hasReaction($emoji)) {
+            return;
+        }
         $this->discord->channel->deleteOwnReaction(
             [
                 'channel.id' => $this->channelId,
-                'message.id' => $contender->getMessageId(),
+                'message.id' => $nomination->getMessageId(),
                 'emoji'      => $emoji,
             ]
         );
@@ -228,11 +234,12 @@ MESSAGE;
         $errors = [];
         foreach ($nominees as $nominee) {
             $tmpErr = $this->validate($nominee);
-            if (count($tmpErr)) {
+            if (\count($tmpErr)) {
+                /** @noinspection PhpToStringImplementationInspection */
                 $errors[] = $nominee.PHP_EOL.$tmpErr;
             }
         }
-        $hasErrors = count($errors);
+        $hasErrors = \count($errors);
         if ($throwException && $hasErrors) {
             throw new RuntimeException("[ERROR] Invalid nominations: \n\n".implode(PHP_EOL, $errors));
         }
@@ -255,6 +262,6 @@ MESSAGE;
      */
     public function isValid(SotwNomination $nomination): bool
     {
-        return count($this->validate($nomination)) === 0;
+        return \count($this->validate($nomination)) === 0;
     }
 }

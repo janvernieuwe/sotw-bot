@@ -45,7 +45,7 @@ class ValidateNomineesCommand extends ContainerAwareCommand
         }
         foreach ($nominations as $nomination) {
             $errors = $sotw->validate($nomination);
-            if (count($errors)) {
+            if (\count($errors)) {
                 $sotw->addReaction($nomination, '❌');
                 $io->error($nomination.PHP_EOL.$errors);
                 continue;
