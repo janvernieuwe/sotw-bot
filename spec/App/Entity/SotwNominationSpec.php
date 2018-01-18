@@ -27,6 +27,8 @@ class SotwNominationSpec extends ObjectBehavior
     {
         $this::isContenter('blablabla')->shouldReturn(false);
         $this::isContenter('https://www.youtube.com')->shouldReturn(true);
+        $this::isContenter('https://youtu.be/7InmHn9DEA0')->shouldReturn(true);
+        $this::isContenter('https://m.youtube.com/watch?v=DB9DYtSJ9vY')->shouldReturn(true);
     }
 
     function it_should_get_votes()

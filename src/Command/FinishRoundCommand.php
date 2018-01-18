@@ -24,7 +24,8 @@ class FinishRoundCommand extends ContainerAwareCommand
             ->setName('haamc:sotw:finish')
             ->setDescription('Finish a round of Song Of The Week')
             ->setHelp('Counts the votes, announces the winner and opens the chat for new nominations')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Force start even without a winner');
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Force start even without a winner')
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Dont actually change anything');
     }
 
     /**
@@ -37,8 +38,9 @@ class FinishRoundCommand extends ContainerAwareCommand
         $io = new SymfonyStyle($input, $output);
         $sotw = $this->getContainer()->get('song_of_the_week');
         $nominations = $sotw->getLastNominations();
-        // When forcing, just only open the nominations
         $force = $input->hasParameterOption('--force');
+        $dryRun = $input->hasParameterOption('--dry-run');
+        // When forcing, just only open the nominations
         if ($force) {
             $sotw->openNominations();
 
@@ -59,8 +61,10 @@ class FinishRoundCommand extends ContainerAwareCommand
         $winner = $nominations[0];
         $io->section('Announcing winner');
         $io->write((string)$winner, true);
-        $sotw->announceWinner($winner);
-        $sotw->openNominations();
+        if (!$dryRun) {
+            $sotw->announceWinner($winner);
+            $sotw->openNominations();
+        }
 
         // Output post for the forum
         $io->section('Forum post');

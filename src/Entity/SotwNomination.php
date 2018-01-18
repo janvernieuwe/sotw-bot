@@ -12,13 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SotwNomination
 {
     /**
-     * @var string
-     * @Assert\Type(type="string", message="Invalid message")
-     * @Assert\NotBlank(message="Missing message")
-     */
-    private $lines;
-
-    /**
      * @Assert\Type(type="array", message="Message is not an array")
      * @var array
      */
@@ -79,7 +72,7 @@ class SotwNomination
      */
     public static function isContenter(string $data): bool
     {
-        return preg_match('#https?://(www\.)?youtube\.com#im', $data);
+        return preg_match('#https?://(www\.|m.)?(youtube\.com|youtu\.be)#im', $data);
     }
 
     /**
@@ -90,11 +83,10 @@ class SotwNomination
     {
         $nominee = new self();
         $nominee->message = $message;
-        $nominee->lines = $content = $message['content'];
-        $nominee->artist = self::matchPattern('artist', $content);
-        $nominee->title = self::matchPattern('title', $content);
-        $nominee->anime = self::matchPattern('anime', $content);
-        $nominee->youtube = self::matchPattern('url', $content);
+        $nominee->artist = self::matchPattern('artist', $message['content']);
+        $nominee->title = self::matchPattern('title', $message['content']);
+        $nominee->anime = self::matchPattern('anime', $message['content']);
+        $nominee->youtube = self::matchPattern('url', $message['content']);
         $nominee->author = $message['author']['username'];
         $nominee->authorId = (int)$message['author']['id'];
         $nominee->messageId = $message['id'];
