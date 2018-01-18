@@ -79,7 +79,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
     function it_creates_an_open_nominations_message()
     {
         $message = <<<MESSAGE
-Bij deze zijn de nominaties voor week %s geopend!
+:musical_note: :musical_note: Bij deze zijn de nominaties voor week %s geopend! :musical_note: :musical_note:
 
 Nomineer volgens onderstaande template (copieer en plak deze, en zet er dan de gegevens in):
 ```
@@ -95,7 +95,7 @@ MESSAGE;
 
     function it_creates_close_nominations_message()
     {
-        $this->createCloseNominationsMessage()->shouldBe('Laat het stemmen beginnen!');
+        $this->createCloseNominationsMessage()->shouldBe('Laat het stemmen beginnen! :checkered_flag:');
     }
 
     public function it_adds_reactions(SotwNomination $nomination)

@@ -58,7 +58,7 @@ class SongOfTheWeek
      */
     public function isOpenNominationsMessage(string $message): bool
     {
-        return (bool)preg_match('/^Bij deze zijn de nominaties voor week/', $message);
+        return (bool)preg_match('/Bij deze zijn de nominaties voor week/', $message);
     }
 
     /**
@@ -115,7 +115,7 @@ class SongOfTheWeek
     public function createWinningMessage(SotwNomination $nomination): string
     {
         return sprintf(
-            "\nDe winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
+            ":first_place: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
             (int)date('W'),
             $nomination->getArtist(),
             $nomination->getTitle(),
@@ -151,7 +151,7 @@ class SongOfTheWeek
     public function createOpenNominationsMessage(): string
     {
         $message = <<<MESSAGE
-Bij deze zijn de nominaties voor week %s geopend!
+:musical_note: :musical_note: Bij deze zijn de nominaties voor week %s geopend! :musical_note: :musical_note:
 
 Nomineer volgens onderstaande template (copieer en plak deze, en zet er dan de gegevens in):
 ```
@@ -191,7 +191,7 @@ MESSAGE;
      */
     public function createCloseNominationsMessage(): string
     {
-        return 'Laat het stemmen beginnen!';
+        return 'Laat het stemmen beginnen! :checkered_flag:';
     }
 
     /**
