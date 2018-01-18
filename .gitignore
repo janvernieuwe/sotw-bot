@@ -1,4 +1,3 @@
-
 ###> symfony/framework-bundle ###
 .env
 /public/bundles/
@@ -6,7 +5,3 @@
 /vendor/
 ###< symfony/framework-bundle ###
 /config/parameters.yaml
-
-###> phpunit/phpunit ###
-/phpunit.xml
-###< phpunit/phpunit ###

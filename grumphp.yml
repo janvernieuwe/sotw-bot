@@ -3,7 +3,6 @@ parameters:
     bin_dir: vendor/bin
     tasks:
       phpspec: ~
-      phpunit: ~
       phpcs:
         standard: PSR2
         whitelist_patterns:
