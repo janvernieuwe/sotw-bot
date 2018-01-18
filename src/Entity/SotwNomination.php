@@ -107,7 +107,8 @@ class SotwNomination
             return '';
         }
 
-        return str_replace(['[', ']'], ' ', $matches[1][0]);
+        $match = str_replace(['[', ']'], ' ', $matches[1][0]);
+        return trim($match);
     }
 
     /**
