@@ -13,6 +13,12 @@
         "symfony/yaml": "^4.0"
     },
     "require-dev": {
+        "jakub-onderka/php-parallel-lint": "^0.9.2",
+        "nikic/php-parser": "^3.1",
+        "phpro/grumphp": "^0.13.1",
+        "phpspec/phpspec": "^4.3",
+        "phpunit/phpunit": "^6.5",
+        "squizlabs/php_codesniffer": "^3.2",
         "symfony/dotenv": "^4.0"
     },
     "config": {

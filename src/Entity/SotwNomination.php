@@ -90,7 +90,7 @@ class SotwNomination
     {
         $nominee = new self();
         $nominee->message = $message;
-        $nominee->lines = $content = str_replace('(edited)', '', $message['content']);
+        $nominee->lines = $content = $message['content'];
         $nominee->artist = self::matchPattern('artist', $content);
         $nominee->title = self::matchPattern('title', $content);
         $nominee->anime = self::matchPattern('anime', $content);
@@ -116,18 +116,6 @@ class SotwNomination
         }
 
         return str_replace(['[', ']'], ' ', $matches[1][0]);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTrackInfo()
-    {
-        $lines = preg_split('/^YouTube$/m', $this->lines);
-        /** @noinspection SuspiciousAssignmentsInspection */
-        $lines = array_values(array_filter(explode(PHP_EOL, $lines[1])));
-
-        return $lines[1];
     }
 
     /**

@@ -14,15 +14,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class SongOfTheWeek
 {
-    /**
-     *
-     */
     public const ROLE_SEND_MESSAGES = 0x00000800;
 
     /**
      * @var int
      */
     private $channelId;
+
     /**
      * @var DiscordClient
      */
@@ -32,6 +30,7 @@ class SongOfTheWeek
      * @var string
      */
     private $role;
+
     /**
      * @var ValidatorInterface
      */
@@ -54,6 +53,15 @@ class SongOfTheWeek
     }
 
     /**
+     * @param string $message
+     * @return bool
+     */
+    public function isOpenNominationsMessage(string $message): bool
+    {
+        return (bool)preg_match('/^Bij deze zijn de nominaties voor week/', $message);
+    }
+
+    /**
      * @param int $limit
      * @return SotwNomination[]
      */
@@ -69,7 +77,7 @@ class SongOfTheWeek
         $contenders = [];
         foreach ($messages as $message) {
             // Stop parsing when we arrive at the nomination msg
-            if (preg_match('/^Bij deze zijn de nominaties voor week/', $message['content'])) {
+            if ($this->isOpenNominationsMessage($message['content'])) {
                 break;
             }
             if (SotwNomination::isContenter($message['content'])) {
@@ -104,7 +112,7 @@ class SongOfTheWeek
      * @param SotwNomination $nomination
      * @return string
      */
-    private function createWinningMessage(SotwNomination $nomination): string
+    public function createWinningMessage(SotwNomination $nomination): string
     {
         return sprintf(
             "\nDe winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
@@ -140,7 +148,7 @@ class SongOfTheWeek
     /**
      * @return string
      */
-    private function createOpenNominationsMessage(): string
+    public function createOpenNominationsMessage(): string
     {
         $message = <<<MESSAGE
 Bij deze zijn de nominaties voor week %s geopend!
@@ -181,7 +189,7 @@ MESSAGE;
     /**
      * @return string
      */
-    private function createCloseNominationsMessage(): string
+    public function createCloseNominationsMessage(): string
     {
         return 'Laat het stemmen beginnen!';
     }

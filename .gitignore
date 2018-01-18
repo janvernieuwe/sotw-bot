@@ -6,3 +6,7 @@
 /vendor/
 ###< symfony/framework-bundle ###
 /config/parameters.yaml
+
+###> phpunit/phpunit ###
+/phpunit.xml
+###< phpunit/phpunit ###
