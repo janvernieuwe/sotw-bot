@@ -40,7 +40,7 @@ class ValidateNomineesCommand extends ContainerAwareCommand
         if ($nominationCount !== 10) {
             $io->note(sprintf('Wrong amount of nominations (%s/10)', $nominationCount));
         }
-        if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
+        if (count($nominations) >= 2 && $nominations[0]->getVotes() === $nominations[1]->getVotes()) {
             $io->note('There is no clear winner!');
         }
         foreach ($nominations as $nomination) {

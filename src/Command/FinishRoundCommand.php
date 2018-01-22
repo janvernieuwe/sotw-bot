@@ -53,7 +53,7 @@ class FinishRoundCommand extends ContainerAwareCommand
         if (!\count($nominations)) {
             throw new RuntimeException('No nominations found');
         }
-        if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
+        if (!$dryRun && $nominations[0]->getVotes() === $nominations[1]->getVotes()) {
             throw new RuntimeException('There is no clear winner!');
         }
 
