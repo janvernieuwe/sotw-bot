@@ -55,12 +55,15 @@ class SongOfTheWeekSpec extends ObjectBehavior
         SotwNomination $nomination
     ) {
         $channel->createMessage(Argument::type('array'))->shouldBeCalled();
+        $channel->createReaction(Argument::type('array'))->shouldBeCalled();
         $discord->channel = $channel;
         $this->beConstructedWith($discord, $validator, 1, 2);
         $nomination->getArtist()->willReturn('artist');
         $nomination->getTitle()->willReturn('artist');
         $nomination->getAnime()->willReturn('artist');
         $nomination->getAuthorId()->willReturn(1);
+        $nomination->hasReaction('🥇')->willReturn(false);
+        $nomination->getMessageId()->willReturn(42);
         $this->announceWinner($nomination);
     }
 

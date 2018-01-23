@@ -106,6 +106,7 @@ class SongOfTheWeek
                 'content'    => $this->createWinningMessage($nomination),
             ]
         );
+        $this->addReaction($nomination, '🥇'); // first place
     }
 
     /**
