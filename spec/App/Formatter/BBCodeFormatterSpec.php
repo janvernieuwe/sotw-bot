@@ -2,7 +2,7 @@
 
 namespace spec\App\Formatter;
 
-use App\Entity\SotwNomination;
+use App\Message\SotwNomination;
 use App\Formatter\BBCodeFormatter;
 use PhpSpec\ObjectBehavior;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace spec\App\Entity;
+namespace spec\App\Message;
 
-use App\Entity\SotwNomination;
+use App\Message\SotwNomination;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 

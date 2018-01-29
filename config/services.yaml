@@ -40,7 +40,7 @@ services:
         public: true
 
     song_of_the_week:
-        class: App\Discord\SongOfTheWeek
+        class: App\Channel\SongOfTheWeek
         arguments:
           - "@discord"
           - "@validator"

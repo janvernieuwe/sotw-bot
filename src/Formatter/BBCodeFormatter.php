@@ -2,7 +2,7 @@
 
 namespace App\Formatter;
 
-use App\Entity\SotwNomination;
+use App\Message\SotwNomination;
 
 class BBCodeFormatter
 {

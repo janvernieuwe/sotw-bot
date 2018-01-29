@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Message;
 
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;

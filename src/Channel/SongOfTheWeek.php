@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Discord;
+namespace App\Channel;
 
-use App\Entity\SotwNomination;
+use App\Message\SotwNomination;
 use RestCord\DiscordClient;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;

@@ -1,9 +1,9 @@
 <?php
 
-namespace spec\App\Discord;
+namespace spec\App\Channel;
 
-use App\Discord\SongOfTheWeek;
-use App\Entity\SotwNomination;
+use App\Channel\SongOfTheWeek;
+use App\Message\SotwNomination;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use RestCord\DiscordClient;
@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SongOfTheWeekSpec
- * @package spec\App\Discord
+ * @package spec\App\Channel
  * @mixin SongOfTheWeek
  */
 class SongOfTheWeekSpec extends ObjectBehavior

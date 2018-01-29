@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Entity\SotwNomination;
+use App\Message\SotwNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
