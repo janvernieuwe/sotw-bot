@@ -43,7 +43,7 @@ services:
         class: App\Channel\SongOfTheWeek
         arguments:
           - "@discord"
-          - "@validator"
           - "%channel_id%"
+          - "@validator"
           - "%permissions_role%"
         public: true

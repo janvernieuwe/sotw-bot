@@ -9,28 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class SotwNomination
  * @package App\Entity
  */
-class SotwNomination
+class SotwNomination extends Message
 {
-    /**
-     * @Assert\Type(type="array", message="Message is not an array")
-     * @var array
-     */
-    private $message;
-
-    /**
-     * @var string
-     * @Assert\Type(type="string", message="Invalid author")
-     * @Assert\NotBlank(message="Missing author")
-     */
-    private $author;
-
-    /**
-     * @var int
-     * @Assert\Type(type="int", message="Missing author id")
-     */
-    private $authorId;
-
-
     /**
      * @var string
      * @Assert\Type(type="string", message="Invalid artist")
@@ -52,12 +32,6 @@ class SotwNomination
      */
     private $anime;
 
-    /**
-     * @var int
-     * @Assert\Type(type="string", message="Invalid message id")
-     * @Assert\NotBlank(message="Missing message id")
-     */
-    private $messageId;
 
     /**
      * @Assert\Type(type="string", message="Invalid youtube line")
@@ -82,7 +56,6 @@ class SotwNomination
     public static function fromMessage(array $message): SotwNomination
     {
         $nominee = new self();
-        $nominee->message = $message;
         $nominee->artist = self::matchPattern('artist', $message['content']);
         $nominee->title = self::matchPattern('title', $message['content']);
         $nominee->anime = self::matchPattern('anime', $message['content']);
@@ -109,28 +82,6 @@ class SotwNomination
 
         $match = str_replace(['[', ']'], ' ', $matches[1][0]);
         return trim($match);
-    }
-
-    /**
-     * @return int
-     */
-    public function getVotes(): int
-    {
-        if (!array_key_exists('reactions', $this->message)) {
-            return 0;
-        }
-        $reactions = array_filter(
-            $this->message['reactions'],
-            function (array $reaction) {
-                return $reaction['emoji']['name'] === '🔼';
-            }
-        );
-        $reactions = array_values($reactions);
-        if (!\count($reactions)) {
-            return 0;
-        }
-
-        return $reactions[0]['count'];
     }
 
     /**
@@ -190,54 +141,5 @@ class SotwNomination
     public function getAnime(): string
     {
         return $this->anime;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAuthor(): string
-    {
-        return $this->author;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAuthorId(): int
-    {
-        return $this->authorId;
-    }
-
-    /**
-     * @return int
-     */
-    public function getMessageId(): int
-    {
-        return $this->messageId;
-    }
-
-    /**
-     * @param string $emoji
-     * @param bool $onlyMe
-     * @return bool
-     */
-    public function hasReaction(string $emoji, bool $onlyMe = true): bool
-    {
-        if (!isset($this->message['reactions'])) {
-            return false;
-        }
-        /** @noinspection ForeachSourceInspection */
-        foreach ($this->message['reactions'] as $reaction) {
-            if ($reaction['emoji']['name'] !== $emoji) {
-                continue;
-            }
-            if ($onlyMe && !$reaction['me']) {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 }

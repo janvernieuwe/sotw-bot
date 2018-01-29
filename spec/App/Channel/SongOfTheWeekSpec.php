@@ -34,7 +34,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
         $this->channel = $channel;
         $channel->getChannelMessages(Argument::any())->willReturn([]);
         $discord->channel = $channel;
-        $this->beConstructedWith($discord, $validator, 1, 2);
+        $this->beConstructedWith($discord, 1, $validator, 2);
         $this->setTest(true);
     }
 

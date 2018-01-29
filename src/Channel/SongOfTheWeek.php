@@ -12,22 +12,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Class SongOfTheWeek
  * @package App\Discord
  */
-class SongOfTheWeek
+class SongOfTheWeek extends Channel
 {
     public const ROLE_SEND_MESSAGES = 0x00000800;
     const EMOJI_FIRST_PLACE = '🥇';
     const EMOJI_SECOND_PLACE = '🥈';
     const EMOJI_THIRD_PLACE = '🥉';
-
-    /**
-     * @var int
-     */
-    private $channelId;
-
-    /**
-     * @var DiscordClient
-     */
-    private $discord;
 
     /**
      * @var string
@@ -39,8 +29,6 @@ class SongOfTheWeek
      */
     private $validator;
 
-    private $test = false;
-
     /**
      * SongOfTheWeek constructor.
      * @param DiscordClient $discord
@@ -48,21 +36,11 @@ class SongOfTheWeek
      * @param string $channelId
      * @param string $role
      */
-    public function __construct(DiscordClient $discord, ValidatorInterface $validator, string $channelId, string $role)
+    public function __construct(DiscordClient $discord, string $channelId, ValidatorInterface $validator, string $role)
     {
-
-        $this->channelId = (int)$channelId;
-        $this->discord = $discord;
         $this->role = $role;
         $this->validator = $validator;
-    }
-
-    /**
-     * @param bool $test
-     */
-    public function setTest(bool $test)
-    {
-        $this->test = $test;
+        parent::__construct($discord, $channelId);
     }
 
     /**
@@ -220,27 +198,6 @@ MESSAGE;
     }
 
     /**
-     * @param SotwNomination $nomination
-     * @param string $emoji
-     */
-    public function addReaction(SotwNomination $nomination, string $emoji): void
-    {
-        if ($nomination->hasReaction($emoji)) {
-            return;
-        }
-        $this->discord->channel->createReaction(
-            [
-                'channel.id' => $this->channelId,
-                'message.id' => $nomination->getMessageId(),
-                'emoji'      => $emoji,
-            ]
-        );
-        if (!$this->test) {
-            sleep(1);
-        }
-    }
-
-    /**
      * @param SotwNomination[] $nominations
      * @param string $emoji
      */
@@ -258,27 +215,6 @@ MESSAGE;
         // Put things back where they belong
         if ($nomination !== null) {
             array_unshift($nominations, $nomination);
-        }
-    }
-
-    /**
-     * @param SotwNomination $nomination
-     * @param string $emoji
-     */
-    public function removeReaction(SotwNomination $nomination, string $emoji): void
-    {
-        if (!$nomination->hasReaction($emoji)) {
-            return;
-        }
-        $this->discord->channel->deleteOwnReaction(
-            [
-                'channel.id' => $this->channelId,
-                'message.id' => $nomination->getMessageId(),
-                'emoji'      => $emoji,
-            ]
-        );
-        if (!$this->test) {
-            sleep(1);
         }
     }
 
