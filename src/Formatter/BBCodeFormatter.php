@@ -4,6 +4,10 @@ namespace App\Formatter;
 
 use App\Message\SotwNomination;
 
+/**
+ * Class BBCodeFormatter
+ * @package App\Formatter
+ */
 class BBCodeFormatter
 {
     /**

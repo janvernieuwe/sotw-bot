@@ -4,6 +4,7 @@ namespace spec\App\Channel;
 
 use App\Channel\SongOfTheWeek;
 use App\Message\SotwNomination;
+use GuzzleHttp\Command\Result;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use RestCord\DiscordClient;
@@ -32,7 +33,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
     {
         $this->validator = $validator;
         $this->channel = $channel;
-        $channel->getChannelMessages(Argument::any())->willReturn([]);
+        $channel->getChannelMessages(Argument::any())->willReturn(new Result([]));
         $discord->channel = $channel;
         $this->beConstructedWith($discord, 1, $validator, 2);
         $this->setTest(true);
@@ -62,24 +63,12 @@ class SongOfTheWeekSpec extends ObjectBehavior
     ) {
         $this->channel->createMessage(Argument::type('array'))->shouldBeCalled();
         $nomination->getArtist()->willReturn('artist');
-        $nomination->getTitle()->willReturn('artist');
-        $nomination->getAnime()->willReturn('artist');
-        $nomination->getAuthorId()->willReturn(1);
-        $nomination->hasReaction('🥇')->willReturn(false);
-        $nomination->getMessageId()->willReturn(42);
-        $this->announceWinner($nomination);
-    }
-
-    function it_creates_a_winning_message(SotwNomination $nomination)
-    {
-        $nomination->getArtist()->willReturn('artist');
         $nomination->getTitle()->willReturn('title');
         $nomination->getAnime()->willReturn('anime');
         $nomination->getAuthorId()->willReturn(1234);
-        $this->createWinningMessage($nomination)->shouldMatch('/artist/');
-        $this->createWinningMessage($nomination)->shouldMatch('/title/');
-        $this->createWinningMessage($nomination)->shouldMatch('/anime/');
-        $this->createWinningMessage($nomination)->shouldMatch('/1234/');
+        $nomination->hasReaction('🥇')->willReturn(false);
+        $nomination->getMessageId()->willReturn(42);
+        $this->announceWinner($nomination);
     }
 
     function it_creates_an_open_nominations_message()
@@ -97,11 +86,6 @@ url:
 MESSAGE;
 
         $this->createOpenNominationsMessage()->shouldBe(sprintf($message, date('W') + 1));
-    }
-
-    function it_creates_close_nominations_message()
-    {
-        $this->createCloseNominationsMessage()->shouldBe('Laat het stemmen beginnen! :checkered_flag:');
     }
 
     public function it_adds_reactions(SotwNomination $nomination)

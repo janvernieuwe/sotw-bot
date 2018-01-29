@@ -14,7 +14,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class SongOfTheWeek extends Channel
 {
-    public const ROLE_SEND_MESSAGES = 0x00000800;
     const EMOJI_FIRST_PLACE = '🥇';
     const EMOJI_SECOND_PLACE = '🥈';
     const EMOJI_THIRD_PLACE = '🥉';
@@ -49,13 +48,7 @@ class SongOfTheWeek extends Channel
      */
     public function getLastNominations(int $limit = 10): array
     {
-        $messages = $this->discord->channel->getChannelMessages(
-            [
-                'channel.id' => $this->channelId,
-                'limit'      => $limit + 10,
-            ]
-        );
-
+        $messages = $this->getMessages($limit + 10);
         $contenders = [];
         foreach ($messages as $message) {
             // Stop parsing when we arrive at the nomination msg
@@ -91,28 +84,14 @@ class SongOfTheWeek extends Channel
      */
     public function announceWinner(SotwNomination $nomination): void
     {
-        $this->discord->channel->createMessage(
-            [
-                'channel.id' => $this->channelId,
-                'content'    => $this->createWinningMessage($nomination),
-            ]
-        );
-    }
-
-    /**
-     * @param SotwNomination $nomination
-     * @return string
-     */
-    public function createWinningMessage(SotwNomination $nomination): string
-    {
-        return sprintf(
+        $this->message(sprintf(
             ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
             (int)date('W'),
             $nomination->getArtist(),
             $nomination->getTitle(),
             $nomination->getAnime(),
             $nomination->getAuthorId()
-        );
+        ));
     }
 
     /**
@@ -120,20 +99,8 @@ class SongOfTheWeek extends Channel
      */
     public function openNominations(): void
     {
-        $this->discord->channel->createMessage(
-            [
-                'channel.id' => $this->channelId,
-                'content'    => $this->createOpenNominationsMessage(),
-            ]
-        );
-        $this->discord->channel->editChannelPermissions(
-            [
-                'channel.id'   => $this->channelId,
-                'overwrite.id' => $this->role,
-                'allow'        => self::ROLE_SEND_MESSAGES,
-                'type'         => 'role',
-            ]
-        );
+        $this->message($this->createOpenNominationsMessage());
+        $this->allow($this->role, self::ROLE_SEND_MESSAGES);
     }
 
     /**
@@ -161,28 +128,8 @@ MESSAGE;
      */
     public function closeNominations(): void
     {
-        $this->discord->channel->createMessage(
-            [
-                'channel.id' => $this->channelId,
-                'content'    => $this->createCloseNominationsMessage(),
-            ]
-        );
-        $this->discord->channel->editChannelPermissions(
-            [
-                'channel.id'   => $this->channelId,
-                'overwrite.id' => $this->role,
-                'deny'         => self::ROLE_SEND_MESSAGES,
-                'type'         => 'role',
-            ]
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function createCloseNominationsMessage(): string
-    {
-        return 'Laat het stemmen beginnen! :checkered_flag:';
+        $this->message('Laat het stemmen beginnen! :checkered_flag:');
+        $this->deny($this->role, self::ROLE_SEND_MESSAGES);
     }
 
     /**

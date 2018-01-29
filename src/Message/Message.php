@@ -2,6 +2,8 @@
 
 namespace App\Message;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * Class Message
  * @package App\Message
@@ -9,53 +11,46 @@ namespace App\Message;
 class Message
 {
     /**
-     * @var string
-     * @Assert\Type(type="string", message="Invalid author")
-     * @Assert\NotBlank(message="Missing author")
-     */
-    protected $author;
-
-    /**
-     * @var int
-     * @Assert\Type(type="int", message="Missing author id")
-     */
-    protected $authorId;
-
-    /**
      * @Assert\Type(type="array", message="Message is not an array")
      * @var array
      */
     protected $message;
 
     /**
-     * @var int
-     * @Assert\Type(type="string", message="Invalid message id")
-     * @Assert\NotBlank(message="Missing message id")
+     * Message constructor.
+     * @param array $message
      */
-    protected $messageId;
-
-    /**
-     * @return int
-     */
-    public function getMessageId(): int
+    public function __construct(array $message)
     {
-        return $this->messageId;
+        $this->message = $message;
     }
 
     /**
+     * @return int
+     * @Assert\Type(type="int", message="Invalid message id")
+     */
+    public function getMessageId(): int
+    {
+        return (int)$this->message['id'];
+    }
+
+    /**
+     * @Assert\Type(type="string", message="Invalid author")
+     * @Assert\NotBlank(message="Missing author")
      * @return string
      */
     public function getAuthor(): string
     {
-        return $this->author;
+        return $this->message['author']['username'];
     }
 
     /**
+     * @Assert\Type(type="int", message="Missing author id")
      * @return int
      */
     public function getAuthorId(): int
     {
-        return $this->authorId;
+        return (int)$this->message['author']['id'];
     }
 
     /**

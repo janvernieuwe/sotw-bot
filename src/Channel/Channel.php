@@ -3,6 +3,7 @@
 namespace App\Channel;
 
 use App\Message\Message;
+use GuzzleHttp\Command\Result;
 use RestCord\DiscordClient;
 
 /**
@@ -11,20 +12,22 @@ use RestCord\DiscordClient;
  */
 class Channel
 {
-    /**
-     * @var bool
-     */
-    private $test = false;
+    public const ROLE_SEND_MESSAGES = 0x00000800;
 
     /**
      * @var int
      */
-    protected $channelId;
+    private $channelId;
 
     /**
      * @var DiscordClient
      */
-    protected $discord;
+    private $discord;
+
+    /**
+     * @var bool
+     */
+    private $test = false;
 
     /**
      * Channel constructor.
@@ -85,5 +88,65 @@ class Channel
         if (!$this->test) {
             sleep(1);
         }
+    }
+
+    /**
+     * @param string $message
+     */
+    public function message(string $message): void
+    {
+        $this->discord->channel->createMessage(
+            [
+                'channel.id' => $this->channelId,
+                'content'    => $message,
+            ]
+        );
+    }
+
+    /**
+     * Deny a role permission on the channel
+     * @param int $role
+     * @param int $permission
+     */
+    public function deny(int $role, int $permission): void
+    {
+        $this->discord->channel->editChannelPermissions(
+            [
+                'channel.id'   => $this->channelId,
+                'overwrite.id' => $role,
+                'deny'         => $permission,
+                'type'         => 'role',
+            ]
+        );
+    }
+
+    /**
+     * @param int $role
+     * @param int $permission
+     */
+    public function allow(int $role, int $permission): void
+    {
+        $this->discord->channel->editChannelPermissions(
+            [
+                'channel.id'   => $this->channelId,
+                'overwrite.id' => $role,
+                'allow'        => $permission,
+                'type'         => 'role',
+            ]
+        );
+    }
+
+    /**
+     * @param int $limit
+     * @return Result|array
+     */
+    public function getMessages(int $limit = 10): Result
+    {
+        return $this->discord->channel->getChannelMessages(
+            [
+                'channel.id' => $this->channelId,
+                'limit'      => $limit,
+            ]
+        );
     }
 }

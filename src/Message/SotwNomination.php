@@ -32,7 +32,6 @@ class SotwNomination extends Message
      */
     private $anime;
 
-
     /**
      * @Assert\Type(type="string", message="Invalid youtube line")
      * @Assert\NotBlank(message="Missing youtube link")
@@ -55,14 +54,11 @@ class SotwNomination extends Message
      */
     public static function fromMessage(array $message): SotwNomination
     {
-        $nominee = new self();
+        $nominee = new self($message);
         $nominee->artist = self::matchPattern('artist', $message['content']);
         $nominee->title = self::matchPattern('title', $message['content']);
         $nominee->anime = self::matchPattern('anime', $message['content']);
         $nominee->youtube = self::matchPattern('url', $message['content']);
-        $nominee->author = $message['author']['username'];
-        $nominee->authorId = (int)$message['author']['id'];
-        $nominee->messageId = $message['id'];
 
         return $nominee;
     }
