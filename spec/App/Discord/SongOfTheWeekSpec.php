@@ -11,6 +11,11 @@ use RestCord\Interfaces\Channel;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class SongOfTheWeekSpec
+ * @package spec\App\Discord
+ * @mixin SongOfTheWeek
+ */
 class SongOfTheWeekSpec extends ObjectBehavior
 {
     /**
@@ -30,6 +35,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
         $channel->getChannelMessages(Argument::any())->willReturn([]);
         $discord->channel = $channel;
         $this->beConstructedWith($discord, $validator, 1, 2);
+        $this->setTest(true);
     }
 
     function it_is_initializable()
@@ -54,10 +60,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
         Channel $channel,
         SotwNomination $nomination
     ) {
-        $channel->createMessage(Argument::type('array'))->shouldBeCalled();
-        $channel->createReaction(Argument::type('array'))->shouldBeCalled();
-        $discord->channel = $channel;
-        $this->beConstructedWith($discord, $validator, 1, 2);
+        $this->channel->createMessage(Argument::type('array'))->shouldBeCalled();
         $nomination->getArtist()->willReturn('artist');
         $nomination->getTitle()->willReturn('artist');
         $nomination->getAnime()->willReturn('artist');
@@ -84,7 +87,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
         $message = <<<MESSAGE
 :musical_note: :musical_note: Bij deze zijn de nominaties voor week %s geopend! :musical_note: :musical_note:
 
-Nomineer volgens onderstaande template (copieer en plak deze, en zet er dan de gegevens in):
+Nomineer volgens onderstaande template (kopieer en plak deze, en zet er dan de gegevens in):
 ```
 artist: 
 title: 
@@ -136,5 +139,65 @@ MESSAGE;
     {
         $this->validator->validate(Argument::any())->willReturn($list);
         $this->isValid($nomination)->shouldReturn(true);
+    }
+
+    public function it_adds_medals(
+        SotwNomination $first,
+        SotwNomination $secondA,
+        SotwNomination $secondB,
+        SotwNomination $thirdA,
+        SotwNomination $thirdB,
+        SotwNomination $filler
+    ) {
+        $first->getVotes()->willReturn(5);
+        $first->getMessageId()->willReturn(1);
+        $first->hasReaction(Argument::any())->willReturn(false);
+        $secondA->getVotes()->willReturn(4);
+        $secondA->getMessageId()->willReturn(2);
+        $secondA->hasReaction(Argument::any())->willReturn(false);
+        $secondB->getVotes()->willReturn(4);
+        $secondB->getMessageId()->willReturn(3);
+        $secondB->hasReaction(Argument::any())->willReturn(false);
+        $thirdA->getVotes()->willReturn(3);
+        $thirdA->getMessageId()->willReturn(4);
+        $thirdA->hasReaction(Argument::any())->willReturn(false);
+        $thirdB->getVotes()->willReturn(3);
+        $thirdB->getMessageId()->willReturn(5);
+        $thirdB->hasReaction(Argument::any())->willReturn(false);
+        $filler->getMessageId()->willReturn(6);
+        $filler->getVotes()->willReturn(1);
+        $filler->hasReaction(Argument::any())->willReturn(false);
+
+        $nominations = [
+            $first,
+            $secondA,
+            $secondB,
+            $thirdA,
+            $thirdB,
+            $filler,
+            $filler,
+            $filler,
+            $filler,
+            $filler,
+        ];
+
+        $this->channel->createReaction(
+            ["channel.id" => 1, "message.id" => 1, "emoji" => SongOfTheWeek::EMOJI_FIRST_PLACE]
+        )->shouldBeCalled();
+        $this->channel->createReaction(
+            ["channel.id" => 1, "message.id" => 2, "emoji" => SongOfTheWeek::EMOJI_SECOND_PLACE]
+        )->shouldBeCalled();
+        $this->channel->createReaction(
+            ["channel.id" => 1, "message.id" => 3, "emoji" => SongOfTheWeek::EMOJI_SECOND_PLACE]
+        )->shouldBeCalled();
+        $this->channel->createReaction(
+            ["channel.id" => 1, "message.id" => 4, "emoji" => SongOfTheWeek::EMOJI_THIRD_PLACE]
+        )->shouldBeCalled();
+        $this->channel->createReaction(
+            ["channel.id" => 1, "message.id" => 5, "emoji" => SongOfTheWeek::EMOJI_THIRD_PLACE]
+        )->shouldBeCalled();
+
+        $this->addMedals($nominations);
+
     }
 }

@@ -63,6 +63,9 @@ class FinishRoundCommand extends ContainerAwareCommand
         $io->write((string)$winner, true);
         if (!$dryRun) {
             $sotw->announceWinner($winner);
+            $io->section('Adding medal reactions');
+            $sotw->addMedals($nominations);
+            $io->section('Open nomination');
             $sotw->openNominations();
         }
 

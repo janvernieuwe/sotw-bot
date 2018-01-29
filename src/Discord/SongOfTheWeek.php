@@ -15,6 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SongOfTheWeek
 {
     public const ROLE_SEND_MESSAGES = 0x00000800;
+    const EMOJI_FIRST_PLACE = '🥇';
+    const EMOJI_SECOND_PLACE = '🥈';
+    const EMOJI_THIRD_PLACE = '🥉';
 
     /**
      * @var int
@@ -36,6 +39,8 @@ class SongOfTheWeek
      */
     private $validator;
 
+    private $test = false;
+
     /**
      * SongOfTheWeek constructor.
      * @param DiscordClient $discord
@@ -53,12 +58,11 @@ class SongOfTheWeek
     }
 
     /**
-     * @param string $message
-     * @return bool
+     * @param bool $test
      */
-    public function isOpenNominationsMessage(string $message): bool
+    public function setTest(bool $test)
     {
-        return (bool)preg_match('/Bij deze zijn de nominaties voor week/', $message);
+        $this->test = $test;
     }
 
     /**
@@ -96,6 +100,15 @@ class SongOfTheWeek
     }
 
     /**
+     * @param string $message
+     * @return bool
+     */
+    public function isOpenNominationsMessage(string $message): bool
+    {
+        return (bool)preg_match('/Bij deze zijn de nominaties voor week/', $message);
+    }
+
+    /**
      * @param SotwNomination $nomination
      */
     public function announceWinner(SotwNomination $nomination): void
@@ -106,7 +119,6 @@ class SongOfTheWeek
                 'content'    => $this->createWinningMessage($nomination),
             ]
         );
-        $this->addReaction($nomination, '🥇'); // first place
     }
 
     /**
@@ -116,7 +128,7 @@ class SongOfTheWeek
     public function createWinningMessage(SotwNomination $nomination): string
     {
         return sprintf(
-            ":first_place: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
+            ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
             (int)date('W'),
             $nomination->getArtist(),
             $nomination->getTitle(),
@@ -154,7 +166,7 @@ class SongOfTheWeek
         $message = <<<MESSAGE
 :musical_note: :musical_note: Bij deze zijn de nominaties voor week %s geopend! :musical_note: :musical_note:
 
-Nomineer volgens onderstaande template (copieer en plak deze, en zet er dan de gegevens in):
+Nomineer volgens onderstaande template (kopieer en plak deze, en zet er dan de gegevens in):
 ```
 artist: 
 title: 
@@ -196,6 +208,18 @@ MESSAGE;
     }
 
     /**
+     * @param SotwNomination[] $nominations
+     */
+    public function addMedals(array $nominations): void
+    {
+        // Only one first place
+        $nomination = array_shift($nominations);
+        $this->addReaction($nomination, self::EMOJI_FIRST_PLACE);
+        $this->addPlaceMedal($nominations, self::EMOJI_SECOND_PLACE);
+        $this->addPlaceMedal($nominations, self::EMOJI_THIRD_PLACE);
+    }
+
+    /**
      * @param SotwNomination $nomination
      * @param string $emoji
      */
@@ -211,7 +235,30 @@ MESSAGE;
                 'emoji'      => $emoji,
             ]
         );
-        sleep(1);
+        if (!$this->test) {
+            sleep(1);
+        }
+    }
+
+    /**
+     * @param SotwNomination[] $nominations
+     * @param string $emoji
+     */
+    public function addPlaceMedal(array &$nominations, string $emoji): void
+    {
+        if (!count($nominations)) {
+            return;
+        }
+        $nomination = array_shift($nominations);
+        $score = $nomination->getVotes();
+        while ($nomination !== null && $nomination->getVotes() === $score) {
+            $this->addReaction($nomination, $emoji);
+            $nomination = array_shift($nominations);
+        }
+        // Put things back where they belong
+        if ($nomination !== null) {
+            array_unshift($nominations, $nomination);
+        }
     }
 
     /**
@@ -230,7 +277,9 @@ MESSAGE;
                 'emoji'      => $emoji,
             ]
         );
-        sleep(1);
+        if (!$this->test) {
+            sleep(1);
+        }
     }
 
     /**
