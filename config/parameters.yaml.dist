@@ -2,3 +2,5 @@ parameters:
     token: ~
     channel_id: ~
     permissions_role: ~
+    emoji_channel_id: ~
+    server_id: ~

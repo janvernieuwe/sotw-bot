@@ -34,7 +34,7 @@ class StartVotingCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $sotw = $this->getContainer()->get('song_of_the_week');
+        $sotw = $this->getContainer()->get('discord.channel.sotw');
         $force = $input->hasParameterOption('--force');
         $nominations = $sotw->getLastNominations();
         $this->displayNominees($io, $nominations);

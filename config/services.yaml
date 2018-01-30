@@ -39,11 +39,25 @@ services:
             logger:     "@log.null"
         public: true
 
-    song_of_the_week:
+    discord.channel.sotw:
         class: App\Channel\SongOfTheWeek
         arguments:
           - "@discord"
           - "%channel_id%"
           - "@validator"
           - "%permissions_role%"
+        public: true
+
+    discord.channel.emoji:
+        class: App\Channel\EmojiChannel
+        arguments:
+          - "@discord"
+          - "%emoji_channel_id%"
+        public: true
+
+    discord.server:
+        class: App\Guild
+        arguments:
+          - "@discord"
+          - "%server_id%"
         public: true
