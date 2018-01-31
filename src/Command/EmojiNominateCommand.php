@@ -28,6 +28,7 @@ class EmojiNominateCommand extends ContainerAwareCommand
             $uri = sprintf('https://cdn.discordapp.com/emojis/%s.png?v=1', $emoji->id);
             $io->write("Adding {$emoji->name}: $uri", true);
             $channel->embedImage($uri, $emoji->name);
+            sleep(1);
         }
     }
 }
