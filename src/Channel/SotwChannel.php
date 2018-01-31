@@ -12,11 +12,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Class SongOfTheWeek
  * @package App\Discord
  */
-class SongOfTheWeek extends Channel
+class SotwChannel extends Channel
 {
-    const EMOJI_FIRST_PLACE = '🥇';
-    const EMOJI_SECOND_PLACE = '🥈';
-    const EMOJI_THIRD_PLACE = '🥉';
+    public const EMOJI_FIRST_PLACE = '🥇';
+    public const EMOJI_SECOND_PLACE = '🥈';
+    public const EMOJI_THIRD_PLACE = '🥉';
 
     /**
      * @var string
@@ -60,14 +60,8 @@ class SongOfTheWeek extends Channel
             }
         }
         $contenders = \array_slice($contenders, 0, $limit);
-        uasort(
-            $contenders,
-            function (SotwNomination $a, SotwNomination $b) {
-                return $a->getVotes() < $b->getVotes();
-            }
-        );
 
-        return array_values($contenders);
+        return $this->sortByVotes($contenders);
     }
 
     /**
@@ -84,14 +78,16 @@ class SongOfTheWeek extends Channel
      */
     public function announceWinner(SotwNomination $nomination): void
     {
-        $this->message(sprintf(
-            ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
-            (int)date('W'),
-            $nomination->getArtist(),
-            $nomination->getTitle(),
-            $nomination->getAnime(),
-            $nomination->getAuthorId()
-        ));
+        $this->message(
+            sprintf(
+                ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
+                (int)date('W'),
+                $nomination->getArtist(),
+                $nomination->getTitle(),
+                $nomination->getAnime(),
+                $nomination->getAuthorId()
+            )
+        );
     }
 
     /**

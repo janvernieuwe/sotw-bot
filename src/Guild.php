@@ -2,9 +2,11 @@
 
 namespace App;
 
+use App\Message\EmojiNomination;
 use GuzzleHttp\Command\Result;
 use RestCord\DiscordClient;
 use RestCord\Model\Guild\Emoji;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Guild
 {
@@ -35,7 +37,7 @@ class Guild
     }
 
     /**
-     * @return array
+     * @return Emoji[]
      */
     public function getEmojis(): array
     {
@@ -83,6 +85,35 @@ class Guild
         );
     }
 
+    /**
+     * @param string $name
+     * @return Emoji
+     */
+    public function getEmojiByName(string $name): Emoji
+    {
+        foreach ($this->getEmojis() as $emoji) {
+            if ($emoji->name === $name) {
+                return new Emoji((array)$emoji);
+            }
+        }
+
+        throw new NotFoundHttpException("No emoji with name $name found");
+    }
+
+    /**
+     * @param int $id
+     */
+    public function removeEmoji(int $id): void
+    {
+        $this->discord->guild->deleteGuildEmoji(
+            [
+                'guild.id' => $this->id,
+                'emoji.id' => $id,
+            ]
+        );
+        sleep(2);
+    }
+
     public function escapeEmoji(string $name): string
     {
         return (string)preg_replace('/\W/', '', $name);
@@ -118,5 +149,18 @@ class Guild
                 'roles'    => $roles,
             ]
         );
+    }
+
+    /**
+     * @param EmojiNomination $nomination
+     * @return Emoji
+     */
+    public function addEmojiFromNomination(EmojiNomination $nomination): Emoji
+    {
+        $encodedData = base64_encode(file_get_contents($nomination->getUrl()));
+        $info = pathinfo($nomination->getUrl());
+        $image = sprintf('data:image/%s;base64,%s', $info['extension'], $encodedData);
+
+        return $this->addEmoji($nomination->getName(), $image);
     }
 }

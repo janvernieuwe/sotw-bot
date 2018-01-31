@@ -83,7 +83,7 @@ class Message
      */
     public function getVotes(): int
     {
-        if (!is_array($this->message)) {
+        if (!\is_array($this->message)) {
             return 0;
         }
         if (!array_key_exists('reactions', $this->message)) {

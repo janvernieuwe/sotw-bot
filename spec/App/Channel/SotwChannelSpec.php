@@ -2,7 +2,7 @@
 
 namespace spec\App\Channel;
 
-use App\Channel\SongOfTheWeek;
+use App\Channel\SotwChannel;
 use App\Message\SotwNomination;
 use GuzzleHttp\Command\Result;
 use PhpSpec\ObjectBehavior;
@@ -15,9 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Class SongOfTheWeekSpec
  * @package spec\App\Channel
- * @mixin SongOfTheWeek
+ * @mixin SotwChannel
  */
-class SongOfTheWeekSpec extends ObjectBehavior
+class SotwChannelSpec extends ObjectBehavior
 {
     /**
      * @var Channel
@@ -41,7 +41,7 @@ class SongOfTheWeekSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType(SongOfTheWeek::class);
+        $this->shouldHaveType(SotwChannel::class);
     }
 
     function it_detects_open_nominations_message()
@@ -166,19 +166,19 @@ MESSAGE;
         ];
 
         $this->channel->createReaction(
-            ["channel.id" => 1, "message.id" => 1, "emoji" => SongOfTheWeek::EMOJI_FIRST_PLACE]
+            ["channel.id" => 1, "message.id" => 1, "emoji" => SotwChannel::EMOJI_FIRST_PLACE]
         )->shouldBeCalled();
         $this->channel->createReaction(
-            ["channel.id" => 1, "message.id" => 2, "emoji" => SongOfTheWeek::EMOJI_SECOND_PLACE]
+            ["channel.id" => 1, "message.id" => 2, "emoji" => SotwChannel::EMOJI_SECOND_PLACE]
         )->shouldBeCalled();
         $this->channel->createReaction(
-            ["channel.id" => 1, "message.id" => 3, "emoji" => SongOfTheWeek::EMOJI_SECOND_PLACE]
+            ["channel.id" => 1, "message.id" => 3, "emoji" => SotwChannel::EMOJI_SECOND_PLACE]
         )->shouldBeCalled();
         $this->channel->createReaction(
-            ["channel.id" => 1, "message.id" => 4, "emoji" => SongOfTheWeek::EMOJI_THIRD_PLACE]
+            ["channel.id" => 1, "message.id" => 4, "emoji" => SotwChannel::EMOJI_THIRD_PLACE]
         )->shouldBeCalled();
         $this->channel->createReaction(
-            ["channel.id" => 1, "message.id" => 5, "emoji" => SongOfTheWeek::EMOJI_THIRD_PLACE]
+            ["channel.id" => 1, "message.id" => 5, "emoji" => SotwChannel::EMOJI_THIRD_PLACE]
         )->shouldBeCalled();
 
         $this->addMedals($nominations);

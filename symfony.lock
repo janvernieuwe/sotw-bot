@@ -119,6 +119,9 @@
     "restcord/restcord": {
         "version": "0.1.4"
     },
+    "roave/security-advisories": {
+        "version": "dev-master"
+    },
     "sebastian/comparator": {
         "version": "2.1.2"
     },

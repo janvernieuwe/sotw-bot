@@ -104,6 +104,19 @@ class Channel
     }
 
     /**
+     * @param int $id
+     */
+    public function removeMessage(int $id): void
+    {
+        $this->discord->channel->deleteMessage(
+            [
+                'channel.id' => $this->channelId,
+                'message.id' => $id,
+            ]
+        );
+    }
+
+    /**
      * Deny a role permission on the channel
      * @param int $role
      * @param int $permission
@@ -148,5 +161,43 @@ class Channel
                 'limit'      => $limit,
             ]
         );
+    }
+
+    /**
+     * @param string $uri
+     * @param string|null $content
+     * @return \RestCord\Model\Channel\Message
+     */
+    public function embedImage(string $uri, string $content = null): \RestCord\Model\Channel\Message
+    {
+        return $this->discord->channel->createMessage(
+            [
+                'channel.id' => $this->channelId,
+                'content'    => $content,
+                'embed'      => [
+                    'image' => [
+                        'url'    => $uri,
+                        'height' => 128,
+                        'width'  => 128,
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @param array $messages
+     * @return array
+     */
+    public function sortByVotes(array $messages): array
+    {
+        uasort(
+            $messages,
+            function (Message $a, Message $b) {
+                return $a->getVotes() < $b->getVotes();
+            }
+        );
+
+        return array_values($messages);
     }
 }

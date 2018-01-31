@@ -40,7 +40,7 @@ services:
         public: true
 
     discord.channel.sotw:
-        class: App\Channel\SongOfTheWeek
+        class: App\Channel\SotwChannel
         arguments:
           - "@discord"
           - "%channel_id%"
