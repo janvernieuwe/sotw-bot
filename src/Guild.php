@@ -3,9 +3,8 @@
 namespace App;
 
 use App\Message\EmojiNomination;
-use GuzzleHttp\Command\Result;
 use RestCord\DiscordClient;
-use RestCord\Model\Guild\Emoji;
+use RestCord\Model\Emoji\Emoji;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Guild
@@ -43,9 +42,7 @@ class Guild
     {
 
         if ($this->emoji === null) {
-            /** @var Result $emoji */
-            $emoji = $this->discord->guild->listGuildEmoji(['guild.id' => $this->id]);
-            $this->emoji = $emoji->toArray();
+            $this->emoji = $this->discord->emoji->listGuildEmojis(['guild.id' => $this->id]);
         }
 
         return $this->emoji;
@@ -76,7 +73,7 @@ class Guild
     {
         $name = $this->escapeEmoji($name);
 
-        return $this->discord->guild->createGuildEmoji(
+        return $this->discord->emoji->createGuildEmoji(
             [
                 'guild.id' => $this->id,
                 'name'     => $name,
@@ -105,7 +102,7 @@ class Guild
      */
     public function removeEmoji(int $id): void
     {
-        $this->discord->guild->deleteGuildEmoji(
+        $this->discord->emoji->deleteGuildEmoji(
             [
                 'guild.id' => $this->id,
                 'emoji.id' => $id,
@@ -125,7 +122,7 @@ class Guild
      */
     public function getEmoji(int $id): Emoji
     {
-        return $this->discord->guild->getGuildEmoji(
+        return $this->discord->emoji->getGuildEmoji(
             [
                 'guild.id' => $this->id,
                 'emoji.id' => $id,
@@ -141,7 +138,7 @@ class Guild
      */
     public function modifyEmoji(int $id, string $name, array $roles = []): Emoji
     {
-        return $this->discord->guild->modifyGuildEmoji(
+        return $this->discord->emoji->modifyGuildEmoji(
             [
                 'guild.id' => $this->id,
                 'emoji.id' => $id,
