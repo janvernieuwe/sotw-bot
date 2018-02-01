@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5bf4c8301f46012f301147901981058f",
+    "content-hash": "f9f9a2ca056f4b7f1330ddeb1ff0899f",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1128,16 +1128,16 @@
         },
         {
             "name": "restcord/restcord",
-            "version": "dev-emoji-parameter",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
-                "url": "https://github.com/janvernieuwe/restcord.git",
-                "reference": "5a44b58c0296ecdf712802749cf75367bff39eed"
+                "url": "https://github.com/restcord/restcord.git",
+                "reference": "bc9c0b0d1ce204527dcb329701e9c327b0f896f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/janvernieuwe/restcord/zipball/5a44b58c0296ecdf712802749cf75367bff39eed",
-                "reference": "5a44b58c0296ecdf712802749cf75367bff39eed",
+                "url": "https://api.github.com/repos/restcord/restcord/zipball/bc9c0b0d1ce204527dcb329701e9c327b0f896f9",
+                "reference": "bc9c0b0d1ce204527dcb329701e9c327b0f896f9",
                 "shasum": ""
             },
             "require": {
@@ -1167,11 +1167,7 @@
                     "RestCord\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "RestCord\\Test\\": "tests/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1182,10 +1178,7 @@
                 }
             ],
             "description": "REST Library for the Discord API",
-            "support": {
-                "source": "https://github.com/janvernieuwe/restcord/tree/emoji-parameter"
-            },
-            "time": "2018-02-01T12:47:17+00:00"
+            "time": "2018-02-01T13:11:33+00:00"
         },
         {
             "name": "roave/security-advisories",
