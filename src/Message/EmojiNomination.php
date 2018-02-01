@@ -34,14 +34,28 @@ class EmojiNomination extends Message
     }
 
     /**
+     * @return array
+     */
+    private function getImageSize(): array
+    {
+        static $size;
+        if ($size === null) {
+            $size = getimagesize($this->getUrl());
+        }
+        if (!\is_array($size)) {
+            throw new \InvalidArgumentException('Invalid image size');
+        }
+
+        return $size;
+    }
+
+    /**
      * @Assert\EqualTo(value=128, message="The image should have a height of 128 px")
      * @return int
      */
     public function getImageHeight(): int
     {
-        $size = getimagesize($this->getUrl());
-
-        return $size[1];
+        return $this->getImageSize()[1];
     }
 
     /**
@@ -50,9 +64,7 @@ class EmojiNomination extends Message
      */
     public function getImageWidth(): int
     {
-        $size = getimagesize($this->getUrl());
-
-        return $size[0];
+        return $this->getImageSize()[0];
     }
 
     /**
