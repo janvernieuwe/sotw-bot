@@ -10,19 +10,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Validator\ConstraintViolation;
 
+/**
+ * Class EmojiValidateCommand
+ * @package App\Command
+ */
 class EmojiValidateCommand extends ContainerAwareCommand
 {
     use DisplayEmojiNomineesTrait;
-
-    protected function configure(): void
-    {
-        $this
-            ->setName('haamc:emoji:validate')
-            ->setDescription('Validates the user nominations')
-            ->setHelp('Adds a reaction to bad nomination')
-            ->addOption('delete', null, InputOption::VALUE_NONE, 'Removes invalid nominations')
-            ->addOption('silent', null, InputOption::VALUE_NONE, 'Shht');
-    }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
@@ -66,10 +60,21 @@ class EmojiValidateCommand extends ContainerAwareCommand
                 }
                 continue;
             }
-            $io->success($nomination->getName());
+            $io->write('[VALID] '.$nomination->getName(), true);
             if (!$quiet) {
                 $channel->removeReaction($nomination, '❌');
+                //$channel->addReaction($nomination, '🆗');
             }
         }
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->setName('haamc:emoji:validate')
+            ->setDescription('Validates the user nominations')
+            ->setHelp('Adds a reaction to bad nomination')
+            ->addOption('delete', null, InputOption::VALUE_NONE, 'Removes invalid nominations')
+            ->addOption('silent', null, InputOption::VALUE_NONE, 'Shht');
     }
 }

@@ -5,6 +5,10 @@ namespace App\Command;
 use App\Message\EmojiNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Trait DisplayEmojiNomineesTrait
+ * @package App\Command
+ */
 trait DisplayEmojiNomineesTrait
 {
     /**
@@ -13,10 +17,11 @@ trait DisplayEmojiNomineesTrait
      */
     private function displayNominees(SymfonyStyle $io, array $messages): void
     {
-        $headers = ['name', 'author', 'url', 'on_server', 'votes'];
+        $headers = ['id', 'name', 'author', 'url', 'on_server', 'votes'];
         $data = [];
-        foreach ($messages as $message) {
+        foreach ($messages as $id => $message) {
             $data[] = [
+                $id + 1,
                 $message->getName(),
                 $message->getAuthor(),
                 $message->getUrl(),
