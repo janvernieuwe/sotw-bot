@@ -6,6 +6,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class EmojiNomination extends Message
 {
+
+    /**
+     * @var array
+     */
+    private $imageSize;
+
     /**
      * @return bool
      */
@@ -38,15 +44,14 @@ class EmojiNomination extends Message
      */
     private function getImageSize(): array
     {
-        static $size;
-        if ($size === null) {
-            $size = getimagesize($this->getUrl());
+        if ($this->imageSize === null) {
+            $this->imageSize = getimagesize($this->getUrl());
         }
-        if (!\is_array($size)) {
+        if (!\is_array($this->imageSize)) {
             throw new \InvalidArgumentException('Invalid image size');
         }
 
-        return $size;
+        return $this->imageSize;
     }
 
     /**
