@@ -5,12 +5,17 @@ namespace App\Command;
 use App\Channel\EmojiChannel;
 use App\Guild;
 use App\Message\EmojiNomination;
+use LogicException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class EmojiImportCommand
+ * @package App\Command
+ */
 class EmojiImportCommand extends ContainerAwareCommand
 {
 
@@ -36,23 +41,47 @@ class EmojiImportCommand extends ContainerAwareCommand
      */
     private $dryRun = false;
 
-    protected function configure(): void
-    {
-        $this
-            ->setName('haamc:emoji:import')
-            ->setDescription('Import the winning emoji into the server')
-            ->setHelp('Adds the winning emoji to the server, this replaces the least favorites')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only show console output');
-    }
-
+    /**
+     * Executes the current command.
+     *
+     * This method is not abstract because you can use this class
+     * as a concrete class. In this case, instead of defining the
+     * execute() method, you set the code to execute by passing
+     * a Closure to the setCode() method.
+     *
+     * @return null|int null or 0 if everything went fine, or an error code
+     *
+     * @throws LogicException When this abstract method is not implemented
+     *
+     * @see setCode()
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $this->dryRun = $input->hasParameterOption('--dry-run');
+        $statsOnly = $input->hasParameterOption('--stats');
         $this->io = new SymfonyStyle($input, $output);
         $this->server = $this->getContainer()->get('discord.server');
         $this->channel = $this->getContainer()->get('discord.channel.emoji');
         $messages = $this->channel->getNominations();
+
+        /** @var EmojiNomination[] $messages */
         $messages = $this->channel->sortByVotes($messages);
+        $totalVotes = 0;
+        foreach ($messages as $message) {
+            $totalVotes += $message->getVotes();
+        }
+        $this->io->write(
+            sprintf(
+                'Total: %s votes, user: %s votes, nominations: %s',
+                $totalVotes,
+                $totalVotes - count($messages),
+                count($messages)
+            ),
+            true
+        );
+        if ($statsOnly) {
+            return;
+        }
         $winners = \array_slice($messages, 0, 50);
         $losers = \array_slice($messages, 50);
         $this->removeLosers($losers);
@@ -108,5 +137,15 @@ class EmojiImportCommand extends ContainerAwareCommand
                 }
             }
         }
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->setName('haamc:emoji:import')
+            ->setDescription('Import the winning emoji into the server')
+            ->setHelp('Adds the winning emoji to the server, this replaces the least favorites')
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only show console output')
+            ->addOption('stats', null, InputOption::VALUE_NONE, 'Only show quick stats');
     }
 }

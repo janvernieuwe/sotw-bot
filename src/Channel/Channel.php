@@ -151,6 +151,33 @@ class Channel
 
     /**
      * @param int $limit
+     * @return array
+     */
+    public function getManyMessages(int $limit = 1000): array
+    {
+        $messages = [];
+        $lastId = null;
+        for ($i = 0; $i < $limit; $i += 100) {
+            $params = [
+                'channel.id' => $this->channelId,
+                'limit'      => 100,
+            ];
+            if (count($messages)) {
+                $id = (int)end($messages)['id'];
+                if ($id === $lastId) {
+                    break;
+                }
+                $params['before'] = $lastId = $id;
+            }
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $messages = array_merge($messages, $this->discord->channel->getChannelMessages($params)->toArray());
+        }
+
+        return $messages;
+    }
+
+    /**
+     * @param int $limit
      * @return Result|array
      */
     public function getMessages(int $limit = 10): Result

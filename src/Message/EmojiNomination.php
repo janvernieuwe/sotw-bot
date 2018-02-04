@@ -36,7 +36,7 @@ class EmojiNomination extends Message
     {
         $info = pathinfo($this->getUrl());
 
-        return $info['extension'];
+        return strtolower($info['extension']);
     }
 
     /**

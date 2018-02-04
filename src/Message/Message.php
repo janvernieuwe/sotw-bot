@@ -54,6 +54,14 @@ class Message
     }
 
     /**
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->message['content'];
+    }
+
+    /**
      * @param string $emoji
      * @param bool $onlyMe
      * @return bool
@@ -101,5 +109,13 @@ class Message
         }
 
         return $reactions[0]['count'];
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDate():\DateTime
+    {
+        return new \DateTime($this->message['timestamp']);
     }
 }

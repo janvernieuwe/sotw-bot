@@ -11,10 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class FinishRoundCommand
+ * Class SotwFinishCommand
  * @package App\Command
  */
-class FinishRoundCommand extends ContainerAwareCommand
+class SotwFinishCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
 

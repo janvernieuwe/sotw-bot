@@ -8,10 +8,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class ValidateNomineesCommand
+ * Class SotwValidateCommand
  * @package App\Command
  */
-class ValidateNomineesCommand extends ContainerAwareCommand
+class SotwValidateCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
 
