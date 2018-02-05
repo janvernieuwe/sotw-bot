@@ -5,6 +5,7 @@ namespace App\Channel;
 use App\Message\Message;
 use GuzzleHttp\Command\Result;
 use RestCord\DiscordClient;
+use RestCord\Model\Channel\Reaction;
 
 /**
  * Class Channel
@@ -195,7 +196,7 @@ class Channel
      * @param string|null $content
      * @return \RestCord\Model\Channel\Message
      */
-    public function embedImage(string $uri, string $content = null): \RestCord\Model\Channel\Message
+    public function embedImage(string $uri, string $content = null)
     {
         return $this->discord->channel->createMessage(
             [
@@ -226,5 +227,21 @@ class Channel
         );
 
         return array_values($messages);
+    }
+
+    /**
+     * @param Message $message
+     * @param string $emoji
+     * @return Reaction[]
+     */
+    public function getReactions(Message $message, string $emoji): array
+    {
+        return $this->discord->channel->getReactions(
+            [
+                'channel.id' => $this->channelId,
+                'message.id' => $message->getMessageId(),
+                'emoji'      => $emoji,
+            ]
+        )->toArray();
     }
 }

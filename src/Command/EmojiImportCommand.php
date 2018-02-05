@@ -79,8 +79,9 @@ class EmojiImportCommand extends ContainerAwareCommand
             ),
             true
         );
+
         if ($statsOnly) {
-            return;
+            return null;
         }
         $winners = \array_slice($messages, 0, 50);
         $losers = \array_slice($messages, 50);

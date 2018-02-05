@@ -158,6 +158,7 @@ class Guild
         $info = pathinfo($nomination->getUrl());
         $image = sprintf('data:image/%s;base64,%s', $info['extension'], $encodedData);
 
+        sleep(1);
         return $this->addEmoji($nomination->getName(), $image);
     }
 }
