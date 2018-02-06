@@ -116,4 +116,20 @@ class EmojiNomination extends Message
 
         return '';
     }
+
+    /**
+     * @return bool
+     */
+    public function isVetod(): bool
+    {
+        return $this->hasReaction('👎', false);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getName();
+    }
 }

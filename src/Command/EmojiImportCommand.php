@@ -63,13 +63,21 @@ class EmojiImportCommand extends ContainerAwareCommand
         $this->server = $this->getContainer()->get('discord.server');
         $this->channel = $this->getContainer()->get('discord.channel.emoji');
         $messages = $this->channel->getNominations();
+        $veto = array_filter(
+            $messages,
+            function (EmojiNomination $message) {
+                return $message->isVetod();
+            }
+        );
+        $messages = array_diff($messages, $veto);
 
         /** @var EmojiNomination[] $messages */
         $messages = $this->channel->sortByVotes($messages);
         $totalVotes = 0;
-        foreach ($messages as $message) {
+        foreach ($messages as &$message) {
             $totalVotes += $message->getVotes();
         }
+        unset($message);
         $this->io->write(
             sprintf(
                 'Total: %s votes, user: %s votes, nominations: %s',
@@ -83,8 +91,14 @@ class EmojiImportCommand extends ContainerAwareCommand
         if ($statsOnly) {
             return null;
         }
+        if (count($veto)) {
+            $this->io->section('Veto\'d entries');
+            $this->displayNominees($this->io, $veto);
+        }
+
         $winners = \array_slice($messages, 0, 50);
         $losers = \array_slice($messages, 50);
+        $losers = array_merge($losers, $veto);
         $this->removeLosers($losers);
         $this->addWinners($winners);
     }
