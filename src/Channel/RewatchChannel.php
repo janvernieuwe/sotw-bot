@@ -3,11 +3,12 @@
 namespace App\Channel;
 
 use App\Message\RewatchNomination;
-use App\Message\SotwNomination;
 use App\Util\Util;
 use Jikan\Jikan;
 use Jikan\Model\Anime;
 use RestCord\DiscordClient;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -36,33 +37,39 @@ class RewatchChannel extends Channel
      * @var array
      */
     private $settings;
+    /**
+     * @var FilesystemAdapter
+     */
+    private $cache;
 
     /**
      * SongOfTheWeek constructor.
      * @param DiscordClient $discord
+     * @param AdapterInterface $cache
      * @param Jikan $jikan
-     * @param string $channelId
      * @param ValidatorInterface $validator
-     * @param string $role
+     * @param string $channelId
+     * @param array $settings
      */
     public function __construct(
         DiscordClient $discord,
+        AdapterInterface $cache,
         Jikan $jikan,
         ValidatorInterface $validator,
         string $channelId,
-        string $role,
         array $settings
     ) {
-        $this->role = $role;
         $this->validator = $validator;
-        parent::__construct($discord, $channelId);
         $this->jikan = $jikan;
         $this->settings = $settings;
+        $this->cache = $cache;
+        parent::__construct($discord, $channelId);
     }
 
     /**
      * @param int $limit
      * @return RewatchNomination[]
+     * @throws \Exception
      */
     public function getLastNominations(int $limit = 10): array
     {
@@ -71,8 +78,15 @@ class RewatchChannel extends Channel
         foreach ($messages as $message) {
             if (RewatchNomination::isContender($message['content'])) {
                 $nomination = RewatchNomination::fromMessage($message);
-                $anime = Util::instantiate(Anime::class, $this->jikan->Anime($nomination->getAnimeId())->response);
-                $nomination->setAnime($anime);
+                $key = 'jikan_anime_'.$nomination->getAnimeId();
+                if (!$this->cache->hasItem($key)) {
+                    $anime = Util::instantiate(Anime::class, $this->jikan->Anime($nomination->getAnimeId())->response);
+                    $item = $this->cache->getItem($key);
+                    $item->set($anime);
+                    $item->expiresAfter(strtotime('+7 day'));
+                    $this->cache->save($item);
+                }
+                $nomination->setAnime($this->cache->getItem($key)->get());
                 $contenders[] = $nomination;
             }
         }
@@ -83,6 +97,7 @@ class RewatchChannel extends Channel
 
     /**
      * @return RewatchNomination[]
+     * @throws \Exception
      */
     public function getValidNominations(): array
     {

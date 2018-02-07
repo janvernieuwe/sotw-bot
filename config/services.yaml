@@ -31,6 +31,14 @@ services:
     log.null:
         class: Psr\Log\NullLogger
 
+    cache.jikan:
+        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+        arguments:
+          - 'app.jikan'
+          - 0
+          - "%kernel.cache_dir%/jikan"
+        public: true
+
     discord:
         class: RestCord\DiscordClient
         arguments:
@@ -59,10 +67,10 @@ services:
         class: App\Channel\RewatchChannel
         arguments:
           - '@discord'
+          - '@cache.jikan'
           - '@jikan'
           - '@validator'
           - '%rewatch_channel_id%'
-          - '%permissions_role%'
           - '%rewatch%'
         public: true
 

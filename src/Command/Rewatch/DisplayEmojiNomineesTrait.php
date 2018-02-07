@@ -28,7 +28,6 @@ trait DisplayEmojiNomineesTrait
                 $message->getEpisodeCount(),
                 $message->getEndDate()->format('Y-m-d'),
                 $message->getContent(),
-
             ];
         }
         $io->table($headers, $data);

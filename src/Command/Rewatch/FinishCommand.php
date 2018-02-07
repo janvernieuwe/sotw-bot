@@ -30,6 +30,7 @@ class FinishCommand extends ContainerAwareCommand
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|null|void
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -51,6 +52,9 @@ class FinishCommand extends ContainerAwareCommand
                 throw new \RuntimeException('There is no clear winner');
             }
             $io->note('There is no clear winner');
+        }
+        if ($dryRun) {
+            return;
         }
 
         $winner = $nominations[0];
