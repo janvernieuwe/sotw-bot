@@ -14,6 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class ValidateCommand extends ContainerAwareCommand
 {
+    use DisplayEmojiNomineesTrait;
+
     protected function configure(): void
     {
         $this
@@ -33,7 +35,9 @@ class ValidateCommand extends ContainerAwareCommand
         $io = new SymfonyStyle($input, $output);
         $channel = $this->getContainer()->get('discord.channel.rewatch');
         $delete = $input->hasParameterOption('--delete');
+        $io->section('Fetching MAL data');
         $nominations = $channel->getLastNominations();
+        $this->displayNominees($io, $nominations);
         if (count($nominations) !== 10) {
             $io->note(sprintf('Wrong amount of nominations (%s/10)', count($nominations)));
         }

@@ -3,7 +3,6 @@
 namespace App\Command\Rewatch;
 
 use App\Channel\Channel;
-use PHP_CodeSniffer\Tokenizers\PHP;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,6 +15,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class FinishCommand extends ContainerAwareCommand
 {
+    use DisplayEmojiNomineesTrait;
+
     protected function configure(): void
     {
         $this
@@ -36,6 +37,7 @@ class FinishCommand extends ContainerAwareCommand
         $channel = $this->getContainer()->get('discord.channel.rewatch');
         $io->section('Fetch nomination data');
         $nominations = $channel->getValidNominations();
+        $this->displayNominees($io, $nominations);
         $dryRun = $input->hasParameterOption('--dry-run');
 
         if (count($nominations) !== 10) {
