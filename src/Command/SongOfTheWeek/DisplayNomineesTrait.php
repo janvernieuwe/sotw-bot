@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\SongOfTheWeek;
 
 use App\Message\SotwNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;

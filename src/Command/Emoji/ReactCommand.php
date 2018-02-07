@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Emoji;
 
 use GrumPHP\Exception\RuntimeException;
 use LogicException;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class EmojiImportCommand
  * @package App\Command
  */
-class EmojiSelfReactCommand extends ContainerAwareCommand
+class ReactCommand extends ContainerAwareCommand
 {
 
     use DisplayEmojiNomineesTrait;

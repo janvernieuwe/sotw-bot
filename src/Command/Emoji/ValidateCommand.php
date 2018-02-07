@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Emoji;
 
 use App\Message\EmojiNomination;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -14,7 +14,7 @@ use Symfony\Component\Validator\ConstraintViolation;
  * Class EmojiValidateCommand
  * @package App\Command
  */
-class EmojiValidateCommand extends ContainerAwareCommand
+class ValidateCommand extends ContainerAwareCommand
 {
     use DisplayEmojiNomineesTrait;
 

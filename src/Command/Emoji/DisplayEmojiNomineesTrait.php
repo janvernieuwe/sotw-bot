@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Emoji;
 
 use App\Message\EmojiNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;

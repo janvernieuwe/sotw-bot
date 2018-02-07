@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\SongOfTheWeek;
 
 use App\Formatter\BBCodeFormatter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class SotwFinishCommand
  * @package App\Command
  */
-class SotwFinishCommand extends ContainerAwareCommand
+class FinishCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
 

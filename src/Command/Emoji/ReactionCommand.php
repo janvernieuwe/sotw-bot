@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Emoji;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class EmojiReactionCommand extends ContainerAwareCommand
+class ReactionCommand extends ContainerAwareCommand
 {
     use DisplayEmojiNomineesTrait;
 

@@ -55,9 +55,24 @@ services:
           - "%emoji_channel_id%"
         public: true
 
+    discord.channel.rewatch:
+        class: App\Channel\RewatchChannel
+        arguments:
+          - '@discord'
+          - '@jikan'
+          - '@validator'
+          - '%rewatch_channel_id%'
+          - '%permissions_role%'
+          - '%rewatch%'
+        public: true
+
     discord.server:
         class: App\Guild
         arguments:
           - "@discord"
           - "%server_id%"
+        public: true
+
+    jikan:
+        class: Jikan\Jikan
         public: true

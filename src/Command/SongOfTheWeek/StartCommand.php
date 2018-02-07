@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\SongOfTheWeek;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class SotwStartCommand
  * @package App\Command
  */
-class SotwStartCommand extends ContainerAwareCommand
+class StartCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\SongOfTheWeek;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class SotwValidateCommand
  * @package App\Command
  */
-class SotwValidateCommand extends ContainerAwareCommand
+class ValidateCommand extends ContainerAwareCommand
 {
     use DisplayNomineesTrait;
 

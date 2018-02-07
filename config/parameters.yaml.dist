@@ -4,3 +4,6 @@ parameters:
     permissions_role: ~
     emoji_channel_id: ~
     server_id: ~
+    rewatch:
+        max_episodes: 13
+        min_years: 2

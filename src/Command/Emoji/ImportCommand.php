@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Emoji;
 
 use App\Channel\EmojiChannel;
 use App\Guild;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class EmojiImportCommand
  * @package App\Command
  */
-class EmojiImportCommand extends ContainerAwareCommand
+class ImportCommand extends ContainerAwareCommand
 {
 
     use DisplayEmojiNomineesTrait;
@@ -57,49 +57,29 @@ class EmojiImportCommand extends ContainerAwareCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        // Shared variables
         $this->dryRun = $input->hasParameterOption('--dry-run');
-        $statsOnly = $input->hasParameterOption('--stats');
         $this->io = new SymfonyStyle($input, $output);
         $this->server = $this->getContainer()->get('discord.server');
         $this->channel = $this->getContainer()->get('discord.channel.emoji');
+
+        // Execute the job
         $messages = $this->channel->getNominations();
         /** @var EmojiNomination[] $messages */
         $messages = $this->channel->sortByVotes($messages);
-        $totalVotes = 0;
-        foreach ($messages as $message) {
-            $totalVotes += $message->getVotes();
-        }
-        $this->io->write(
-            sprintf(
-                'Total: %s votes, user: %s votes, nominations: %s',
-                $totalVotes,
-                $totalVotes - count($messages),
-                count($messages)
-            ),
-            true
-        );
-
-        if ($statsOnly) {
+        $this->showStatistics($messages);
+        if ($input->hasParameterOption('--stats')) {
             return null;
         }
 
-        $veto = array_filter(
-            $messages,
-            function (EmojiNomination $message) {
-                return $message->isVetod();
-            }
-        );
-        $messages = array_diff($messages, $veto);
-        if (count($veto)) {
-            $this->io->section('Veto\'d entries');
-            $this->displayNominees($this->io, $veto);
-        }
-
+        // Sort out the winners and the losers
+        $veto = $this->filterVeto($messages);
         $winners = \array_slice($messages, 0, 50);
         $losers = \array_slice($messages, 50);
         $losers = array_merge($losers, $veto);
         $this->removeLosers($losers);
         $this->addWinners($winners);
+        return null;
     }
 
     /**
@@ -122,7 +102,7 @@ class EmojiImportCommand extends ContainerAwareCommand
                     );
                     $this->server->removeEmoji($emoji->id);
                 } catch (\Exception $e) {
-                    $this->io->error("Failed to remove {$message->getName()}".PHP_EOL.$e->getMessage());
+                    $this->io->error("Failed to remove {$message->getName()}" . PHP_EOL . $e->getMessage());
                     sleep(5);
                 }
             }
@@ -146,7 +126,7 @@ class EmojiImportCommand extends ContainerAwareCommand
                     $emoji = $this->server->addEmojiFromNomination($message);
                     $this->channel->message(":new: Added emoji :{$emoji->name}: <:{$emoji->name}:{$emoji->id}>");
                 } catch (\Exception $e) {
-                    $this->io->error("Failed to add {$message->getName()}".PHP_EOL.$e->getMessage());
+                    $this->io->error("Failed to add {$message->getName()}" . PHP_EOL . $e->getMessage());
                     sleep(5);
                 }
             }
@@ -161,5 +141,47 @@ class EmojiImportCommand extends ContainerAwareCommand
             ->setHelp('Adds the winning emoji to the server, this replaces the least favorites')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only show console output')
             ->addOption('stats', null, InputOption::VALUE_NONE, 'Only show quick stats');
+    }
+
+    /**
+     * Filters out veto'd nominations
+     * @param array $messages
+     * @return EmojiNomination[]
+     */
+    public function filterVeto(array &$messages): array
+    {
+        $veto = array_filter(
+            $messages,
+            function (EmojiNomination $message) {
+                return $message->isVetod();
+            }
+        );
+        $messages = array_diff($messages, $veto);
+        if (count($veto)) {
+            $this->io->section('Veto\'d entries');
+            $this->displayNominees($this->io, $veto);
+        }
+        return $veto;
+    }
+
+    /**
+     * Shows the vote stats
+     * @param array $messages
+     */
+    private function showStatistics(array $messages)
+    {
+        $totalVotes = 0;
+        foreach ($messages as $message) {
+            $totalVotes += $message->getVotes();
+        }
+        $this->io->write(
+            sprintf(
+                'Total: %s votes, user: %s votes, nominations: %s',
+                $totalVotes,
+                $totalVotes - count($messages),
+                count($messages)
+            ),
+            true
+        );
     }
 }
