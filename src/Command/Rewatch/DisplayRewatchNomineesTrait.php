@@ -17,7 +17,7 @@ trait DisplayRewatchNomineesTrait
      */
     private function displayNominees(SymfonyStyle $io, array $messages): void
     {
-        $headers = ['id', 'author', 'anime', 'votes', 'episodes', 'ended on', 'mal'];
+        $headers = ['id', 'author', 'anime', 'votes', 'episodes', 'ended on', 'score', 'mal'];
         $data = [];
         foreach ($messages as $id => $message) {
             $data[] = [
@@ -27,6 +27,7 @@ trait DisplayRewatchNomineesTrait
                 $message->getVotes(),
                 $message->getEpisodeCount(),
                 $message->getEndDate()->format('Y-m-d'),
+                $message->getAnime()->score,
                 $message->getContent(),
             ];
         }

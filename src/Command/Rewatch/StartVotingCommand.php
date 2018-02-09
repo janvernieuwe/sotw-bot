@@ -39,13 +39,14 @@ class StartVotingCommand extends ContainerAwareCommand
             throw new \RuntimeException('Invalid number of nominees '.count($nominations));
         }
         $this->displayNominees($io, $nominations);
-        $io->section('Set channel permissions', true);
+        $io->section('Set channel permissions');
         $channel->deny($this->getContainer()->getParameter('permissions_role'), Channel::ROLE_SEND_MESSAGES);
         $io->section('Add reactions');
         foreach ($nominations as $nomination) {
             $channel->addReaction($nomination, '🔼');
         }
         $io->section('Send message');
-        $channel->message('Laat het stemmen beginnen :checkered_flag:');
+        $channel->message('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');
+        $channel->message('We maken de winnaar zondag namiddag bekend.');
     }
 }
