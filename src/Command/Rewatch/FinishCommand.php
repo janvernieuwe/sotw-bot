@@ -15,8 +15,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class FinishCommand extends ContainerAwareCommand
 {
-    use DisplayEmojiNomineesTrait;
-
     protected function configure(): void
     {
         $this
