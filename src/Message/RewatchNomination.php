@@ -45,7 +45,7 @@ class RewatchNomination extends Message
      */
     public static function isContender(string $content): bool
     {
-        return preg_match('/https?:\/\/myanimelist\.net\/anime\/\d+\//', $content);
+        return preg_match('/^https?:\/\/myanimelist\.net\/anime\/\d+\//', $content);
     }
 
     /**

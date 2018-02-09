@@ -6,10 +6,10 @@ use App\Message\RewatchNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Trait DisplayEmojiNomineesTrait
+ * Trait DisplayRewatchNomineesTrait
  * @package App\Command
  */
-trait DisplayEmojiNomineesTrait
+trait DisplayRewatchNomineesTrait
 {
     /**
      * @param SymfonyStyle $io

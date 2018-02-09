@@ -67,6 +67,23 @@ class RewatchChannel extends Channel
     }
 
     /**
+     * @return RewatchNomination[]
+     * @throws \Exception
+     */
+    public function getValidNominations(): array
+    {
+        $nominations = $this->getLastNominations();
+        $nominations = array_filter(
+            $nominations,
+            function (RewatchNomination $nomination) {
+                return count($this->validate($nomination)) === 0;
+            }
+        );
+
+        return $nominations;
+    }
+
+    /**
      * @param int $limit
      * @return RewatchNomination[]
      * @throws \Exception
@@ -76,6 +93,9 @@ class RewatchChannel extends Channel
         $messages = $this->getMessages($limit + 10);
         $contenders = [];
         foreach ($messages as $message) {
+            if (preg_match('/Deze rewatch kijken we naar/', $message['content'])) {
+                break;
+            }
             if (RewatchNomination::isContender($message['content'])) {
                 $nomination = RewatchNomination::fromMessage($message);
                 $key = 'jikan_anime_'.$nomination->getAnimeId();
@@ -93,23 +113,6 @@ class RewatchChannel extends Channel
         $contenders = \array_slice($contenders, 0, $limit);
 
         return $this->sortByVotes($contenders);
-    }
-
-    /**
-     * @return RewatchNomination[]
-     * @throws \Exception
-     */
-    public function getValidNominations(): array
-    {
-        $nominations = $this->getLastNominations();
-        $nominations = array_filter(
-            $nominations,
-            function (RewatchNomination $nomination) {
-                return count($this->validate($nomination)) === 0;
-            }
-        );
-
-        return $nominations;
     }
 
     /**

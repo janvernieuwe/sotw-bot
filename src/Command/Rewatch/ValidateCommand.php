@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class ValidateCommand extends ContainerAwareCommand
 {
-    use DisplayEmojiNomineesTrait;
+    use DisplayRewatchNomineesTrait;
 
     protected function configure(): void
     {
