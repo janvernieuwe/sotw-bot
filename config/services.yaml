@@ -84,3 +84,13 @@ services:
     jikan:
         class: Jikan\Jikan
         public: true
+
+    yasmin.subscriber.weather:
+        class: App\Yasmin\Subscriber\NiceWeatherSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    yasmin.subscriber.isai:
+        class: App\Yasmin\Subscriber\IsaiSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
