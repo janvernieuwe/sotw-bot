@@ -9,8 +9,6 @@ use Jikan\Model\Anime;
 use RestCord\DiscordClient;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -20,11 +18,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class RewatchChannel extends Channel
 {
     /**
-     * @var string
-     */
-    private $role;
-
-    /**
      * @var ValidatorInterface
      */
     private $validator;
@@ -33,10 +26,7 @@ class RewatchChannel extends Channel
      * @var Jikan
      */
     private $jikan;
-    /**
-     * @var array
-     */
-    private $settings;
+
     /**
      * @var FilesystemAdapter
      */
@@ -49,19 +39,16 @@ class RewatchChannel extends Channel
      * @param Jikan $jikan
      * @param ValidatorInterface $validator
      * @param string $channelId
-     * @param array $settings
      */
     public function __construct(
         DiscordClient $discord,
         AdapterInterface $cache,
         Jikan $jikan,
         ValidatorInterface $validator,
-        string $channelId,
-        array $settings
+        string $channelId
     ) {
         $this->validator = $validator;
         $this->jikan = $jikan;
-        $this->settings = $settings;
         $this->cache = $cache;
         parent::__construct($discord, $channelId);
     }
@@ -76,7 +63,7 @@ class RewatchChannel extends Channel
         $nominations = array_filter(
             $nominations,
             function (RewatchNomination $nomination) {
-                return count($this->validate($nomination)) === 0;
+                return count($this->validator->validate($nomination)) === 0;
             }
         );
 
@@ -97,7 +84,7 @@ class RewatchChannel extends Channel
                 break;
             }
             if (RewatchNomination::isContender($message['content'])) {
-                $nomination = RewatchNomination::fromMessage($message);
+                $nomination = new RewatchNomination($message);
                 $key = 'jikan_anime_'.$nomination->getAnimeId();
                 if (!$this->cache->hasItem($key)) {
                     $anime = Util::instantiate(Anime::class, $this->jikan->Anime($nomination->getAnimeId())->response);
@@ -113,47 +100,5 @@ class RewatchChannel extends Channel
         $contenders = \array_slice($contenders, 0, $limit);
 
         return $this->sortByVotes($contenders);
-    }
-
-    /**
-     * @param RewatchNomination $nomination
-     * @return ConstraintViolationListInterface
-     */
-    public function validate(RewatchNomination $nomination): ConstraintViolationListInterface
-    {
-        $errors = $this->validator->validate($nomination);
-        // Check episode count
-        if ($nomination->getEpisodeCount() > $this->settings['max_episodes']) {
-            $errors->add(
-                new ConstraintViolation(
-                    'Too many episodes',
-                    null,
-                    [],
-                    $nomination,
-                    '',
-                    $nomination->getEpisodeCount(),
-                    0,
-                    $nomination->getEpisodeCount()
-                )
-            );
-        }
-        // Check age
-        $max = new \DateTime('-2 years');
-        if ($nomination->getEndDate() > $max) {
-            $errors->add(
-                new ConstraintViolation(
-                    'Anime is too new',
-                    null,
-                    [],
-                    $nomination,
-                    '',
-                    $nomination->getEndDate()->format('Y-m-d'),
-                    0,
-                    $nomination->getEndDate()->format('Y-m-d')
-                )
-            );
-        }
-
-        return $errors;
     }
 }
