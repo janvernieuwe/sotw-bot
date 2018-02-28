@@ -3,7 +3,6 @@
 namespace App\Command\Rewatch;
 
 use App\Channel\Channel;
-use PHP_CodeSniffer\Tokenizers\PHP;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,6 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class StartVotingCommand extends ContainerAwareCommand
 {
+    use DisplayRewatchNomineesTrait;
+
     protected function configure(): void
     {
         $this
@@ -37,13 +38,15 @@ class StartVotingCommand extends ContainerAwareCommand
         if (count($nominations) !== 10) {
             throw new \RuntimeException('Invalid number of nominees '.count($nominations));
         }
-        $io->section('Set channel permissions', true);
+        $this->displayNominees($io, $nominations);
+        $io->section('Set channel permissions');
         $channel->deny($this->getContainer()->getParameter('permissions_role'), Channel::ROLE_SEND_MESSAGES);
         $io->section('Add reactions');
         foreach ($nominations as $nomination) {
             $channel->addReaction($nomination, '🔼');
         }
         $io->section('Send message');
-        $channel->message('Laat het stemmen beginnen :checkered_flag:');
+        $channel->message('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');
+        $channel->message('We maken de winnaar zondag namiddag bekend.');
     }
 }

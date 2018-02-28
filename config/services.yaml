@@ -71,7 +71,6 @@ services:
           - '@jikan'
           - '@validator'
           - '%rewatch_channel_id%'
-          - '%rewatch%'
         public: true
 
     discord.server:
@@ -79,6 +78,13 @@ services:
         arguments:
           - "@discord"
           - "%server_id%"
+        public: true
+
+    discord.dm.rewatch:
+        class: App\Error\RewatchErrorDm
+        arguments:
+          - "@discord"
+          - "@validator"
         public: true
 
     jikan:
