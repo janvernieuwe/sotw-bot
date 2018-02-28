@@ -13,28 +13,28 @@ class SotwNomination extends Message
 {
     /**
      * @var string
-     * @Assert\Type(type="string", message="Invalid artist")
-     * @Assert\NotBlank(message="Missing artist")
+     * @Assert\Type(type="string", message="Artiest is ongeldig")
+     * @Assert\NotBlank(message="Artiest ontbreekt")
      */
     private $artist;
 
     /**
      * @var string
-     * @Assert\Type(type="string", message="Invalid title")
-     * @Assert\NotBlank(message="Missing title")
+     * @Assert\Type(type="string", message="Titel is ongeldig")
+     * @Assert\NotBlank(message="Titel ontbreekt")
      */
     private $title;
 
     /**
      * @var string
-     * @Assert\Type(type="string", message="Invalid anime")
-     * @Assert\NotBlank(message="Missing anime")
+     * @Assert\Type(type="string", message="Anime is ongeldig")
+     * @Assert\NotBlank(message="Anime ontbreekt")
      */
     private $anime;
 
     /**
-     * @Assert\Type(type="string", message="Invalid youtube line")
-     * @Assert\NotBlank(message="Missing youtube link")
+     * @Assert\Type(type="string", message="Youtube link is ongeldig")
+     * @Assert\NotBlank(message="Youtube link ontbreekt")
      * @var string
      */
     private $youtube;

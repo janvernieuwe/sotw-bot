@@ -87,6 +87,14 @@ services:
           - "@validator"
         public: true
 
+
+    discord.dm.sotw:
+        class: App\Error\SotwErrorDm
+        arguments:
+          - "@discord"
+          - "@validator"
+        public: true
+
     jikan:
         class: Jikan\Jikan
         public: true

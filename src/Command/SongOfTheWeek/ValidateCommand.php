@@ -32,6 +32,7 @@ class ValidateCommand extends ContainerAwareCommand
     {
         $io = new SymfonyStyle($input, $output);
         $sotw = $this->getContainer()->get('discord.channel.sotw');
+        $errorMessenger = $this->getContainer()->get('discord.dm.sotw');
         $nominations = $sotw->getLastNominations();
         $this->displayNominees($io, $nominations);
 
@@ -46,6 +47,7 @@ class ValidateCommand extends ContainerAwareCommand
         foreach ($nominations as $nomination) {
             $errors = $sotw->validate($nomination);
             if (\count($errors)) {
+                $errorMessenger->send($nomination);
                 $sotw->addReaction($nomination, '❌');
                 $io->error($nomination.PHP_EOL.$errors);
                 continue;
