@@ -59,7 +59,6 @@ class SotwChannel extends Channel
                 $contenders[] = SotwNomination::fromMessage($message);
             }
         }
-        $contenders = \array_slice($contenders, 0, $limit);
 
         return $this->sortByVotes($contenders);
     }
