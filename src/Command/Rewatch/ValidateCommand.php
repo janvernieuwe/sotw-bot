@@ -37,6 +37,7 @@ class ValidateCommand extends ContainerAwareCommand
         $errorMessager = $this->getContainer()->get('discord.dm.rewatch');
         $validator = $this->getContainer()->get('validator');
         $delete = $input->hasParameterOption('--delete');
+
         $io->section('Fetching MAL data');
         $nominations = $channel->getLastNominations();
         $this->displayNominees($io, $nominations);
@@ -45,17 +46,17 @@ class ValidateCommand extends ContainerAwareCommand
         }
         foreach ($nominations as $nomination) {
             $errors = $validator->validate($nomination);
-            if (count($errors)) {
-                $io->error($nomination->getAuthor().': '.$nomination->getAnime()->title.PHP_EOL.$errors);
-                $errorMessager->send($nomination);
-                if ($delete) {
-                    $channel->removeMessage($nomination->getMessageId());
-                    continue;
-                }
-                $channel->addReaction($nomination, '❌');
+            if (!count($errors)) {
+                $io->success($nomination->getAuthor().': '.$nomination->getAnime()->title);
                 continue;
             }
-            $io->success($nomination->getAuthor().': '.$nomination->getAnime()->title);
+            $io->error($nomination->getAuthor().': '.$nomination->getAnime()->title.PHP_EOL.$errors);
+            $errorMessager->send($nomination);
+            if ($delete) {
+                $channel->removeMessage($nomination->getMessageId());
+                continue;
+            }
+            $channel->addReaction($nomination, '❌');
         }
     }
 }

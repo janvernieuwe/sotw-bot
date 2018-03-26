@@ -37,7 +37,7 @@ class RewatchNomination extends Message
         if (isset($params['id'])) {
             return (int)$params['id'];
         }
-        preg_match_all('/\/(\d+)\//', $this->message['content'], $matches);
+        preg_match_all('/\/(\d+)\/?/', $this->message['content'], $matches);
         if (!isset($matches[1][0])) {
             return null;
         }

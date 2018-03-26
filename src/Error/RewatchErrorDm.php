@@ -13,14 +13,14 @@ class RewatchErrorDm extends AbstractErrorDm
     private $message = <<<EOF
 Hoi %s,
 
-Helaas is je nominatie (%s) voor de rewatch niet geldig omdat:
+Helaas is je nominatie (%s) voor de rewatch niet geldig om de volgende redenen:
 
 %s
 
 Hierbij nog eens de regels waar een nominatie aan moet voldoen:
 
 * Nominatie is enkel een link naar de MAL pagina van de anime
-* De serie moet mnimaal 10 en maximaal 13 afleveringen bevatten
+* De serie moet minimaal 10 en maximaal 13 afleveringen bevatten
 * Er zijn maximaal 10 nominaties
 * Geen hentai :smirk:
 * De serie moet minstens 2 jaar oud zijn (eind datum)
