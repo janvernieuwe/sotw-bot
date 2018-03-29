@@ -4,6 +4,7 @@ namespace App\Message;
 
 use Jikan\Model\Anime;
 use Symfony\Component\Validator\Constraints as Assert;
+use function GuzzleHttp\Psr7\parse_query;
 
 /**
  * Class SotwNomination
@@ -17,14 +18,12 @@ class RewatchNomination extends Message
     private $anime;
 
     /**
-     * @param array $message
-     * @return RewatchNomination
+     * @param string $content
+     * @return bool
      */
-    public static function fromMessage(array $message): RewatchNomination
+    public static function isContender(string $content): bool
     {
-        $nominee = new self($message);
-
-        return $nominee;
+        return preg_match('/^https?:\/\/myanimelist\.net\/anime/', $content);
     }
 
     /**
@@ -32,23 +31,24 @@ class RewatchNomination extends Message
      */
     public function getAnimeId(): ?int
     {
-        preg_match_all('/\/(\d+)\//', $this->message['content'], $matches);
+        $url = parse_url($this->message['content']);
+        $url['query'] = $url['query'] ?? '';
+        $params = parse_query($url['query']);
+        if (isset($params['id'])) {
+            return (int)$params['id'];
+        }
+        preg_match_all('/\/(\d+)\/?/', $this->message['content'], $matches);
         if (!isset($matches[1][0])) {
             return null;
         }
+
         return (int)$matches[1][0];
     }
 
     /**
-     * @param string $content
-     * @return bool
-     */
-    public static function isContender(string $content): bool
-    {
-        return preg_match('/https?:\/\/myanimelist\.net\/anime\/\d+\//', $content);
-    }
-
-    /**
+     * @Assert\GreaterThanOrEqual(value="10", message="Te weinig afleveringen (minstens 10)")
+     * @Assert\LessThanOrEqual(value="13", message="Te veel afleveringen (maximaal 13)")
+     *
      * @return int|null
      */
     public function getEpisodeCount(): ?int
@@ -56,7 +56,16 @@ class RewatchNomination extends Message
         if (!$this->anime instanceof Anime) {
             return null;
         }
+
         return $this->anime->episodes;
+    }
+
+    /**
+     * @return Anime
+     */
+    public function getAnime(): Anime
+    {
+        return $this->anime;
     }
 
     /**
@@ -68,18 +77,36 @@ class RewatchNomination extends Message
     }
 
     /**
-     * @return \DateTime
+     * @Assert\IsFalse(message="Geen hentai!")
+     * @return bool
      */
-    public function getEndDate():\DateTime
+    public function isHentai(): bool
     {
-        return new \DateTime($this->anime->aired['to']);
+        foreach ($this->anime->genre as $genre) {
+            if ($genre['name'] === 'Hentai') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * @return Anime
+     * @Assert\IsTrue(message="Anime is te nieuw")
+     * @return bool
      */
-    public function getAnime(): Anime
+    public function isValidDate(): bool
     {
-        return $this->anime;
+        $max = new \DateTime('-2 years');
+
+        return !($this->getEndDate() > $max);
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEndDate(): \DateTime
+    {
+        return new \DateTime($this->anime->aired['to']);
     }
 }

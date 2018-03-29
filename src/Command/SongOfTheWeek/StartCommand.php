@@ -43,8 +43,9 @@ class StartCommand extends ContainerAwareCommand
         }
 
         // Check that we have a clear winner
-        if (!$force && \count($nominations) !== 10) {
-            throw new RuntimeException('Not enough nominations!');
+        $nominationCount = \count($nominations);
+        if (!$force && $nominationCount !== 10) {
+            throw new RuntimeException(sprintf('Wrong amount of nominations (%s/10)', $nominationCount));
         }
 
         $io->section('Close nominations');

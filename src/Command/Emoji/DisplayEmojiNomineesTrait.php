@@ -6,7 +6,7 @@ use App\Message\EmojiNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Trait DisplayEmojiNomineesTrait
+ * Trait DisplayRewatchNomineesTrait
  * @package App\Command
  */
 trait DisplayEmojiNomineesTrait

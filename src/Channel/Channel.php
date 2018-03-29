@@ -115,6 +115,7 @@ class Channel
                 'message.id' => $id,
             ]
         );
+        sleep(1);
     }
 
     /**
@@ -194,7 +195,7 @@ class Channel
     /**
      * @param string $uri
      * @param string|null $content
-     * @return \RestCord\Model\Channel\Message
+     * @return \RestCord\Model\Channel\Message|array
      */
     public function embedImage(string $uri, string $content = null)
     {

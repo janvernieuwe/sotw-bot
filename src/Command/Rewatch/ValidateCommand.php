@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class ValidateCommand extends ContainerAwareCommand
 {
-    use DisplayEmojiNomineesTrait;
+    use DisplayRewatchNomineesTrait;
 
     protected function configure(): void
     {
@@ -34,7 +34,10 @@ class ValidateCommand extends ContainerAwareCommand
     {
         $io = new SymfonyStyle($input, $output);
         $channel = $this->getContainer()->get('discord.channel.rewatch');
+        $errorMessager = $this->getContainer()->get('discord.dm.rewatch');
+        $validator = $this->getContainer()->get('validator');
         $delete = $input->hasParameterOption('--delete');
+
         $io->section('Fetching MAL data');
         $nominations = $channel->getLastNominations();
         $this->displayNominees($io, $nominations);
@@ -42,17 +45,18 @@ class ValidateCommand extends ContainerAwareCommand
             $io->note(sprintf('Wrong amount of nominations (%s/10)', count($nominations)));
         }
         foreach ($nominations as $nomination) {
-            $errors = $channel->validate($nomination);
-            if (count($errors)) {
-                $io->error($nomination->getAuthor().': '.$nomination->getAnime()->title.PHP_EOL.$errors);
-                if ($delete) {
-                    $channel->removeMessage($nomination->getMessageId());
-                    continue;
-                }
-                $channel->addReaction($nomination, '❌');
+            $errors = $validator->validate($nomination);
+            if (!count($errors)) {
+                $io->success($nomination->getAuthor().': '.$nomination->getAnime()->title);
                 continue;
             }
-            $io->success($nomination->getAuthor().': '.$nomination->getAnime()->title);
+            $io->error($nomination->getAuthor().': '.$nomination->getAnime()->title.PHP_EOL.$errors);
+            $errorMessager->send($nomination);
+            if ($delete) {
+                $channel->removeMessage($nomination->getMessageId());
+                continue;
+            }
+            $channel->addReaction($nomination, '❌');
         }
     }
 }

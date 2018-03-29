@@ -1,7 +1,5 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
-imports:
-    - { resource: 'parameters.yaml' }
 parameters:
     locale: 'en'
 
@@ -43,7 +41,7 @@ services:
         class: RestCord\DiscordClient
         arguments:
           -
-            token:      "%token%"
+            token:      "%env(TOKEN)%"
             logger:     "@log.null"
         public: true
 
@@ -51,16 +49,16 @@ services:
         class: App\Channel\SotwChannel
         arguments:
           - "@discord"
-          - "%channel_id%"
+          - "%env(SOTW_CHANNEL_ID)%"
           - "@validator"
-          - "%permissions_role%"
+          - "%env(PERMISSIONS_ROLE)%"
         public: true
 
     discord.channel.emoji:
         class: App\Channel\EmojiChannel
         arguments:
           - "@discord"
-          - "%emoji_channel_id%"
+          - "%env(EMOJI_CHANNEL_ID)%"
         public: true
 
     discord.channel.rewatch:
@@ -70,15 +68,29 @@ services:
           - '@cache.jikan'
           - '@jikan'
           - '@validator'
-          - '%rewatch_channel_id%'
-          - '%rewatch%'
+          - '%env(REWATCH_CHANNEL_ID)%'
         public: true
 
     discord.server:
         class: App\Guild
         arguments:
           - "@discord"
-          - "%server_id%"
+          - "%env(SERVER_ID)%"
+        public: true
+
+    discord.dm.rewatch:
+        class: App\Error\RewatchErrorDm
+        arguments:
+          - "@discord"
+          - "@validator"
+        public: true
+
+
+    discord.dm.sotw:
+        class: App\Error\SotwErrorDm
+        arguments:
+          - "@discord"
+          - "@validator"
         public: true
 
     jikan:

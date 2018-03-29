@@ -6,10 +6,10 @@ use App\Message\RewatchNomination;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Trait DisplayEmojiNomineesTrait
+ * Trait DisplayRewatchNomineesTrait
  * @package App\Command
  */
-trait DisplayEmojiNomineesTrait
+trait DisplayRewatchNomineesTrait
 {
     /**
      * @param SymfonyStyle $io
@@ -17,7 +17,7 @@ trait DisplayEmojiNomineesTrait
      */
     private function displayNominees(SymfonyStyle $io, array $messages): void
     {
-        $headers = ['id', 'author', 'anime', 'votes', 'episodes', 'ended on', 'mal'];
+        $headers = ['id', 'author', 'anime', 'votes', 'episodes', 'ended on', 'score', 'mal'];
         $data = [];
         foreach ($messages as $id => $message) {
             $data[] = [
@@ -27,6 +27,7 @@ trait DisplayEmojiNomineesTrait
                 $message->getVotes(),
                 $message->getEpisodeCount(),
                 $message->getEndDate()->format('Y-m-d'),
+                $message->getAnime()->score,
                 $message->getContent(),
             ];
         }
