@@ -57,7 +57,7 @@ class SotwValidateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        $commandTxt = '!haamc sotw validate ';
+        $commandTxt = '!haamc sotw validate';
         if (strpos($message->content, $commandTxt) !== 0) {
             $event->getIo()->writeln('Did not match');
             return;
