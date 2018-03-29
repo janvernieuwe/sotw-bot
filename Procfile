@@ -1,0 +1,1 @@
+web: bin/console haamc:yasmin:run
