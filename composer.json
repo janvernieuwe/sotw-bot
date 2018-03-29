@@ -8,19 +8,18 @@
         "restcord/restcord": "dev-develop",
         "roave/security-advisories": "dev-master",
         "symfony/console": "^4.0",
+        "symfony/dotenv": "^4.0",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.0",
         "symfony/lts": "^4@dev",
-        "symfony/validator": "^4.0",
-        "symfony/yaml": "^4.0"
+        "symfony/validator": "^4.0"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^0.9.2",
         "nikic/php-parser": "^3.1",
         "phpro/grumphp": "^0.13.1",
         "phpspec/phpspec": "^4.3",
-        "squizlabs/php_codesniffer": "^3.2",
-        "symfony/dotenv": "^4.0"
+        "squizlabs/php_codesniffer": "^3.2"
     },
     "config": {
         "preferred-install": {
