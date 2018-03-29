@@ -108,12 +108,12 @@ services:
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
-    App\Yasmin\Subscriber\SotwStartSubscriber:
+    App\Yasmin\Subscriber\SotwValidateSubscriber:
         public: true
         arguments:
           $adminRole: "%env(ADMIN_ROLE)%"
           $sotw: "@discord.channel.sotw"
           $error: "@discord.dm.sotw"
-        class: App\Yasmin\Subscriber\SotwStartSubscriber
+        class: App\Yasmin\Subscriber\SotwValidateSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}

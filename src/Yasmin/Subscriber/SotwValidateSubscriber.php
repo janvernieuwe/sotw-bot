@@ -9,10 +9,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Lets admins run symfony commands
- * Class SotwStartSubscriber
+ * Class SotwValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class SotwStartSubscriber implements EventSubscriberInterface
+class SotwValidateSubscriber implements EventSubscriberInterface
 {
     /**
      * @var string
@@ -30,7 +30,7 @@ class SotwStartSubscriber implements EventSubscriberInterface
     private $error;
 
     /**
-     * SotwStartSubscriber constructor.
+     * SotwValidateSubscriber constructor.
      * @param string $adminRole
      * @param SotwChannel $sotw
      * @param SotwErrorDm $error
