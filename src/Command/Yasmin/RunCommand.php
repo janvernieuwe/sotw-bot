@@ -2,13 +2,12 @@
 
 namespace App\Command\Yasmin;
 
-use App\Formatter\BBCodeFormatter;
 use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Message;
+use React\EventLoop\Factory;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -18,7 +17,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class RunCommand extends ContainerAwareCommand
 {
-
     protected function configure(): void
     {
         $this
@@ -38,8 +36,8 @@ class RunCommand extends ContainerAwareCommand
         $container = $this->getContainer();
         $dispatcher = $container->get('event_dispatcher');
         $io = new SymfonyStyle($input, $output);
-        $loop = \React\EventLoop\Factory::create();
-        $client = new \CharlotteDunois\Yasmin\Client(array(), $loop);
+        $loop = Factory::create();
+        $client = new Client([], $loop);
 
         $client->on(
             'ready',
