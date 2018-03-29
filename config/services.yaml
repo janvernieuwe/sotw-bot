@@ -107,3 +107,11 @@ services:
         class: App\Yasmin\Subscriber\IsaiSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\CommandSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+        class: App\Yasmin\Subscriber\CommandSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}

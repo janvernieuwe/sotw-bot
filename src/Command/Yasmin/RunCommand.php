@@ -53,17 +53,15 @@ class RunCommand extends ContainerAwareCommand
         $client->on(
             'message',
             function (Message $message) use ($io, $dispatcher) {
+                // Don't listen to bots (and myself)
+                if ($message->author->bot) {
+                    return;
+                }
                 $io->writeln(
                     'Received Message from '.$message->author->tag.' in '.
                     ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
                     .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)'
                 );
-
-                // Don't listen to bots (and myself)
-                if ($message->author->bot) {
-                    return;
-                }
-
                 $event = new MessageReceivedEvent($message, $io);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
             }
