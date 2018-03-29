@@ -60,10 +60,12 @@ class SotwValidateSubscriber implements EventSubscriberInterface
         $commandTxt = '!haamc sotw validate';
         if (strpos($message->content, $commandTxt) !== 0) {
             $event->getIo()->writeln('Did not match');
+
             return;
         }
         if (!$message->member->roles->has((int)$this->adminRole)) {
             $event->getIo()->writeln('No admin role');
+
             return;
         }
         $event->stopPropagation();
@@ -82,10 +84,10 @@ class SotwValidateSubscriber implements EventSubscriberInterface
             if (\count($errors)) {
                 //$errorMessenger->send($nomination);
                 $this->sotw->addReaction($nomination, '❌');
-                $message->reply($nomination.PHP_EOL.$errors);
+                $message->reply(':x: '.$nomination.PHP_EOL.$errors);
                 continue;
             }
-            $message->reply($nomination);
+            $message->reply(':white_check_mark:  '.$nomination);
             $this->sotw->removeReaction($nomination, '❌');
         }
     }
