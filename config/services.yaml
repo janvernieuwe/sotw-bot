@@ -136,3 +136,41 @@ services:
         class: App\Yasmin\Subscriber\Rewatch\ValidateSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Rewatch\VoteSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+          $permissionRole: "%env(PERMISSIONS_ROLE)%"
+          $rewatch: "@discord.channel.rewatch"
+        class: App\Yasmin\Subscriber\Rewatch\VoteSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Rewatch\NominateSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+          $permissionRole: "%env(PERMISSIONS_ROLE)%"
+          $rewatch: "@discord.channel.rewatch"
+        class: App\Yasmin\Subscriber\Rewatch\NominateSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Rewatch\FinishSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+          $permissionRole: "%env(PERMISSIONS_ROLE)%"
+          $rewatch: "@discord.channel.rewatch"
+        class: App\Yasmin\Subscriber\Rewatch\FinishSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\HelpSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+        class: App\Yasmin\Subscriber\HelpSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
