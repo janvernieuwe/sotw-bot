@@ -89,7 +89,6 @@ class StartSubscriber implements EventSubscriberInterface
         // Output post for the forum
         $formatter = new BBCodeFormatter($nominations);
         $bbcode = '```'.$formatter->createMessage().'```';
-        $io->writeln($bbcode);
         $message->channel->send($bbcode);
     }
 }
