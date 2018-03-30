@@ -60,11 +60,13 @@ All commands are prefixed with !haamc
 !haamc <section> <action>
 
 ## sotw (Song of the week) ##
-sotw                (start the next round of song of the week)
+sotw next           (start the next round of song of the week, admins only)
+sotw ranking        (show the current ranking)
 
 ## rewatch (Anime Rewatch) ###
-rewatch start       (open nominations, bot auto starts voting and auto validates)
-rewatch finish      (announces the winner)
+rewatch start       (start the next rewatch round, admins only)
+rewatch finish      (finish the rewatch round, admins only)
+rewatch ranking     (show the current ranking)
 ```
 HELP;
         $message->channel->send($help);

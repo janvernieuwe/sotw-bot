@@ -117,6 +117,14 @@ services:
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
+    App\Yasmin\Subscriber\Sotw\RankingSubscriber:
+        public: true
+        arguments:
+          $sotw: "@discord.channel.sotw"
+        class: App\Yasmin\Subscriber\Sotw\RankingSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
     App\Yasmin\Subscriber\Rewatch\AutoValidateSubscriber:
         public: true
         arguments:
@@ -148,6 +156,15 @@ services:
         class: App\Yasmin\Subscriber\Rewatch\FinishSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Rewatch\RankingSubscriber:
+        public: true
+        arguments:
+          $rewatch: "@discord.channel.rewatch"
+        class: App\Yasmin\Subscriber\Rewatch\RankingSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
 
     App\Yasmin\Subscriber\HelpSubscriber:
         public: true

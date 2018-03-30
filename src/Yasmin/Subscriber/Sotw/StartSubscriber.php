@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class StartSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc sotw';
+    const COMMAND = '!haamc sotw next';
 
     /**
      * @var string
@@ -53,7 +53,7 @@ class StartSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
+        if ($message->content !== self::COMMAND) {
             return;
         }
         if (!$message->member->roles->has((int)$this->adminRole)) {
