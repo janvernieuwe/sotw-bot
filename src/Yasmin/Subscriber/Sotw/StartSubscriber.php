@@ -61,6 +61,7 @@ class StartSubscriber implements EventSubscriberInterface
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
+        $io = $event->getIo();
 
         $nominations = $this->sotw->getLastNominations();
         try {
@@ -73,20 +74,22 @@ class StartSubscriber implements EventSubscriberInterface
             }
         } catch (RuntimeException $e) {
             $message->channel->send(':x: '.$e->getMessage());
-            $event->getIo()->error($e->getMessage());
+            $io->error($e->getMessage());
 
             return;
         }
 
         // Announce the winner and unlock the channel
         $winner = $nominations[0];
-        $event->getIo()->writeln((string)$winner);
+        $io->writeln((string)$winner);
         $this->sotw->announceWinner($winner);
         $this->sotw->addMedals($nominations);
         $this->sotw->openNominations();
 
         // Output post for the forum
         $formatter = new BBCodeFormatter($nominations);
-        $message->channel->send('```'.$formatter->createMessage().'```');
+        $bbcode = '```'.$formatter->createMessage().'```';
+        $io->writeln($bbcode);
+        $message->channel->send($bbcode);
     }
 }
