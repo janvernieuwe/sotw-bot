@@ -2,6 +2,7 @@
 
 namespace App\Message;
 
+use CharlotteDunois\Yasmin\Models\Message as YasminMessage;
 use Jikan\Model\Anime;
 use Symfony\Component\Validator\Constraints as Assert;
 use function GuzzleHttp\Psr7\parse_query;
@@ -24,6 +25,15 @@ class RewatchNomination extends Message
     public static function isContender(string $content): bool
     {
         return preg_match('/^https?:\/\/myanimelist\.net\/anime/', $content);
+    }
+
+    /**
+     * @param YasminMessage $message
+     * @return RewatchNomination
+     */
+    public static function fromYasmin(YasminMessage $message): RewatchNomination
+    {
+        return new self(parent::yasminToArray($message));
     }
 
     /**

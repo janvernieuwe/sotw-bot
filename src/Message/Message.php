@@ -2,6 +2,7 @@
 
 namespace App\Message;
 
+use CharlotteDunois\Yasmin\Models\Message as YasminMessage;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -114,8 +115,24 @@ class Message
     /**
      * @return \DateTime
      */
-    public function getDate():\DateTime
+    public function getDate(): \DateTime
     {
         return new \DateTime($this->message['timestamp']);
+    }
+
+    /**
+     * @param YasminMessage $message
+     * @return array
+     */
+    protected static function yasminToArray(YasminMessage $message): array
+    {
+        return  [
+            'id'      => $message->id,
+            'content' => $message->content,
+            'author'  => [
+                'username' => $message->author->username,
+                'id'       => $message->author->id,
+            ],
+        ];
     }
 }

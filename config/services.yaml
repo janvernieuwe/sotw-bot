@@ -126,34 +126,25 @@ services:
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
-    App\Yasmin\Subscriber\Rewatch\ValidateSubscriber:
+    App\Yasmin\Subscriber\Rewatch\AutoValidateSubscriber:
         public: true
         arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
+          $channelId: "%env(REWATCH_CHANNEL_ID)%"
+          $roleId: "%env(PERMISSIONS_ROLE)%"
           $rewatch: "@discord.channel.rewatch"
           $error: "@discord.dm.rewatch"
           $validator: "@validator"
-        class: App\Yasmin\Subscriber\Rewatch\ValidateSubscriber
+        class: App\Yasmin\Subscriber\Rewatch\AutoValidateSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
-    App\Yasmin\Subscriber\Rewatch\VoteSubscriber:
+    App\Yasmin\Subscriber\Rewatch\StartSubscriber:
         public: true
         arguments:
           $adminRole: "%env(ADMIN_ROLE)%"
           $permissionRole: "%env(PERMISSIONS_ROLE)%"
           $rewatch: "@discord.channel.rewatch"
-        class: App\Yasmin\Subscriber\Rewatch\VoteSubscriber
-        tags:
-          - { name: kernel.event_subscriber, event: yasmin.message_received}
-
-    App\Yasmin\Subscriber\Rewatch\NominateSubscriber:
-        public: true
-        arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
-          $permissionRole: "%env(PERMISSIONS_ROLE)%"
-          $rewatch: "@discord.channel.rewatch"
-        class: App\Yasmin\Subscriber\Rewatch\NominateSubscriber
+        class: App\Yasmin\Subscriber\Rewatch\StartSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 

@@ -12,9 +12,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class VoteSubscriber implements EventSubscriberInterface
+class StartSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc rewatch vote';
+    const COMMAND = '!haamc rewatch start';
 
     /**
      * @var int
@@ -70,19 +70,6 @@ class VoteSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $message->channel->send('Fetch nomination data');
-        $nominations = $this->rewatch->getValidNominations();
-        if (count($nominations) !== 10) {
-            throw new \RuntimeException('Invalid number of nominees '.count($nominations));
-        }
-        $message->channel->send('Set channel permissions');
-        $this->rewatch->deny($this->permissionRole, Channel::ROLE_SEND_MESSAGES);
-        $message->channel->send('Add reactions');
-        foreach ($nominations as $nomination) {
-            $this->rewatch->addReaction($nomination, '🔼');
-        }
-        $message->channel->send('Send message');
-        $this->rewatch->message('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');
-        $this->rewatch->message('We maken de winnaar zondag namiddag bekend.');
+        $this->rewatch->openNominations($this->permissionRole);
     }
 }

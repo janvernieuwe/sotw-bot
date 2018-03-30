@@ -71,11 +71,6 @@ class FinishSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $message->channel->send('Set permissions');
-        $this->rewatch->allow($this->permissionRole, Channel::ROLE_SEND_MESSAGES);
-        $message->channel->send('Open nominations message');
-        $this->rewatch->message('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
-
         $nominations = $this->rewatch->getValidNominations();
         try {
             if (count($nominations) !== 10) {
