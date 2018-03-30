@@ -59,13 +59,9 @@ class SotwValidateSubscriber implements EventSubscriberInterface
         $message = $event->getMessage();
         $commandTxt = '!haamc sotw validate';
         if (strpos($message->content, $commandTxt) !== 0) {
-            $event->getIo()->writeln('Did not match');
-
             return;
         }
         if (!$message->member->roles->has((int)$this->adminRole)) {
-            $event->getIo()->writeln('No admin role');
-
             return;
         }
         $event->stopPropagation();
