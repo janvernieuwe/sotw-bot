@@ -71,24 +71,26 @@ class SotwValidateSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
 
         $nominations = $this->sotw->getLastNominations();
+        $output = [];
         // Check count
         $nominationCount = \count($nominations);
         if ($nominationCount !== 10) {
-            $message->reply(sprintf('Wrong amount of nominations (%s/10)', $nominationCount));
+            $output[] = sprintf(':x: Wrong amount of nominations (%s/10)', $nominationCount);
         }
         if (count($nominations) >= 2 && $nominations[0]->getVotes() === $nominations[1]->getVotes()) {
-            $message->reply('There is no clear winner!');
+            $output[] = ':x: There is no clear winner!';
         }
         foreach ($nominations as $nomination) {
             $errors = $this->sotw->validate($nomination);
             if (\count($errors)) {
-                //$errorMessenger->send($nomination);
+                $this->error->send($nomination);
                 $this->sotw->addReaction($nomination, '❌');
-                $message->reply(':x: '.$nomination.PHP_EOL.$errors);
+                $output[] = ':x: '.$nomination.PHP_EOL.$errors;
                 continue;
             }
-            $message->reply(':white_check_mark:  '.$nomination);
+            $output[] = ':white_check_mark:  '.$nomination;
             $this->sotw->removeReaction($nomination, '❌');
         }
+        $message->channel->send(implode(PHP_EOL, $output));
     }
 }
