@@ -63,6 +63,7 @@ class StartSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
         $io = $event->getIo();
 
+        $message->channel->startTyping();
         $nominations = $this->sotw->getLastNominations();
         try {
             $this->sotw->validateNominees($nominations);
@@ -75,6 +76,7 @@ class StartSubscriber implements EventSubscriberInterface
         } catch (RuntimeException $e) {
             $message->channel->send(':x: '.$e->getMessage());
             $io->error($e->getMessage());
+            $message->channel->stopTyping();
 
             return;
         }
@@ -90,5 +92,6 @@ class StartSubscriber implements EventSubscriberInterface
         $formatter = new BBCodeFormatter($nominations);
         $bbcode = '```'.$formatter->createMessage().'```';
         $message->channel->send($bbcode);
+        $message->channel->stopTyping();
     }
 }
