@@ -65,7 +65,6 @@ sotw validate       (validate the nominations and flags them, an error DM is sen
 sotw vote           (removes write permissions and adds reactions)
 
 ## rewatch (Anime Rewatch) ###
-
 rewatch nominate    (opens the nominations so users can submit)
 rewatch validate    (retrieves MAL data for validation, an error DM is sent to the user and the nomination is flagged)
 rewatch vote        (removes write permissions, adds reactions and a message)
