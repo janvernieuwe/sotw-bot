@@ -97,12 +97,12 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         if (count($errors)) {
             $io->error($nomination->getAuthor().': '.$nomination->getAnime()->title.PHP_EOL.$errors);
             $this->error->send($nomination);
-            $this->rewatch->removeMessage($nomination->getMessageId());
+            $message->delete();
 
             return;
         }
         // Valid, add reaction
-        $this->rewatch->addReaction($nomination, '🔼');
+        $message->react('🔼');
         $nominationCount = count($this->rewatch->getValidNominations());
         if ($nominationCount !== 10) {
             $io->writeln(sprintf('Not starting yet %s/10 nominations', $nominationCount));
