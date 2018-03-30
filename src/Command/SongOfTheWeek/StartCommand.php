@@ -42,7 +42,7 @@ class StartCommand extends ContainerAwareCommand
             $sotw->validateNominees($nominations);
         }
 
-        // Check that we have a clear winner
+        // Check that we have a clear winne
         $nominationCount = \count($nominations);
         if (!$force && $nominationCount !== 10) {
             throw new RuntimeException(sprintf('Wrong amount of nominations (%s/10)', $nominationCount));

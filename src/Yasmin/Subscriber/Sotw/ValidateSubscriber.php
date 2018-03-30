@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Yasmin\Subscriber;
+namespace App\Yasmin\Subscriber\Sotw;
 
 use App\Channel\SotwChannel;
 use App\Error\SotwErrorDm;
@@ -9,11 +9,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Lets admins run symfony commands
- * Class SotwValidateSubscriber
+ * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class SotwValidateSubscriber implements EventSubscriberInterface
+class ValidateSubscriber implements EventSubscriberInterface
 {
+    const COMMAND = '!haamc sotw validate';
+
     /**
      * @var string
      */
@@ -30,7 +32,7 @@ class SotwValidateSubscriber implements EventSubscriberInterface
     private $error;
 
     /**
-     * SotwValidateSubscriber constructor.
+     * ValidateSubscriber constructor.
      * @param string $adminRole
      * @param SotwChannel $sotw
      * @param SotwErrorDm $error
@@ -57,13 +59,13 @@ class SotwValidateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        $commandTxt = '!haamc sotw validate';
-        if (strpos($message->content, $commandTxt) !== 0) {
+        if (strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         if (!$message->member->roles->has((int)$this->adminRole)) {
             return;
         }
+        $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
         $nominations = $this->sotw->getLastNominations();

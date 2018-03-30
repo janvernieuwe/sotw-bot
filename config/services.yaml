@@ -98,22 +98,41 @@ services:
         class: Jikan\Jikan
         public: true
 
-    yasmin.subscriber.weather:
-        class: App\Yasmin\Subscriber\NiceWeatherSubscriber
-        tags:
-          - { name: kernel.event_subscriber, event: yasmin.message_received}
-
-    yasmin.subscriber.isai:
-        class: App\Yasmin\Subscriber\IsaiSubscriber
-        tags:
-          - { name: kernel.event_subscriber, event: yasmin.message_received}
-
-    App\Yasmin\Subscriber\SotwValidateSubscriber:
+    App\Yasmin\Subscriber\Sotw\ValidateSubscriber:
         public: true
         arguments:
           $adminRole: "%env(ADMIN_ROLE)%"
           $sotw: "@discord.channel.sotw"
           $error: "@discord.dm.sotw"
-        class: App\Yasmin\Subscriber\SotwValidateSubscriber
+        class: App\Yasmin\Subscriber\Sotw\ValidateSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Sotw\VoteSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+          $sotw: "@discord.channel.sotw"
+        class: App\Yasmin\Subscriber\Sotw\VoteSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Sotw\NominateSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+          $sotw: "@discord.channel.sotw"
+        class: App\Yasmin\Subscriber\Sotw\NominateSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\Rewatch\ValidateSubscriber:
+        public: true
+        arguments:
+          $adminRole: "%env(ADMIN_ROLE)%"
+          $rewatch: "@discord.channel.rewatch"
+          $error: "@discord.dm.rewatch"
+          $validator: "@validator"
+        class: App\Yasmin\Subscriber\Rewatch\ValidateSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
