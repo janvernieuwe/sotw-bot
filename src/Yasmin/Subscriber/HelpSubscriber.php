@@ -60,9 +60,7 @@ All commands are prefixed with !haamc
 !haamc <section> <action>
 
 ## sotw (Song of the week) ##
-sotw nominate       (opens the nominations so users can submit)
-sotw validate       (validate the nominations and flags them, an error DM is sent to the user)
-sotw vote           (removes write permissions and adds reactions)
+sotw                (start the next round of song of the week)
 
 ## rewatch (Anime Rewatch) ###
 rewatch start       (open nominations, bot auto starts voting and auto validates)

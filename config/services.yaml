@@ -98,31 +98,22 @@ services:
         class: Jikan\Jikan
         public: true
 
-    App\Yasmin\Subscriber\Sotw\ValidateSubscriber:
+    App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber:
         public: true
         arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
-          $sotw: "@discord.channel.sotw"
-          $error: "@discord.dm.sotw"
-        class: App\Yasmin\Subscriber\Sotw\ValidateSubscriber
+            $channelId: "%env(SOTW_CHANNEL_ID)%"
+            $sotw: "@discord.channel.sotw"
+            $error: "@discord.dm.sotw"
+        class: App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
-    App\Yasmin\Subscriber\Sotw\VoteSubscriber:
+    App\Yasmin\Subscriber\Sotw\StartSubscriber:
         public: true
         arguments:
           $adminRole: "%env(ADMIN_ROLE)%"
           $sotw: "@discord.channel.sotw"
-        class: App\Yasmin\Subscriber\Sotw\VoteSubscriber
-        tags:
-          - { name: kernel.event_subscriber, event: yasmin.message_received}
-
-    App\Yasmin\Subscriber\Sotw\NominateSubscriber:
-        public: true
-        arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
-          $sotw: "@discord.channel.sotw"
-        class: App\Yasmin\Subscriber\Sotw\NominateSubscriber
+        class: App\Yasmin\Subscriber\Sotw\StartSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 

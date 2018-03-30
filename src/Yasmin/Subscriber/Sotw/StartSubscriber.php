@@ -3,6 +3,7 @@
 namespace App\Yasmin\Subscriber\Sotw;
 
 use App\Channel\SotwChannel;
+use App\Formatter\BBCodeFormatter;
 use App\Yasmin\Event\MessageReceivedEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,9 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class VoteSubscriber implements EventSubscriberInterface
+class StartSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc sotw vote';
+    const COMMAND = '!haamc sotw';
 
     /**
      * @var string
@@ -64,29 +65,28 @@ class VoteSubscriber implements EventSubscriberInterface
         $nominations = $this->sotw->getLastNominations();
         try {
             $this->sotw->validateNominees($nominations);
+            if (!\count($nominations)) {
+                throw new RuntimeException('No nominations found');
+            }
+            if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
+                throw new RuntimeException('There is no clear winner!');
+            }
         } catch (RuntimeException $e) {
             $message->channel->send(':x: '.$e->getMessage());
+            $event->getIo()->error($e->getMessage());
 
             return;
         }
-        // Check amount of nominations
-        $nominationCount = \count($nominations);
-        if ($nominationCount !== 10) {
-            $error = sprintf(':x: Wrong amount of nominations (%s/10)', $nominationCount);
-            $message->channel->send($error);
-            $event->getIo()->error($error);
 
-            return;
-        }
-        $event->getIo()->note('Closing nominations');
-        $message->channel->send('Closing nominations');
-        $this->sotw->closeNominations();
-        $event->getIo()->note('Adding reactions');
-        $message->channel->send('Adding reactions');
-        foreach ($nominations as $nominee) {
-            if ($this->sotw->isValid($nominee)) {
-                $this->sotw->addReaction($nominee, '🔼');
-            }
-        }
+        // Announce the winner and unlock the channel
+        $winner = $nominations[0];
+        $event->getIo()->writeln((string)$winner);
+        $this->sotw->announceWinner($winner);
+        $this->sotw->addMedals($nominations);
+        $this->sotw->openNominations();
+
+        // Output post for the forum
+        $formatter = new BBCodeFormatter($nominations);
+        $message->channel->send('```'.$formatter->createMessage().'```');
     }
 }

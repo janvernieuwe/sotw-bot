@@ -77,7 +77,17 @@ class SotwNomination extends Message
         }
 
         $match = str_replace(['[', ']'], ' ', $matches[1][0]);
+
         return trim($match);
+    }
+
+    /**
+     * @param \CharlotteDunois\Yasmin\Models\Message $message
+     * @return SotwNomination
+     */
+    public static function fromYasmin(\CharlotteDunois\Yasmin\Models\Message $message): SotwNomination
+    {
+        return self::fromMessage(parent::yasminToArray($message));
     }
 
     /**
