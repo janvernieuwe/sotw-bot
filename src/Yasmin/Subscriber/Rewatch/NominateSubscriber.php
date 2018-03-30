@@ -70,9 +70,9 @@ class NominateSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $message->channel->send('Set permissions', true);
+        $message->channel->send('Set permissions');
         $this->rewatch->allow($this->permissionRole, Channel::ROLE_SEND_MESSAGES);
-        $message->channel->send('Send message', true);
+        $message->channel->send('Send message');
         $this->rewatch->message('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
     }
 }

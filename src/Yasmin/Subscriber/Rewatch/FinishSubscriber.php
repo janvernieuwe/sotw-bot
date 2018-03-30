@@ -71,18 +71,18 @@ class FinishSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $message->channel->send('Set permissions', true);
+        $message->channel->send('Set permissions');
         $this->rewatch->allow($this->permissionRole, Channel::ROLE_SEND_MESSAGES);
-        $message->channel->send('Send message', true);
+        $message->channel->send('Open nominations message');
         $this->rewatch->message('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
 
         $nominations = $this->rewatch->getValidNominations();
         try {
             if (count($nominations) !== 10) {
-                throw new \RuntimeException('Invalid number of nominees '.count($nominations));
+                throw new RuntimeException('Invalid number of nominees '.count($nominations));
             }
             if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
-                throw new \RuntimeException('There is no clear winner');
+                throw new RuntimeException('There is no clear winner');
             }
         } catch (RuntimeException $e) {
             $event->getIo()->error($e->getMessage());
@@ -91,7 +91,7 @@ class FinishSubscriber implements EventSubscriberInterface
             return;
         }
         $winner = $nominations[0];
-        $message->channel->send('Send message');
+        $message->channel->send('Announce winner');
         $this->rewatch->message(
             sprintf(
                 ':trophy: Deze rewatch kijken we naar %s (%s), genomineerd door <@!%s>',

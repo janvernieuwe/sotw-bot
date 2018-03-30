@@ -69,7 +69,6 @@ class VoteSubscriber implements EventSubscriberInterface
 
             return;
         }
-
         // Check amount of nominations
         $nominationCount = \count($nominations);
         if ($nominationCount !== 10) {
@@ -82,7 +81,6 @@ class VoteSubscriber implements EventSubscriberInterface
         $event->getIo()->note('Closing nominations');
         $message->channel->send('Closing nominations');
         $this->sotw->closeNominations();
-
         $event->getIo()->note('Adding reactions');
         $message->channel->send('Adding reactions');
         foreach ($nominations as $nominee) {

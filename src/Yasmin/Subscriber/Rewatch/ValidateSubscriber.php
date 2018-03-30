@@ -79,7 +79,6 @@ class ValidateSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-
         $output = [];
         $message->channel->send('Fetching MAL data');
         $nominations = $this->rewatch->getLastNominations();
