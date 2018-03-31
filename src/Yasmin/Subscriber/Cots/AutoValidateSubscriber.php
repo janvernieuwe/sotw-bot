@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class AutoValidateSubscriber implements EventSubscriberInterface
 {
+    public const LIMIT = 15;
+
     /**
      * @var CotsErrorDm
      */
@@ -94,8 +96,8 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         // Check total nominations
         $nominations = $this->cots->getLastNominations();
         $nominationCount = count($nominations);
-        if ($nominationCount !== 25) {
-            $io->writeln(sprintf('Not locking yet %s/25 nominations', $nominationCount));
+        if ($nominationCount !== self::LIMIT) {
+            $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
 
             return;
         }
