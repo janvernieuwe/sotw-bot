@@ -3,6 +3,7 @@
 namespace App\Yasmin\Subscriber;
 
 use App\Yasmin\Event\MessageReceivedEvent;
+use RestCord\DiscordClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -10,22 +11,28 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class HelpSubscriber implements EventSubscriberInterface
+class SaySubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc help';
+    const COMMAND = '!haamc say';
 
     /**
      * @var int
      */
     private $adminRole;
+    /**
+     * @var DiscordClient
+     */
+    private $discord;
 
     /**
      * HelpSubscriber constructor.
      * @param int $adminRole
+     * @param DiscordClient $discord
      */
-    public function __construct($adminRole)
+    public function __construct(int $adminRole, DiscordClient $discord)
     {
         $this->adminRole = $adminRole;
+        $this->discord = $discord;
     }
 
     /**
@@ -48,24 +55,22 @@ class HelpSubscriber implements EventSubscriberInterface
         if (!$message->member->roles->has($this->adminRole)) {
             return;
         }
-        $event->getIo()->writeln(__CLASS__.' dispatched');
+        $io = $event->getIo();
+        $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $help = <<<HELP
-```        
-All commands are prefixed with !haamc
-
-!haamc <section> <action>
-
-sotw next               (start the next round of song of the week, admins only)
-sotw ranking            (show the current ranking)
-sotw forum              (show the current ranking in BBCode, admins only)
-rewatch start           (start the next rewatch round, admins only)
-rewatch finish          (finish the rewatch round, admins only)
-rewatch ranking         (show the current ranking)
-say <channelid> <msg>   (send a message to a channel, admins only)
-```
-HELP;
-        $message->channel->send($help);
+        preg_match('/^\!haamc say (\d+) (.*)$/', $message->content, $cmd);
+        if (count($cmd) !== 3) {
+            return;
+        }
+        $io->writeln(
+            sprintf('Sending message to channel %s, %s by %s', $cmd[1], $cmd[2], $message->author->username)
+        );
+        $this->discord->channel->createMessage(
+            [
+                'channel.id' => (int)$cmd[1],
+                'content'    => $cmd[2],
+            ]
+        );
     }
 }

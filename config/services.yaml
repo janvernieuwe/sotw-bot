@@ -98,6 +98,16 @@ services:
         class: Jikan\Jikan
         public: true
 
+
+    App\Yasmin\Subscriber\SaySubscriber:
+        public: true
+        arguments:
+            $adminRole: "%env(ADMIN_ROLE)%"
+            $discord: "@discord"
+        class: App\Yasmin\Subscriber\SaySubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
+
     App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber:
         public: true
         arguments:
