@@ -82,6 +82,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $io = $event->getIo();
+
         // Invalid message, delet
         if (!RewatchNomination::isContender($message->content)) {
             $message->delete(0, 'Not a valid nomination');
@@ -90,7 +91,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         }
         // Fetch data
         $nomination = RewatchNomination::fromYasmin($message);
-        $this->rewatch->addAnime($nomination);
+        $nomination->setAnime($this->rewatch->loadAnime($nomination->getAnimeId()));
         $this->validator->validate($nomination);
         $errors = $this->validator->validate($nomination);
         // Invalid

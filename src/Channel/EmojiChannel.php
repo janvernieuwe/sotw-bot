@@ -4,6 +4,10 @@ namespace App\Channel;
 
 use App\Message\EmojiNomination;
 
+/**
+ * Class EmojiChannel
+ * @package App\Channel
+ */
 class EmojiChannel extends Channel
 {
     /**

@@ -8,6 +8,10 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class AbstractErrorDm
+ * @package App\Error
+ */
 abstract class AbstractErrorDm
 {
     /**
@@ -29,6 +33,37 @@ abstract class AbstractErrorDm
     {
         $this->discord = $discord;
         $this->validator = $validator;
+    }
+
+    /**
+     * @param Message $message
+     * @return array
+     */
+    public function getErrorArray(Message $message): array
+    {
+        if ($this->isValid($message)) {
+            return [];
+        }
+
+        return $this->parseErrors($this->validate($message));
+    }
+
+    /**
+     * @param Message $nomination
+     * @return bool
+     */
+    public function isValid(Message $nomination): bool
+    {
+        return count($this->validate($nomination)) === 0;
+    }
+
+    /**
+     * @param Message $nomination
+     * @return ConstraintViolationListInterface
+     */
+    public function validate(Message $nomination): ConstraintViolationListInterface
+    {
+        return $this->validator->validate($nomination);
     }
 
     /**

@@ -57,13 +57,13 @@ All commands are prefixed with !haamc
 
 !haamc <section> <action>
 
+say <channelid> <msg>   (send a message to a channel, admins only)
 sotw next               (start the next round of song of the week, admins only)
 sotw ranking            (show the current ranking)
 sotw forum              (show the current ranking in BBCode, admins only)
 rewatch start           (start the next rewatch round, admins only)
 rewatch finish          (finish the rewatch round, admins only)
 rewatch ranking         (show the current ranking)
-say <channelid> <msg>   (send a message to a channel, admins only)
 ```
 HELP;
         $message->channel->send($help);
