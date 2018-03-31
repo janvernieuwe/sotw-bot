@@ -76,7 +76,7 @@ services:
           - '%env(REWATCH_CHANNEL_ID)%'
         public: true
 
-    discord.channel.cots:
+    App\Channel\CotsChannel:
         class: App\Channel\CotsChannel
         arguments:
           - '@discord'
@@ -84,6 +84,21 @@ services:
           - '@jikan'
           - '@validator'
           - '%env(COTS_CHANNEL_ID)%'
+          - '%env(PERMISSIONS_ROLE)%'
+
+    App\Yasmin\Subscriber\Cots\FinishSubscriber:
+        class: App\Yasmin\Subscriber\Cots\FinishSubscriber
+        arguments:
+          - '%env(ADMIN_ROLE)%'
+          - '@App\Channel\CotsChannel'
+          - '%env(COTS_SEASON)%'
+
+    App\Yasmin\Subscriber\Cots\StartSubscriber:
+        class: App\Yasmin\Subscriber\Cots\StartSubscriber
+        arguments:
+          - '%env(ADMIN_ROLE)%'
+          - '@App\Channel\CotsChannel'
+          - '%env(COTS_SEASON)%'
 
     discord.server:
         class: App\Guild
@@ -120,7 +135,7 @@ services:
     App\Yasmin\Subscriber\Cots\AutoValidateSubscriber:
         public: true
         arguments:
-            $character: "@discord.channel.cots"
+            $character: '@App\Channel\CotsChannel'
             $error: "@discord.dm.character"
             $season: "%env(COTS_SEASON)%"
         class: App\Yasmin\Subscriber\Cots\AutoValidateSubscriber

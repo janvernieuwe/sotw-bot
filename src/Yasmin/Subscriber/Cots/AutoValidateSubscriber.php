@@ -22,7 +22,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     /**
      * @var CotsChannel
      */
-    private $character;
+    private $cots;
 
     /**
      * @var string
@@ -42,7 +42,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         string $season
     ) {
         $this->error = $error;
-        $this->character = $character;
+        $this->cots = $character;
         $this->season = $season;
     }
 
@@ -62,7 +62,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if ((int)$message->channel->id !== $this->character->getChannelId()) {
+        if ((int)$message->channel->id !== $this->cots->getChannelId()) {
             return;
         }
         $io = $event->getIo();
@@ -70,7 +70,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
 
         try {
-            $nomination = $this->character->loadNomination($message);
+            $nomination = $this->cots->loadNomination($message);
         } catch (\Exception $e) {
             $io->error($e->getMessage());
             $message->delete();
@@ -90,5 +90,15 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         // Validate the nomination
         $message->react('🔼');
         $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->title);
+
+        // Check total nominations
+        $nominations = $this->cots->getLastNominations();
+        $nominationCount = count($nominations);
+        if ($nominationCount !== 25) {
+            $io->writeln(sprintf('Not locking yet %s/25 nominations', $nominationCount));
+
+            return;
+        }
+        $this->cots->lockChannel();
     }
 }
