@@ -51,6 +51,11 @@ class RankingSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
 
         $nominations = $this->rewatch->getValidNominations();
+        if (count($nominations) !== 10) {
+            $message->reply('Er zijn nog geen 10 nominaties!');
+
+            return;
+        }
         $output = ['De huidige rewatch ranking is'];
         foreach ($nominations as $i => $nomination) {
             $anime = $nomination->getAnime();

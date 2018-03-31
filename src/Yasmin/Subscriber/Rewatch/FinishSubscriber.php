@@ -2,7 +2,6 @@
 
 namespace App\Yasmin\Subscriber\Rewatch;
 
-use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Yasmin\Event\MessageReceivedEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -70,6 +69,7 @@ class FinishSubscriber implements EventSubscriberInterface
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
+        $io = $event->getIo();
 
         $nominations = $this->rewatch->getValidNominations();
         try {
@@ -80,13 +80,13 @@ class FinishSubscriber implements EventSubscriberInterface
                 throw new RuntimeException('There is no clear winner');
             }
         } catch (RuntimeException $e) {
-            $event->getIo()->error($e->getMessage());
+            $io->error($e->getMessage());
             $message->channel->send(':x:'.$e->getMessage());
 
             return;
         }
         $winner = $nominations[0];
-        $message->channel->send('Announce winner');
+        $io->writeln('Announce winner');
         $this->rewatch->message(
             sprintf(
                 ':trophy: Deze rewatch kijken we naar %s (%s), genomineerd door <@!%s>',
