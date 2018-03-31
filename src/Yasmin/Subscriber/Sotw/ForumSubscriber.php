@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Yasmin\Subscriber;
+namespace App\Yasmin\Subscriber\Sotw;
 
+use App\Channel\SotwChannel;
+use App\Formatter\BBCodeFormatter;
 use App\Yasmin\Event\MessageReceivedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -10,21 +12,27 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class HelpSubscriber implements EventSubscriberInterface
+class ForumSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc help';
+    const COMMAND = '!haamc sotw forum';
 
+    /**
+     * @var SotwChannel
+     */
+    private $sotw;
     /**
      * @var int
      */
     private $adminRole;
 
     /**
-     * HelpSubscriber constructor.
+     * ForumSubscriber constructor.
      * @param int $adminRole
+     * @param SotwChannel $sotw
      */
-    public function __construct($adminRole)
+    public function __construct(int $adminRole, SotwChannel $sotw)
     {
+        $this->sotw = $sotw;
         $this->adminRole = $adminRole;
     }
 
@@ -51,23 +59,9 @@ class HelpSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $help = <<<HELP
-```        
-All commands are prefixed with !haamc
-
-!haamc <section> <action>
-
-## sotw (Song of the week) ##
-sotw next           (start the next round of song of the week, admins only)
-sotw ranking        (show the current ranking)
-sotw forum          (show the current ranking in BBCode, admins only)
-
-## rewatch (Anime Rewatch) ###
-rewatch start       (start the next rewatch round, admins only)
-rewatch finish      (finish the rewatch round, admins only)
-rewatch ranking     (show the current ranking)
-```
-HELP;
-        $message->channel->send($help);
+        $nominations = $this->sotw->getLastNominations();
+        $formatter = new BBCodeFormatter($nominations);
+        $bbcode = '```'.$formatter->createMessage().'```';
+        $message->channel->send($bbcode);
     }
 }

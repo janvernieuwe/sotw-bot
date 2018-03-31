@@ -18,7 +18,7 @@ class StartSubscriber implements EventSubscriberInterface
     const COMMAND = '!haamc sotw next';
 
     /**
-     * @var string
+     * @var int
      */
     private $adminRole;
 
@@ -29,10 +29,10 @@ class StartSubscriber implements EventSubscriberInterface
 
     /**
      * ValidateSubscriber constructor.
-     * @param string $adminRole
+     * @param int $adminRole
      * @param SotwChannel $sotw
      */
-    public function __construct($adminRole, SotwChannel $sotw)
+    public function __construct(int $adminRole, SotwChannel $sotw)
     {
         $this->adminRole = $adminRole;
         $this->sotw = $sotw;
@@ -56,7 +56,7 @@ class StartSubscriber implements EventSubscriberInterface
         if ($message->content !== self::COMMAND) {
             return;
         }
-        if (!$message->member->roles->has((int)$this->adminRole)) {
+        if (!$message->member->roles->has($this->adminRole)) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');

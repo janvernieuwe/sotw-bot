@@ -48,22 +48,25 @@ class RankingSubscriber implements EventSubscriberInterface
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
+        $io = $event->getIo();
 
         $nominations = $this->sotw->getLastNominations();
-        if (count($nominations) !== 10) {
+        $nominationCount = count($nominations);
+        if ($nominationCount !== 10) {
             $message->reply('Er zijn nog geen 10 nominaties!');
+            $io->writeln(sprintf('Not enough nominations %s/10 nominations', $nominationCount));
 
             return;
         }
         $output = ['De huidige song of the week ranking is'];
         foreach ($nominations as $i => $nomination) {
             $output[] = sprintf(
-                ':musical_note: %s) %s - %s (**%s**) (**%s** votes) door **%s**',
-                $i + 1,
+                ":radio: %s) **%s** - **%s**\nvotes: **%s** | anime: *%s* | door: %s",
+                str_pad($i + 1, 2, ' '),
                 $nomination->getArtist(),
                 $nomination->getTitle(),
-                $nomination->getAnime(),
                 $nomination->getVotes(),
+                $nomination->getAnime(),
                 $nomination->getAuthor()
             );
         }

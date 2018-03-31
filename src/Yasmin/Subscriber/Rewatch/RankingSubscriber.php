@@ -47,12 +47,15 @@ class RankingSubscriber implements EventSubscriberInterface
         if (strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
-        $event->getIo()->writeln(__CLASS__.' dispatched');
+        $io = $event->getIo();
+        $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
         $nominations = $this->rewatch->getValidNominations();
-        if (count($nominations) !== 10) {
+        $nominationCount = count($nominations);
+        if ($nominationCount !== 10) {
             $message->reply('Er zijn nog geen 10 nominaties!');
+            $io->writeln(sprintf('Not enough nominations %s/10 nominations', $nominationCount));
 
             return;
         }
