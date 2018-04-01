@@ -51,7 +51,7 @@ services:
           - '@cache.jikan'
           - '@jikan'
 
-    discord:
+    RestCord\DiscordClient:
         class: RestCord\DiscordClient
         arguments:
           -
@@ -59,28 +59,28 @@ services:
             logger:     "@log.null"
         public: true
 
-    discord.channel.sotw:
+    App\Channel\SotwChannel:
         class: App\Channel\SotwChannel
         arguments:
-          - "@discord"
+          - '@RestCord\DiscordClient'
           - "%env(SOTW_CHANNEL_ID)%"
           - "@validator"
           - "%env(PERMISSIONS_ROLE)%"
           - '@App\MyAnimeList\MyAnimeListClient'
         public: true
 
-    discord.channel.emoji:
+    App\Channel\EmojiChannel:
         class: App\Channel\EmojiChannel
         arguments:
-          - "@discord"
+          - '@RestCord\DiscordClient'
           - "%env(EMOJI_CHANNEL_ID)%"
           - '@App\MyAnimeList\MyAnimeListClient'
         public: true
 
-    discord.channel.rewatch:
+    App\Channel\RewatchChannel:
         class: App\Channel\RewatchChannel
         arguments:
-          - '@discord'
+          - '@RestCord\DiscordClient'
           - '@App\MyAnimeList\MyAnimeListClient'
           - '@validator'
           - '%env(REWATCH_CHANNEL_ID)%'
@@ -89,7 +89,7 @@ services:
     App\Channel\CotsChannel:
         class: App\Channel\CotsChannel
         arguments:
-          - '@discord'
+          - '@RestCord\DiscordClient'
           - '@App\MyAnimeList\MyAnimeListClient'
           - '@validator'
           - '%env(COTS_CHANNEL_ID)%'
@@ -107,31 +107,24 @@ services:
           - '@App\Channel\CotsChannel'
           - '%env(COTS_SEASON)%'
 
-    discord.server:
-        class: App\Guild
-        arguments:
-          - "@discord"
-          - "%env(SERVER_ID)%"
-        public: true
-
-    discord.dm.rewatch:
+    App\Error\RewatchErrorDm:
         class: App\Error\RewatchErrorDm
         arguments:
-          - "@discord"
+          - '@RestCord\DiscordClient'
           - "@validator"
         public: true
 
-    discord.dm.character:
+    App\Error\CotsErrorDm:
         class: App\Error\CotsErrorDm
         arguments:
-          - "@discord"
+          - '@RestCord\DiscordClient'
           - "@validator"
         public: true
 
-    discord.dm.sotw:
+    App\Error\SotwErrorDm:
         class: App\Error\SotwErrorDm
         arguments:
-          - "@discord"
+          - '@RestCord\DiscordClient'
           - "@validator"
         public: true
 
@@ -139,7 +132,7 @@ services:
         public: true
         arguments:
             $character: '@App\Channel\CotsChannel'
-            $error: "@discord.dm.character"
+            $error: '@App\Error\CotsErrorDm'
             $season: "%env(COTS_SEASON)%"
         class: App\Yasmin\Subscriber\Cots\AutoValidateSubscriber
         tags:
@@ -149,7 +142,7 @@ services:
         public: true
         arguments:
             $adminRole: "%env(ADMIN_ROLE)%"
-            $discord: "@discord"
+            $discord: '@RestCord\DiscordClient'
         class: App\Yasmin\Subscriber\SaySubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -157,8 +150,8 @@ services:
     App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber:
         public: true
         arguments:
-            $sotw: "@discord.channel.sotw"
-            $error: "@discord.dm.sotw"
+            $sotw: '@App\Channel\SotwChannel'
+            $error: '@App\Error\SotwErrorDm'
         class: App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -166,7 +159,7 @@ services:
     App\Yasmin\Subscriber\Sotw\NextSubscriber:
         public: true
         arguments:
-          $sotw: "@discord.channel.sotw"
+          $sotw: '@App\Channel\SotwChannel'
         class: App\Yasmin\Subscriber\Sotw\NextSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -174,7 +167,7 @@ services:
     App\Yasmin\Subscriber\Sotw\ForumSubscriber:
         public: true
         arguments:
-          $sotw: "@discord.channel.sotw"
+          $sotw: '@App\Channel\SotwChannel'
         class: App\Yasmin\Subscriber\Sotw\ForumSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -182,7 +175,7 @@ services:
     App\Yasmin\Subscriber\Sotw\RankingSubscriber:
         public: true
         arguments:
-          $sotw: "@discord.channel.sotw"
+          $sotw: '@App\Channel\SotwChannel'
         class: App\Yasmin\Subscriber\Sotw\RankingSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -190,8 +183,8 @@ services:
     App\Yasmin\Subscriber\Rewatch\AutoValidateSubscriber:
         public: true
         arguments:
-          $rewatch: "@discord.channel.rewatch"
-          $error: "@discord.dm.rewatch"
+          $rewatch: '@App\Channel\RewatchChannel'
+          $error: '@App\Error\RewatchErrorDm'
         class: App\Yasmin\Subscriber\Rewatch\AutoValidateSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -199,7 +192,7 @@ services:
     App\Yasmin\Subscriber\Rewatch\StartSubscriber:
         public: true
         arguments:
-          $rewatch: "@discord.channel.rewatch"
+          $rewatch: '@App\Channel\RewatchChannel'
         class: App\Yasmin\Subscriber\Rewatch\StartSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -207,7 +200,7 @@ services:
     App\Yasmin\Subscriber\Rewatch\FinishSubscriber:
         public: true
         arguments:
-          $rewatch: "@discord.channel.rewatch"
+          $rewatch: '@App\Channel\RewatchChannel'
         class: App\Yasmin\Subscriber\Rewatch\FinishSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
@@ -215,7 +208,7 @@ services:
     App\Yasmin\Subscriber\Rewatch\RankingSubscriber:
         public: true
         arguments:
-          $rewatch: "@discord.channel.rewatch"
+          $rewatch: '@App\Channel\RewatchChannel'
         class: App\Yasmin\Subscriber\Rewatch\RankingSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
