@@ -4,9 +4,7 @@ namespace App\Channel;
 
 use App\Message\SotwNomination;
 use App\MyAnimeList\MyAnimeListClient;
-use Jikan\Jikan;
 use RestCord\DiscordClient;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -22,9 +20,9 @@ class SotwChannel extends Channel
     public const EMOJI_THIRD_PLACE = '🥉';
 
     /**
-     * @var string
+     * @var int
      */
-    private $role;
+    private $roleId;
 
     /**
      * @var ValidatorInterface
@@ -34,19 +32,19 @@ class SotwChannel extends Channel
     /**
      * SongOfTheWeek constructor.
      * @param DiscordClient $discord
-     * @param string $channelId
+     * @param int $channelId
      * @param ValidatorInterface $validator
-     * @param string $role
+     * @param int $roleId
      * @param MyAnimeListClient $mal
      */
     public function __construct(
         DiscordClient $discord,
-        string $channelId,
+        int $channelId,
         ValidatorInterface $validator,
-        string $role,
+        int $roleId,
         MyAnimeListClient $mal
     ) {
-        $this->role = $role;
+        $this->roleId = $roleId;
         $this->validator = $validator;
         parent::__construct($discord, $channelId, $mal);
     }
@@ -104,7 +102,7 @@ class SotwChannel extends Channel
     public function openNominations(): void
     {
         $this->message($this->createOpenNominationsMessage());
-        $this->allow($this->role, self::ROLE_SEND_MESSAGES);
+        $this->allow($this->roleId, self::ROLE_SEND_MESSAGES);
     }
 
     /**
@@ -133,7 +131,7 @@ MESSAGE;
     public function closeNominations(): void
     {
         $this->message('Laat het stemmen beginnen! :checkered_flag:');
-        $this->deny($this->role, self::ROLE_SEND_MESSAGES);
+        $this->deny($this->roleId, self::ROLE_SEND_MESSAGES);
     }
 
     /**
