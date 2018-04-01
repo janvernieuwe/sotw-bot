@@ -16,11 +16,6 @@ class FinishSubscriber implements EventSubscriberInterface
     const COMMAND = '!haamc cots finish';
 
     /**
-     * @var int
-     */
-    private $adminRole;
-
-    /**
      * @var CotsChannel
      */
     private $cots;
@@ -32,17 +27,14 @@ class FinishSubscriber implements EventSubscriberInterface
 
     /**
      * ValidateSubscriber constructor.
-     * @param int|string $adminRole
      * @param CotsChannel $cots
      * @param string $season
      * @internal param RewatchChannel $rewatch
      */
     public function __construct(
-        int $adminRole,
         CotsChannel $cots,
         string $season
     ) {
-        $this->adminRole = $adminRole;
         $this->cots = $cots;
         $this->season = $season;
     }
@@ -61,10 +53,7 @@ class FinishSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
-            return;
-        }
-        if (!$message->member->roles->has((int)$this->adminRole)) {
+        if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         $io = $event->getIo();

@@ -9,4 +9,3 @@ namespace App\Exception;
 class CharacterNotFoundException extends \Exception
 {
 }
-

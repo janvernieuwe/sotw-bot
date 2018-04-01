@@ -26,27 +26,20 @@ class AutoValidateSubsciber implements EventSubscriberInterface
     private $error;
 
     /**
-     * @var int
-     */
-    private $channelId;
-
-    /**
      * ValidateSubscriber constructor.
-     * @param int $channelId
      * @param SotwChannel $sotw
      * @param SotwErrorDm $error
      */
-    public function __construct(int $channelId, SotwChannel $sotw, SotwErrorDm $error)
+    public function __construct(SotwChannel $sotw, SotwErrorDm $error)
     {
         $this->sotw = $sotw;
         $this->error = $error;
-        $this->channelId = $channelId;
     }
 
     /**
      * @inheritdoc
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
@@ -57,7 +50,8 @@ class AutoValidateSubsciber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if ((int)$message->channel->id !== $this->channelId) {
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ((int)$message->channel->id !== $this->sotw->getChannelId()) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
@@ -69,6 +63,7 @@ class AutoValidateSubsciber implements EventSubscriberInterface
         if (\count($errors)) {
             $this->error->send($nomination);
             $message->delete();
+            /** @noinspection PhpToStringImplementationInspection */
             $io->error($nomination.PHP_EOL.$errors);
 
             return;

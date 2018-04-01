@@ -20,20 +20,14 @@ class ForumSubscriber implements EventSubscriberInterface
      * @var SotwChannel
      */
     private $sotw;
-    /**
-     * @var int
-     */
-    private $adminRole;
 
     /**
      * ForumSubscriber constructor.
-     * @param int $adminRole
      * @param SotwChannel $sotw
      */
-    public function __construct(int $adminRole, SotwChannel $sotw)
+    public function __construct(SotwChannel $sotw)
     {
         $this->sotw = $sotw;
-        $this->adminRole = $adminRole;
     }
 
     /**
@@ -50,10 +44,7 @@ class ForumSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
-            return;
-        }
-        if (!$message->member->roles->has($this->adminRole)) {
+        if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');

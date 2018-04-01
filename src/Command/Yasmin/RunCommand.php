@@ -34,6 +34,8 @@ class RunCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
+        $adminRole = $container->getParameter('adminRole');
+        $permissionsRole = $container->getParameter('permissionsRole');
         $dispatcher = $container->get('event_dispatcher');
         $io = new SymfonyStyle($input, $output);
         $loop = Factory::create();
@@ -52,7 +54,7 @@ class RunCommand extends ContainerAwareCommand
 
         $client->on(
             'message',
-            function (Message $message) use ($io, $dispatcher) {
+            function (Message $message) use ($io, $dispatcher, $adminRole, $permissionsRole) {
                 // Don't listen to bots (and myself)
                 if ($message->author->bot) {
                     return;
@@ -62,7 +64,7 @@ class RunCommand extends ContainerAwareCommand
                     ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
                     .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)'
                 );
-                $event = new MessageReceivedEvent($message, $io);
+                $event = new MessageReceivedEvent($message, $io, $adminRole, $permissionsRole);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
             }
         );

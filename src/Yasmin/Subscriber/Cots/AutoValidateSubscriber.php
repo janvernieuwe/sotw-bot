@@ -71,6 +71,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
+        // Attempt to load the nomination
         try {
             $nomination = $this->cots->loadNomination($message);
         } catch (\Exception $e) {
@@ -79,9 +80,9 @@ class AutoValidateSubscriber implements EventSubscriberInterface
 
             return;
         }
-
         // Set the season for validation
         $nomination->setSeason($this->season);
+        // Validate the nomination
         if (!$this->error->isValid($nomination)) {
             $this->error->send($nomination, $this->season);
             $io->error(implode(PHP_EOL, $this->error->getErrorArray($nomination)).PHP_EOL.$message->content);
@@ -89,10 +90,9 @@ class AutoValidateSubscriber implements EventSubscriberInterface
 
             return;
         }
-        // Validate the nomination
+        // Success
         $message->react('🔼');
         $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->title);
-
         // Check total nominations
         $nominations = $this->cots->getLastNominations();
         $nominationCount = count($nominations);
@@ -101,6 +101,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
 
             return;
         }
+        // Close channel when limit is reached
         $this->cots->lockChannel();
     }
 }

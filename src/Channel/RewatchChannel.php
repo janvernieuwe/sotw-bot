@@ -3,9 +3,9 @@
 namespace App\Channel;
 
 use App\Message\RewatchNomination;
-use Jikan\Jikan;
+use App\MyAnimeList\MyAnimeListClient;
 use RestCord\DiscordClient;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -22,20 +22,18 @@ class RewatchChannel extends Channel
     /**
      * SongOfTheWeek constructor.
      * @param DiscordClient $discord
-     * @param AdapterInterface $cache
-     * @param Jikan $jikan
+     * @param MyAnimeListClient $mal
      * @param ValidatorInterface $validator
      * @param string $channelId
      */
     public function __construct(
         DiscordClient $discord,
-        AdapterInterface $cache,
-        Jikan $jikan,
+        MyAnimeListClient $mal,
         ValidatorInterface $validator,
         string $channelId
     ) {
         $this->validator = $validator;
-        parent::__construct($discord, $channelId, $cache, $jikan);
+        parent::__construct($discord, $channelId, $mal);
     }
 
     /**
@@ -70,7 +68,7 @@ class RewatchChannel extends Channel
             }
             if (RewatchNomination::isContender($message['content'])) {
                 $nomination = new RewatchNomination($message);
-                $nomination->setAnime($this->loadAnime($nomination->getAnimeId()));
+                $nomination->setAnime($this->mal->loadAnime($nomination->getAnimeId()));
                 $contenders[] = $nomination;
             }
         }
@@ -96,5 +94,14 @@ class RewatchChannel extends Channel
     {
         $this->allow($roleId, Channel::ROLE_SEND_MESSAGES);
         $this->message('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
+    }
+
+    /**
+     * @param RewatchNomination $nomination
+     * @return ConstraintViolationListInterface
+     */
+    public function validate(RewatchNomination $nomination): ConstraintViolationListInterface
+    {
+        return $this->validator->validate($nomination);
     }
 }
