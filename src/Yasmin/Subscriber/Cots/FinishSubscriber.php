@@ -3,6 +3,7 @@
 namespace App\Yasmin\Subscriber\Cots;
 
 use App\Channel\CotsChannel;
+use App\Exception\RuntimeException;
 use App\Yasmin\Event\MessageReceivedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -62,17 +63,21 @@ class FinishSubscriber implements EventSubscriberInterface
 
         $nominations = $this->cots->getLastNominations();
         $nominationCount = count($nominations);
-        if ($nominationCount <= 2) {
-            $message->reply(':x: Not enough nominees');
-
-            return;
-        }
-        if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
-            $message->reply(':x: There is no clear winner');
+        try {
+            if ($nominationCount <= 2) {
+                throw new RuntimeException('Not enough nominees');
+            }
+            if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
+                throw new RuntimeException('There is no clear winner');
+            }
+        } catch (RuntimeException $e) {
+            $io->error($e->getMessage());
+            $message->reply(':x: '.$e->getMessage());
 
             return;
         }
         $this->cots->message($this->cots->getTop10());
         $this->cots->announceWinner($nominations[0], $this->season);
+        $io->success('Announced the winner');
     }
 }

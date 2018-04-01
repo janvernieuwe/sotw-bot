@@ -64,6 +64,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
+        /** @noinspection PhpUndefinedFieldInspection */
         if ((int)$message->channel->id !== $this->cots->getChannelId()) {
             return;
         }
@@ -102,6 +103,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
         // Close channel when limit is reached
-        $this->cots->lockChannel();
+        $this->cots->closeNominations();
+        $io->success('Closed nominations');
     }
 }

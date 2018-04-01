@@ -49,7 +49,6 @@ class RankingSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $io = $event->getIo();
-
         $nominations = $this->sotw->getLastNominations();
         $nominationCount = count($nominations);
         if ($nominationCount !== 10) {
@@ -71,5 +70,6 @@ class RankingSubscriber implements EventSubscriberInterface
             );
         }
         $message->channel->send(implode(PHP_EOL, $output));
+        $io->success('Ranking displayed');
     }
 }

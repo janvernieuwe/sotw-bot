@@ -3,9 +3,9 @@
 namespace App\Yasmin\Subscriber\Sotw;
 
 use App\Channel\SotwChannel;
+use App\Exception\RuntimeException;
 use App\Formatter\BBCodeFormatter;
 use App\Yasmin\Event\MessageReceivedEvent;
-use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -45,7 +45,7 @@ class NextSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (!$event->isAdmin() || $message->content !== self::COMMAND) {
+        if ($message->content !== self::COMMAND || !$event->isAdmin()) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
@@ -74,10 +74,12 @@ class NextSubscriber implements EventSubscriberInterface
         $this->sotw->announceWinner($winner);
         $this->sotw->addMedals($nominations);
         $this->sotw->openNominations();
+        $io->success('Opened nominations');
 
         // Output post for the forum
         $formatter = new BBCodeFormatter($nominations);
         $bbcode = '```'.$formatter->createMessage().'```';
         $message->channel->send($bbcode);
+        $io->success('Showed forum post');
     }
 }

@@ -31,7 +31,8 @@ class HelpSubscriber implements EventSubscriberInterface
         if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
-        $event->getIo()->writeln(__CLASS__.' dispatched');
+        $io = $event->getIo();
+        $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
         $help = <<<HELP
@@ -51,5 +52,6 @@ rewatch ranking         (show the current ranking)
 ```
 HELP;
         $message->channel->send($help);
+        $io->success('Displayed help');
     }
 }

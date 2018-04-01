@@ -74,5 +74,6 @@ class RankingSubscriber implements EventSubscriberInterface
             );
         }
         $message->channel->send(implode(PHP_EOL, $output));
+        $io->success('Ranking displayed');
     }
 }

@@ -88,6 +88,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
         // Enough nominees, start it
-        $this->rewatch->startVoting($event->getPermissionsRole());
+        $this->rewatch->closeNominations($event->getPermissionsRole());
+        $io->success('Closed nominations');
     }
 }
