@@ -53,6 +53,8 @@ services:
           - "%env(SOTW_CHANNEL_ID)%"
           - "@validator"
           - "%env(PERMISSIONS_ROLE)%"
+          - "@cache.jikan"
+          - "@jikan"
         public: true
 
     discord.channel.emoji:
@@ -60,6 +62,8 @@ services:
         arguments:
           - "@discord"
           - "%env(EMOJI_CHANNEL_ID)%"
+          - "@cache.jikan"
+          - "@jikan"
         public: true
 
     discord.channel.rewatch:
@@ -71,6 +75,30 @@ services:
           - '@validator'
           - '%env(REWATCH_CHANNEL_ID)%'
         public: true
+
+    App\Channel\CotsChannel:
+        class: App\Channel\CotsChannel
+        arguments:
+          - '@discord'
+          - '@cache.jikan'
+          - '@jikan'
+          - '@validator'
+          - '%env(COTS_CHANNEL_ID)%'
+          - '%env(PERMISSIONS_ROLE)%'
+
+    App\Yasmin\Subscriber\Cots\FinishSubscriber:
+        class: App\Yasmin\Subscriber\Cots\FinishSubscriber
+        arguments:
+          - '%env(ADMIN_ROLE)%'
+          - '@App\Channel\CotsChannel'
+          - '%env(COTS_SEASON)%'
+
+    App\Yasmin\Subscriber\Cots\StartSubscriber:
+        class: App\Yasmin\Subscriber\Cots\StartSubscriber
+        arguments:
+          - '%env(ADMIN_ROLE)%'
+          - '@App\Channel\CotsChannel'
+          - '%env(COTS_SEASON)%'
 
     discord.server:
         class: App\Guild
@@ -86,6 +114,12 @@ services:
           - "@validator"
         public: true
 
+    discord.dm.character:
+        class: App\Error\CotsErrorDm
+        arguments:
+          - "@discord"
+          - "@validator"
+        public: true
 
     discord.dm.sotw:
         class: App\Error\SotwErrorDm
@@ -98,6 +132,15 @@ services:
         class: Jikan\Jikan
         public: true
 
+    App\Yasmin\Subscriber\Cots\AutoValidateSubscriber:
+        public: true
+        arguments:
+            $character: '@App\Channel\CotsChannel'
+            $error: "@discord.dm.character"
+            $season: "%env(COTS_SEASON)%"
+        class: App\Yasmin\Subscriber\Cots\AutoValidateSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received}
 
     App\Yasmin\Subscriber\SaySubscriber:
         public: true

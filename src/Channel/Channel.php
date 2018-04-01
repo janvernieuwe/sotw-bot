@@ -3,9 +3,14 @@
 namespace App\Channel;
 
 use App\Message\Message;
+use App\Util\Util;
 use GuzzleHttp\Command\Result;
+use Jikan\Jikan;
+use Jikan\Model\Anime;
+use Jikan\Model\Character;
 use RestCord\DiscordClient;
 use RestCord\Model\Channel\Reaction;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 /**
  * Class Channel
@@ -16,15 +21,21 @@ class Channel
     public const ROLE_SEND_MESSAGES = 0x00000800;
 
     /**
+     * @var AdapterInterface
+     */
+    protected $cache;
+    /**
+     * @var Jikan
+     */
+    protected $jikan;
+    /**
      * @var int
      */
     private $channelId;
-
     /**
      * @var DiscordClient
      */
     private $discord;
-
     /**
      * @var bool
      */
@@ -32,13 +43,17 @@ class Channel
 
     /**
      * Channel constructor.
-     * @param int $channelId
      * @param DiscordClient $discord
+     * @param int $channelId
+     * @param AdapterInterface $cache
+     * @param Jikan $jikan
      */
-    public function __construct(DiscordClient $discord, int $channelId)
+    public function __construct(DiscordClient $discord, int $channelId, AdapterInterface $cache, Jikan $jikan)
     {
         $this->channelId = $channelId;
         $this->discord = $discord;
+        $this->cache = $cache;
+        $this->jikan = $jikan;
     }
 
     /**
@@ -244,5 +259,56 @@ class Channel
                 'emoji'      => $emoji,
             ]
         )->toArray();
+    }
+
+    /**
+     * Get the channel id
+     * @return int
+     */
+    public function getChannelId(): int
+    {
+        return $this->channelId;
+    }
+
+    /**
+     * @param int $id
+     * @return Anime
+     */
+    public function loadAnime(int $id): Anime
+    {
+        $key = 'jikan_anime_'.$id;
+        if ($this->cache->hasItem($key)) {
+            return $this->cache->getItem($key)->get();
+        }
+
+        /** @var Anime $character */
+        $anime = Util::instantiate(Anime::class, $this->jikan->Anime($id)->response);
+        $item = $this->cache->getItem($key);
+        $item->set($anime);
+        $item->expiresAfter(strtotime('+7 day'));
+        $this->cache->save($item);
+
+        return $anime;
+    }
+
+    /**
+     * @param int $id
+     * @return Character
+     */
+    public function loadCharacter(int $id): Character
+    {
+        $key = 'jikan_character_'.$id;
+        if ($this->cache->hasItem($key)) {
+            return $this->cache->getItem($key)->get();
+        }
+
+        /** @var Character $character */
+        $character = Util::instantiate(Character::class, $this->jikan->Character($id)->response);
+        $item = $this->cache->getItem($key);
+        $item->set($character);
+        $item->expiresAfter(strtotime('+7 day'));
+        $this->cache->save($item);
+
+        return $character;
     }
 }

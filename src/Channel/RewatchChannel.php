@@ -3,12 +3,9 @@
 namespace App\Channel;
 
 use App\Message\RewatchNomination;
-use App\Util\Util;
 use Jikan\Jikan;
-use Jikan\Model\Anime;
 use RestCord\DiscordClient;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -21,16 +18,6 @@ class RewatchChannel extends Channel
      * @var ValidatorInterface
      */
     private $validator;
-
-    /**
-     * @var Jikan
-     */
-    private $jikan;
-
-    /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
 
     /**
      * SongOfTheWeek constructor.
@@ -48,9 +35,7 @@ class RewatchChannel extends Channel
         string $channelId
     ) {
         $this->validator = $validator;
-        $this->jikan = $jikan;
-        $this->cache = $cache;
-        parent::__construct($discord, $channelId);
+        parent::__construct($discord, $channelId, $cache, $jikan);
     }
 
     /**
@@ -85,32 +70,13 @@ class RewatchChannel extends Channel
             }
             if (RewatchNomination::isContender($message['content'])) {
                 $nomination = new RewatchNomination($message);
-                $this->addAnime($nomination);
+                $nomination->setAnime($this->loadAnime($nomination->getAnimeId()));
                 $contenders[] = $nomination;
             }
         }
         $contenders = \array_slice($contenders, 0, $limit);
 
         return $this->sortByVotes($contenders);
-    }
-
-    /**
-     * @param RewatchNomination $nomination
-     * @return RewatchNomination
-     */
-    public function addAnime(RewatchNomination $nomination): RewatchNomination
-    {
-        $key = 'jikan_anime_'.$nomination->getAnimeId();
-        if (!$this->cache->hasItem($key)) {
-            $anime = Util::instantiate(Anime::class, $this->jikan->Anime($nomination->getAnimeId())->response);
-            $item = $this->cache->getItem($key);
-            $item->set($anime);
-            $item->expiresAfter(strtotime('+7 day'));
-            $this->cache->save($item);
-        }
-        $nomination->setAnime($this->cache->getItem($key)->get());
-
-        return $nomination;
     }
 
     /**

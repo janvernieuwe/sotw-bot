@@ -3,7 +3,9 @@
 namespace App\Channel;
 
 use App\Message\SotwNomination;
+use Jikan\Jikan;
 use RestCord\DiscordClient;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,15 +33,23 @@ class SotwChannel extends Channel
     /**
      * SongOfTheWeek constructor.
      * @param DiscordClient $discord
-     * @param ValidatorInterface $validator
      * @param string $channelId
+     * @param ValidatorInterface $validator
      * @param string $role
+     * @param AdapterInterface $cache
+     * @param Jikan $jikan
      */
-    public function __construct(DiscordClient $discord, string $channelId, ValidatorInterface $validator, string $role)
-    {
+    public function __construct(
+        DiscordClient $discord,
+        string $channelId,
+        ValidatorInterface $validator,
+        string $role,
+        AdapterInterface $cache,
+        Jikan $jikan
+    ) {
         $this->role = $role;
         $this->validator = $validator;
-        parent::__construct($discord, $channelId);
+        parent::__construct($discord, $channelId, $cache, $jikan);
     }
 
     /**

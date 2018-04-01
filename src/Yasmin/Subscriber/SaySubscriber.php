@@ -59,8 +59,9 @@ class SaySubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        preg_match('/^\!haamc say (\d+) (.*)$/', $message->content, $cmd);
-        if (count($cmd) !== 3) {
+        if (!preg_match('/^\!haamc say (\d+) (.*)$/', $message->content, $cmd)) {
+            $io->writeln(sprintf('Wrong format: %s', $message->content));
+
             return;
         }
         $io->writeln(
