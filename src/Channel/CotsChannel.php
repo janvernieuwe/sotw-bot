@@ -125,6 +125,7 @@ class CotsChannel extends Channel
     {
         $output = ['De huidige Character of the season ranking is'];
         foreach ($this->getLastNominations(10) as $i => $nomination) {
+            $voiceActors = $nomination->getCharacter()->voice_actor;
             $output[] = sprintf(
                 ":mens: %s) **%s**, *%s*\nvotes: **%s** | door: *%s* | voice actor: *%s* | score: %s",
                 $i + 1,
@@ -132,7 +133,7 @@ class CotsChannel extends Channel
                 $nomination->getAnime()->title,
                 $nomination->getVotes(),
                 $nomination->getAuthor(),
-                $nomination->getCharacter()->voice_actor[0]['name'],
+                count($voiceActors) ? $nomination->getCharacter()->voice_actor[0]['name'] : 'n/a',
                 $nomination->getAnime()->score
             );
         }
