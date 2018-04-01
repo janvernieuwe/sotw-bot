@@ -54,9 +54,11 @@ class RankingSubscriber implements EventSubscriberInterface
         $nominations = $this->cots->getLastNominations();
         if (!count($nominations)) {
             $message->reply('Er zijn nog geen nominaties');
+            $io->error('Er zijn nog geen nominaties');
 
             return;
         }
         $message->channel->send($this->cots->getTop10());
+        $io->success('Ranking displayed');
     }
 }

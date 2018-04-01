@@ -80,7 +80,7 @@ class RewatchChannel extends Channel
     /**
      * @param int $roleId
      */
-    public function startVoting(int $roleId)
+    public function closeNominations(int $roleId)
     {
         $this->deny($roleId, Channel::ROLE_SEND_MESSAGES);
         $this->message('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');

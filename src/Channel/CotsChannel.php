@@ -56,7 +56,7 @@ class CotsChannel extends Channel
         return CotsNomination::fromYasmin($message, $character, $anime);
     }
 
-    public function lockChannel()
+    public function closeNominations()
     {
         $this->deny($this->roleId, Channel::ROLE_SEND_MESSAGES);
         $this->message('Er kan nu enkel nog gestemd worden op de nominaties :checkered_flag:');

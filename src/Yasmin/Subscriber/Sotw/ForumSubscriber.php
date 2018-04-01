@@ -47,12 +47,14 @@ class ForumSubscriber implements EventSubscriberInterface
         if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
-        $event->getIo()->writeln(__CLASS__.' dispatched');
+        $io = $event->getIo();
+        $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
         $nominations = $this->sotw->getLastNominations();
         $formatter = new BBCodeFormatter($nominations);
         $bbcode = '```'.$formatter->createMessage().'```';
         $message->channel->send($bbcode);
+        $io->success('Displayed the forum post');
     }
 }

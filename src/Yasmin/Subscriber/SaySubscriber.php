@@ -64,14 +64,14 @@ class SaySubscriber implements EventSubscriberInterface
 
             return;
         }
-        $io->writeln(
-            sprintf('Sending message to channel %s, %s by %s', $cmd[1], $cmd[2], $message->author->username)
-        );
         $this->discord->channel->createMessage(
             [
                 'channel.id' => (int)$cmd[1],
                 'content'    => $cmd[2],
             ]
+        );
+        $io->success(
+            sprintf('Sent message to channel %s, %s by %s', $cmd[1], $cmd[2], $message->author->username)
         );
     }
 }

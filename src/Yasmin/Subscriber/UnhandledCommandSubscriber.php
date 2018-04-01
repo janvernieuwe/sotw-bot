@@ -1,35 +1,19 @@
 <?php
 
-namespace App\Yasmin\Subscriber\Rewatch;
+namespace App\Yasmin\Subscriber;
 
-use App\Channel\Channel;
-use App\Channel\RewatchChannel;
 use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Models\Message;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Lets admins run symfony commands
+ * Replies to the user that a type was probably made
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class StartSubscriber implements EventSubscriberInterface
+class UnhandledCommandSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc rewatch start';
-
-    /**
-     * @var RewatchChannel
-     */
-    private $rewatch;
-
-    /**
-     * ValidateSubscriber constructor.
-     * @param RewatchChannel $rewatch
-     */
-    public function __construct(
-        RewatchChannel $rewatch
-    ) {
-        $this->rewatch = $rewatch;
-    }
+    const COMMAND = '!haamc';
 
     /**
      * @inheritdoc
@@ -51,7 +35,7 @@ class StartSubscriber implements EventSubscriberInterface
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $this->rewatch->openNominations($event->getPermissionsRole());
-        $io->success('Opened nominations');
+        $message->reply('Huh, waar heb je het over?');
+        $io->writeln('Showed unhandled command message');
     }
 }

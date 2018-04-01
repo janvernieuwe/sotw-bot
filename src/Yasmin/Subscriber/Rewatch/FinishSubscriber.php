@@ -76,5 +76,6 @@ class FinishSubscriber implements EventSubscriberInterface
                 $winner->getAuthorId()
             )
         );
+        $io->success('Annouced the winner');
     }
 }

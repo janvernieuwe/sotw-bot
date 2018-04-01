@@ -76,5 +76,6 @@ class AutoValidateSubsciber implements EventSubscriberInterface
             return;
         }
         $this->sotw->closeNominations();
+        $io->success('Closed nominations');
     }
 }

@@ -206,9 +206,14 @@ services:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
     App\Yasmin\Subscriber\Rewatch\RankingSubscriber:
+        class: App\Yasmin\Subscriber\Rewatch\RankingSubscriber
         public: true
         arguments:
           $rewatch: '@App\Channel\RewatchChannel'
-        class: App\Yasmin\Subscriber\Rewatch\RankingSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
+
+    App\Yasmin\Subscriber\UnhandledCommandSubscriber:
+        class: App\Yasmin\Subscriber\UnhandledCommandSubscriber
+        tags:
+          - { name: kernel.event_subscriber, event: yasmin.message_received, priority: 255}
