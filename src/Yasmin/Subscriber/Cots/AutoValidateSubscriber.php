@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class AutoValidateSubscriber implements EventSubscriberInterface
 {
-    public const LIMIT = 15;
+    public const LIMIT = 25;
 
     /**
      * @var CotsErrorDm
