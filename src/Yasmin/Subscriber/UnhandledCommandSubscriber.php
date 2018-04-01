@@ -3,6 +3,7 @@
 namespace App\Yasmin\Subscriber;
 
 use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Models\Message;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -35,6 +36,6 @@ class UnhandledCommandSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $message->reply('Huh, waar heb je het over?');
-        $io->success('Showed unhandled command message');
+        $io->writeln('Showed unhandled command message');
     }
 }

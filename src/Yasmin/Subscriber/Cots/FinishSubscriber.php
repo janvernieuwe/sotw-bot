@@ -77,6 +77,7 @@ class FinishSubscriber implements EventSubscriberInterface
             return;
         }
         $this->cots->message($this->cots->getTop10());
+        $io->success('Displayed top 10');
         $this->cots->announceWinner($nominations[0], $this->season);
         $io->success('Announced the winner');
     }

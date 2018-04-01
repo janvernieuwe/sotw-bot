@@ -4,6 +4,7 @@ namespace App\Yasmin\Subscriber\Rewatch;
 
 use App\Channel\RewatchChannel;
 use App\Error\RewatchErrorDm;
+use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
 use App\Yasmin\Event\MessageReceivedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -60,15 +61,24 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
         $io = $event->getIo();
 
-        // Invalid message, delet
-        if (!RewatchNomination::isContender($message->content)) {
-            $message->delete(0, 'Not a valid nomination');
+        try {
+            if (!RewatchNomination::isContender($message->content)) {
+                throw new RuntimeException('Not a contender');
+            }
+            $nomination = RewatchNomination::fromYasmin($message);
+            try {
+                $anime = $this->rewatch->getMal()->loadAnime($nomination->getAnimeId());
+            } catch (\Exception $e) {
+                throw new RuntimeException('Invalid anime link');
+            }
+        } catch (RuntimeException $e) {
+            $io->error($e->getMessage());
+            $message->delete();
 
             return;
         }
-        // Fetch data
-        $nomination = RewatchNomination::fromYasmin($message);
-        $nomination->setAnime($this->rewatch->getMal()->loadAnime($nomination->getAnimeId()));
+
+        $nomination->setAnime($anime);
         $errors = $this->rewatch->validate($nomination);
         // Invalid
         if (count($errors)) {
@@ -81,6 +91,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         }
         // Valid, add reaction
         $message->react('🔼');
+        $io->success($nomination->getAnime()->title);
         $nominationCount = count($this->rewatch->getValidNominations());
         if ($nominationCount !== 10) {
             $io->writeln(sprintf('Not starting yet %s/10 nominations', $nominationCount));
