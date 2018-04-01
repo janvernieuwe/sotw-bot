@@ -98,14 +98,12 @@ services:
     App\Yasmin\Subscriber\Cots\FinishSubscriber:
         class: App\Yasmin\Subscriber\Cots\FinishSubscriber
         arguments:
-          - '%env(ADMIN_ROLE)%'
           - '@App\Channel\CotsChannel'
           - '%env(COTS_SEASON)%'
 
     App\Yasmin\Subscriber\Cots\StartSubscriber:
         class: App\Yasmin\Subscriber\Cots\StartSubscriber
         arguments:
-          - '%env(ADMIN_ROLE)%'
           - '@App\Channel\CotsChannel'
           - '%env(COTS_SEASON)%'
 
@@ -229,14 +227,5 @@ services:
         arguments:
           $rewatch: "@discord.channel.rewatch"
         class: App\Yasmin\Subscriber\Rewatch\RankingSubscriber
-        tags:
-          - { name: kernel.event_subscriber, event: yasmin.message_received}
-
-
-    App\Yasmin\Subscriber\HelpSubscriber:
-        public: true
-        arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
-        class: App\Yasmin\Subscriber\HelpSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}

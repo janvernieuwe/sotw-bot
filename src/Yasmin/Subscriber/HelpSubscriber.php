@@ -15,20 +15,6 @@ class HelpSubscriber implements EventSubscriberInterface
     const COMMAND = '!haamc help';
 
     /**
-     * @var int
-     */
-    private $adminRole;
-
-    /**
-     * HelpSubscriber constructor.
-     * @param int $adminRole
-     */
-    public function __construct($adminRole)
-    {
-        $this->adminRole = $adminRole;
-    }
-
-    /**
      * @inheritdoc
      */
     public static function getSubscribedEvents(): array
@@ -42,10 +28,7 @@ class HelpSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
-            return;
-        }
-        if (!$message->member->roles->has($this->adminRole)) {
+        if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
