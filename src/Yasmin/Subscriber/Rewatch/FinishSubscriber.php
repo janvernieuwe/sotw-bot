@@ -17,34 +17,18 @@ class FinishSubscriber implements EventSubscriberInterface
     const COMMAND = '!haamc rewatch finish';
 
     /**
-     * @var int
-     */
-    private $adminRole;
-
-    /**
      * @var RewatchChannel
      */
     private $rewatch;
 
     /**
-     * @var int
-     */
-    private $permissionRole;
-
-    /**
      * ValidateSubscriber constructor.
-     * @param int|string $adminRole
-     * @param int $permissionRole
      * @param RewatchChannel $rewatch
      */
     public function __construct(
-        int $adminRole,
-        int $permissionRole,
         RewatchChannel $rewatch
     ) {
-        $this->adminRole = $adminRole;
         $this->rewatch = $rewatch;
-        $this->permissionRole = $permissionRole;
     }
 
     /**
@@ -61,10 +45,7 @@ class FinishSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
-            return;
-        }
-        if (!$message->member->roles->has((int)$this->adminRole)) {
+        if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
