@@ -5,6 +5,7 @@ namespace App\Channel;
 use App\Message\RewatchNomination;
 use App\MyAnimeList\MyAnimeListClient;
 use RestCord\DiscordClient;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -93,5 +94,14 @@ class RewatchChannel extends Channel
     {
         $this->allow($roleId, Channel::ROLE_SEND_MESSAGES);
         $this->message('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
+    }
+
+    /**
+     * @param RewatchNomination $nomination
+     * @return ConstraintViolationListInterface
+     */
+    public function validate(RewatchNomination $nomination): ConstraintViolationListInterface
+    {
+        return $this->validator->validate($nomination);
     }
 }
