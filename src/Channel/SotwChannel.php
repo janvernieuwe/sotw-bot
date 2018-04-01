@@ -3,6 +3,7 @@
 namespace App\Channel;
 
 use App\Message\SotwNomination;
+use App\MyAnimeList\MyAnimeListClient;
 use Jikan\Jikan;
 use RestCord\DiscordClient;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
@@ -36,20 +37,18 @@ class SotwChannel extends Channel
      * @param string $channelId
      * @param ValidatorInterface $validator
      * @param string $role
-     * @param AdapterInterface $cache
-     * @param Jikan $jikan
+     * @param MyAnimeListClient $mal
      */
     public function __construct(
         DiscordClient $discord,
         string $channelId,
         ValidatorInterface $validator,
         string $role,
-        AdapterInterface $cache,
-        Jikan $jikan
+        MyAnimeListClient $mal
     ) {
         $this->role = $role;
         $this->validator = $validator;
-        parent::__construct($discord, $channelId, $cache, $jikan);
+        parent::__construct($discord, $channelId, $mal);
     }
 
     /**

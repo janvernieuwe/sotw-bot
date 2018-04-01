@@ -4,10 +4,9 @@ namespace App\Channel;
 
 use App\Exception\CharacterNotFoundException;
 use App\Message\CotsNomination;
+use App\MyAnimeList\MyAnimeListClient;
 use CharlotteDunois\Yasmin\Models\Message;
-use Jikan\Jikan;
 use RestCord\DiscordClient;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -24,21 +23,19 @@ class CotsChannel extends Channel
     /**
      * CotsChannel constructor.
      * @param DiscordClient $discord
-     * @param AdapterInterface $cache
-     * @param Jikan $jikan
+     * @param MyAnimeListClient $mal
      * @param ValidatorInterface $validator
      * @param int $channelId
      * @param int $roleId
      */
     public function __construct(
         DiscordClient $discord,
-        AdapterInterface $cache,
-        Jikan $jikan,
+        MyAnimeListClient $mal,
         ValidatorInterface $validator,
         int $channelId,
         int $roleId
     ) {
-        parent::__construct($discord, $channelId, $cache, $jikan);
+        parent::__construct($discord, $channelId, $mal);
         $this->roleId = $roleId;
     }
 
@@ -53,8 +50,8 @@ class CotsChannel extends Channel
             throw new CharacterNotFoundException('Invalid message '.$message->content);
         }
 
-        $anime = $this->loadAnime(CotsNomination::getAnimeId($message->content));
-        $character = $this->loadCharacter(CotsNomination::getCharacterId($message->content));
+        $anime = $this->mal->loadAnime(CotsNomination::getAnimeId($message->content));
+        $character = $this->mal->loadCharacter(CotsNomination::getCharacterId($message->content));
 
         return CotsNomination::fromYasmin($message, $character, $anime);
     }
@@ -109,8 +106,8 @@ class CotsChannel extends Channel
                 break;
             }
             if (CotsNomination::isNomination($message['content'])) {
-                $anime = $this->loadAnime(CotsNomination::getAnimeId($message['content']));
-                $character = $this->loadCharacter(CotsNomination::getCharacterId($message['content']));
+                $anime = $this->mal->loadAnime(CotsNomination::getAnimeId($message['content']));
+                $character = $this->mal->loadCharacter(CotsNomination::getCharacterId($message['content']));
                 $nomination = new CotsNomination($message, $character, $anime);
                 $contenders[] = $nomination;
             }

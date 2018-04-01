@@ -91,7 +91,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         }
         // Fetch data
         $nomination = RewatchNomination::fromYasmin($message);
-        $nomination->setAnime($this->rewatch->loadAnime($nomination->getAnimeId()));
+        $nomination->setAnime($this->rewatch->getMal()->loadAnime($nomination->getAnimeId()));
         $this->validator->validate($nomination);
         $errors = $this->validator->validate($nomination);
         // Invalid

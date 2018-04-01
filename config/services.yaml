@@ -38,6 +38,17 @@ services:
           - "%kernel.cache_dir%/jikan"
         public: true
 
+    jikan:
+        class: Jikan\Jikan
+        public: true
+
+    App\MyAnimeList\MyAnimeListClient:
+        public: true
+        class: App\MyAnimeList\MyAnimeListClient
+        arguments:
+          - '@cache.jikan'
+          - '@jikan'
+
     discord:
         class: RestCord\DiscordClient
         arguments:
@@ -53,8 +64,7 @@ services:
           - "%env(SOTW_CHANNEL_ID)%"
           - "@validator"
           - "%env(PERMISSIONS_ROLE)%"
-          - "@cache.jikan"
-          - "@jikan"
+          - '@App\MyAnimeList\MyAnimeListClient'
         public: true
 
     discord.channel.emoji:
@@ -62,16 +72,14 @@ services:
         arguments:
           - "@discord"
           - "%env(EMOJI_CHANNEL_ID)%"
-          - "@cache.jikan"
-          - "@jikan"
+          - '@App\MyAnimeList\MyAnimeListClient'
         public: true
 
     discord.channel.rewatch:
         class: App\Channel\RewatchChannel
         arguments:
           - '@discord'
-          - '@cache.jikan'
-          - '@jikan'
+          - '@App\MyAnimeList\MyAnimeListClient'
           - '@validator'
           - '%env(REWATCH_CHANNEL_ID)%'
         public: true
@@ -80,8 +88,7 @@ services:
         class: App\Channel\CotsChannel
         arguments:
           - '@discord'
-          - '@cache.jikan'
-          - '@jikan'
+          - '@App\MyAnimeList\MyAnimeListClient'
           - '@validator'
           - '%env(COTS_CHANNEL_ID)%'
           - '%env(PERMISSIONS_ROLE)%'
@@ -126,10 +133,6 @@ services:
         arguments:
           - "@discord"
           - "@validator"
-        public: true
-
-    jikan:
-        class: Jikan\Jikan
         public: true
 
     App\Yasmin\Subscriber\Cots\AutoValidateSubscriber:

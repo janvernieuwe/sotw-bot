@@ -6,6 +6,10 @@ use CharlotteDunois\Yasmin\Models\Message;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class MessageReceivedEvent
+ * @package App\Yasmin\Event
+ */
 class MessageReceivedEvent extends Event
 {
     const NAME = 'yasmin.message_received';
