@@ -157,26 +157,23 @@ services:
     App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber:
         public: true
         arguments:
-            $channelId: "%env(SOTW_CHANNEL_ID)%"
             $sotw: "@discord.channel.sotw"
             $error: "@discord.dm.sotw"
         class: App\Yasmin\Subscriber\Sotw\AutoValidateSubsciber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
-    App\Yasmin\Subscriber\Sotw\StartSubscriber:
+    App\Yasmin\Subscriber\Sotw\NextSubscriber:
         public: true
         arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
           $sotw: "@discord.channel.sotw"
-        class: App\Yasmin\Subscriber\Sotw\StartSubscriber
+        class: App\Yasmin\Subscriber\Sotw\NextSubscriber
         tags:
           - { name: kernel.event_subscriber, event: yasmin.message_received}
 
     App\Yasmin\Subscriber\Sotw\ForumSubscriber:
         public: true
         arguments:
-          $adminRole: "%env(ADMIN_ROLE)%"
           $sotw: "@discord.channel.sotw"
         class: App\Yasmin\Subscriber\Sotw\ForumSubscriber
         tags:

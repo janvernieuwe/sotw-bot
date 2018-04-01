@@ -13,14 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class StartSubscriber implements EventSubscriberInterface
+class NextSubscriber implements EventSubscriberInterface
 {
     const COMMAND = '!haamc sotw next';
-
-    /**
-     * @var int
-     */
-    private $adminRole;
 
     /**
      * @var SotwChannel
@@ -29,15 +24,12 @@ class StartSubscriber implements EventSubscriberInterface
 
     /**
      * ValidateSubscriber constructor.
-     * @param int $adminRole
      * @param SotwChannel $sotw
      */
-    public function __construct(int $adminRole, SotwChannel $sotw)
+    public function __construct(SotwChannel $sotw)
     {
-        $this->adminRole = $adminRole;
         $this->sotw = $sotw;
     }
-
 
     /**
      * @inheritdoc
@@ -53,10 +45,7 @@ class StartSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if ($message->content !== self::COMMAND) {
-            return;
-        }
-        if (!$message->member->roles->has($this->adminRole)) {
+        if (!$event->isAdmin() || $message->content !== self::COMMAND) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
