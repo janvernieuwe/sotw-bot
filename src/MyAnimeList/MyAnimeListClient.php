@@ -36,6 +36,18 @@ class MyAnimeListClient
         $this->jikan = $jikan;
     }
 
+    /**
+     * @param string $url
+     * @return null|int
+     */
+    public static function getAnimeId(string $url): ?int
+    {
+        if (!preg_match('#https?://myanimelist.net/anime/(\d+)#', $url, $anime)) {
+            return null;
+        }
+
+        return (int)$anime[1];
+    }
 
     /**
      * @param int $id

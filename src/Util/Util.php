@@ -12,6 +12,25 @@ class Util
                 $instance->$property = $value;
             }
         }
+
         return $instance;
+    }
+
+    /**
+     * @param int $userId
+     * @return string
+     */
+    public static function mention(int $userId): string
+    {
+        return sprintf('<@!%s>', $userId);
+    }
+
+    /**
+     * @param int $channelId
+     * @return string
+     */
+    public static function channelLink(int $channelId): string
+    {
+        return sprintf('<#%s>', $channelId);
     }
 }

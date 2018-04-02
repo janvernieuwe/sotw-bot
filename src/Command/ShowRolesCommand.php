@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use RestCord\DiscordClient;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,7 +32,7 @@ class ShowRolesCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $discord = $this->getContainer()->get('discord');
+        $discord = $this->getContainer()->get(DiscordClient::class);
         $roles = $discord->guild->getGuildRoles(
             [
                 'guild.id' => (int)$input->getArgument('server'),

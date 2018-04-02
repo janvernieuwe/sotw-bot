@@ -3,8 +3,10 @@
 namespace App\Command\Yasmin;
 
 use App\Yasmin\Event\MessageReceivedEvent;
+use App\Yasmin\Event\ReactionAddedEvent;
 use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\MessageReaction;
 use React\EventLoop\Factory;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -66,6 +68,26 @@ class RunCommand extends ContainerAwareCommand
                 );
                 $event = new MessageReceivedEvent($message, $io, $adminRole, $permissionsRole);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
+            }
+        );
+
+        $client->on(
+            'messageReactionAdd',
+            function (MessageReaction $reaction) use ($dispatcher, $io, $adminRole) {
+                if ($reaction->me) {
+                    return;
+                }
+                $users = $reaction->users->all();
+                $usernames = [];
+                foreach ($users as $id => $user) {
+                    $usernames[$id] = $user->username;
+                }
+                /** @noinspection PhpUndefinedFieldInspection */
+                $output = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
+                    .implode(', ', $usernames).' in channel #'.$reaction->message->channel->name;
+                $io->writeln($output);
+                $event = new ReactionAddedEvent($reaction, $io, $adminRole);
+                $dispatcher->dispatch(ReactionAddedEvent::NAME, $event);
             }
         );
 
