@@ -57,7 +57,7 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         if (!$member->roles->has($roleId)) {
             $member->addRole($roleId, 'User joined channel');
             $joinMessage = sprintf(
-                ':arrow_forward:  %s kijkt nu mee naar %s',
+                ':inbox_tray:  %s kijkt nu mee naar %s',
                 Util::mention((int)$user->id),
                 Util::channelLink((int)$channel->id)
             );

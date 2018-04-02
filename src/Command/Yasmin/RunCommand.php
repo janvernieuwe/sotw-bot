@@ -2,6 +2,8 @@
 
 namespace App\Command\Yasmin;
 
+use App\Channel\CotsChannel;
+use App\Channel\RewatchChannel;
 use App\Yasmin\Event\MessageReceivedEvent;
 use App\Yasmin\Event\ReactionAddedEvent;
 use CharlotteDunois\Yasmin\Client;
@@ -19,6 +21,27 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class RunCommand extends ContainerAwareCommand
 {
+    /**
+     * @var CotsChannel
+     */
+    private $cots;
+
+    /**
+     * @var RewatchChannel
+     */
+    private $rewatch;
+
+    /**
+     * RunCommand constructor.
+     * @param CotsChannel $cots
+     */
+    public function __construct(CotsChannel $cots, RewatchChannel $rewatch)
+    {
+        parent::__construct();
+        $this->cots = $cots;
+        $this->rewatch = $rewatch;
+    }
+
     protected function configure(): void
     {
         $this
@@ -43,6 +66,14 @@ class RunCommand extends ContainerAwareCommand
         $loop = Factory::create();
         $client = new Client([], $loop);
 
+        // Warm up cache on startup
+        $io->section('Warming up the cache...');
+        $this->cots->getTop10();
+        $this->rewatch->getValidNominations();
+        $io->success('Cache warmed.');
+
+        // Run the bot
+        $io->section('Start listening');
         $client->on(
             'ready',
             function () use ($client, $io) {
@@ -61,11 +92,13 @@ class RunCommand extends ContainerAwareCommand
                 if ($message->author->bot) {
                     return;
                 }
-                $io->writeln(
-                    'Received Message from '.$message->author->tag.' in '.
-                    ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
-                    .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)'
-                );
+                if ($io->isVerbose()) {
+                    $io->writeln(
+                        'Received Message from '.$message->author->tag.' in '.
+                        ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
+                        .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)'
+                    );
+                }
                 $event = new MessageReceivedEvent($message, $io, $adminRole, $permissionsRole);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
             }
@@ -82,10 +115,12 @@ class RunCommand extends ContainerAwareCommand
                 foreach ($users as $id => $user) {
                     $usernames[$id] = $user->username;
                 }
-                /** @noinspection PhpUndefinedFieldInspection */
-                $output = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
-                    .implode(', ', $usernames).' in channel #'.$reaction->message->channel->name;
-                $io->writeln($output);
+                if ($io->isVerbose()) {
+                    /** @noinspection PhpUndefinedFieldInspection */
+                    $output = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
+                        .implode(', ', $usernames).' in channel #'.$reaction->message->channel->name;
+                    $io->writeln($output);
+                }
                 $event = new ReactionAddedEvent($reaction, $io, $adminRole);
                 $dispatcher->dispatch(ReactionAddedEvent::NAME, $event);
             }

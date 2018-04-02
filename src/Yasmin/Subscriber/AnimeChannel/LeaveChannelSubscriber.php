@@ -59,7 +59,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
             $member->removeRole($roleId, 'User left channel');
             $channel->send(
                 sprintf(
-                    ':stop_button: %s kijkt nu niet meer mee naar %s',
+                    ':outbox_tray: %s kijkt nu niet meer mee naar %s',
                     Util::mention((int)$member->id),
                     Util::channelLink($channelMessage->getChannelId())
                 )
