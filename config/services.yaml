@@ -15,11 +15,12 @@ services:
                             # fetching services directly from the container via $container->get() won't work.
                             # The best practice is to be explicit about your dependencies anyway.
         bind:
-            $season:            '%env(COTS_SEASON)%'
-            $adminRole:         '%env(ADMIN_ROLE)%'
-            $permissionsRole:   '%env(PERMISSIONS_ROLE)%'
-            $roleId:            '%env(PERMISSIONS_ROLE)%'
-            $everyoneRole:      '%env(EVERYONE_ROLE)%'
+            $season:              '%env(COTS_SEASON)%'
+            $adminRole:           '%env(ADMIN_ROLE)%'
+            $permissionsRole:     '%env(PERMISSIONS_ROLE)%'
+            $roleId:              '%env(PERMISSIONS_ROLE)%'
+            $everyoneRole:        '%env(EVERYONE_ROLE)%'
+            $seasonalCategoryId:  '%env(SEASONAL_CATEGORY)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

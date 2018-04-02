@@ -60,19 +60,27 @@ class CreateSubscriber implements EventSubscriberInterface
     private $mal;
 
     /**
+     * @var int
+     */
+    private $seasonalCategoryId;
+
+    /**
      * CreateSubscriber constructor.
      * @param SeasonalAnimeChannel $channel
      * @param MyAnimeListClient $mal
      * @param int $everyoneRole
+     * @param int $seasonalCategoryId
      */
     public function __construct(
         SeasonalAnimeChannel $channel,
         MyAnimeListClient $mal,
-        int $everyoneRole
+        int $everyoneRole,
+        int $seasonalCategoryId
     ) {
         $this->channel = $channel;
         $this->everyoneRole = $everyoneRole;
         $this->mal = $mal;
+        $this->seasonalCategoryId = $seasonalCategoryId;
     }
 
     /**
@@ -92,7 +100,7 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->message = $message = $event->getMessage();
         /** @var Client client */
         $this->client = $event->getMessage()->client;
-        $matchCommand = preg_match('/(\!haamc create\-channel )([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc create\-channel )([\S]*)\s?(.*)$/', $message->content, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
@@ -154,7 +162,7 @@ class CreateSubscriber implements EventSubscriberInterface
                         'type'  => 'member',
                     ],
                 ],
-                'parent'               => 430306918561611788,
+                'parent'               => $this->seasonalCategoryId,
                 'nsfw'                 => false,
             ]
         )->done(
@@ -188,7 +196,7 @@ class CreateSubscriber implements EventSubscriberInterface
         $link = $link[0];
         $link .= '?'.http_build_query($query);
         $createChannelMessage = sprintf(
-            "Kijk nu mee naar *%s*\nChannel: %s\nAnime: %s",
+            ":tv: Kijk nu mee naar **%s**\nChannel: %s\nAnime: %s",
             $this->anime->title,
             Util::channelLink((int)$channel->id),
             $link
