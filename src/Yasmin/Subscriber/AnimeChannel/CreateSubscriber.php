@@ -28,14 +28,17 @@ class CreateSubscriber implements EventSubscriberInterface
      * @var Anime
      */
     protected $anime;
+
     /**
      * @var Client
      */
     protected $client;
+
     /**
      * @var string
      */
     protected $link;
+
     /**
      * @var Message
      */
@@ -45,14 +48,12 @@ class CreateSubscriber implements EventSubscriberInterface
      * @var SeasonalAnimeChannel
      */
     protected $channel;
-    /**
-     * @var int
-     */
-    protected $seasonalAnime;
+
     /**
      * @var int
      */
     protected $everyoneRole;
+
     /**
      * @var MyAnimeListClient
      */
@@ -62,17 +63,14 @@ class CreateSubscriber implements EventSubscriberInterface
      * CreateSubscriber constructor.
      * @param SeasonalAnimeChannel $channel
      * @param MyAnimeListClient $mal
-     * @param int $seasonalAnime
      * @param int $everyoneRole
      */
     public function __construct(
         SeasonalAnimeChannel $channel,
         MyAnimeListClient $mal,
-        int $seasonalAnime,
         int $everyoneRole
     ) {
         $this->channel = $channel;
-        $this->seasonalAnime = $seasonalAnime;
         $this->everyoneRole = $everyoneRole;
         $this->mal = $mal;
     }
