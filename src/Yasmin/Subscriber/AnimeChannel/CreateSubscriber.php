@@ -94,11 +94,8 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->message = $message = $event->getMessage();
         /** @var Client client */
         $this->client = $event->getMessage()->client;
-        /** @noinspection PhpUndefinedFieldInspection */
-        if ((int)$message->channel->id !== $this->seasonalAnime || !$event->isAdmin()) {
-            return;
-        }
-        if (!preg_match('/(\!haamc create\-channel )([\S]*)\s?(.*)$/', $message->content, $name)) {
+        $matchCommand = preg_match('/(\!haamc create\-channel )([\S]*)\s?(.*)$/', $message->content, $name);
+        if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
         $io->writeln(__CLASS__.' dispatched');
@@ -141,7 +138,7 @@ class CreateSubscriber implements EventSubscriberInterface
         $guild->createChannel(
             [
                 'name'                 => $name,
-                'topic'                => sprintf('%s channel [%s]', $this->anime->title, $this->link),
+                'topic'                => $name,
                 'permissionOverwrites' => [
                     [
                         'id'   => $this->everyoneRole,
@@ -164,6 +161,14 @@ class CreateSubscriber implements EventSubscriberInterface
             ]
         )->done(
             function (TextChannel $channel) use ($role) {
+                $channel->setTopic(sprintf('%s || %s', $this->anime->title, $this->link));
+                $channel->send(
+                    sprintf(
+                        ":tv: Hoi iedeen! in dit channel kijken we naar **%s**.\n%s",
+                        $this->anime->title,
+                        $this->link
+                    )
+                );
                 $this->createJoinMessage($channel, $role);
             }
         );

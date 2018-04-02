@@ -57,7 +57,13 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         // Leave
         if ($member->roles->has($roleId)) {
             $member->removeRole($roleId, 'User left channel');
-            $channel->send(':stop_button:  '.Util::mention($user->id).' kijkt niet meer mee');
+            $channel->send(
+                sprintf(
+                    ':stop_button: %s kijkt nu niet meer mee naar %s',
+                    Util::mention((int)$member->id),
+                    Util::channelLink($channelMessage->getChannelId())
+                )
+            );
         }
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' left #'.$channel->name);
