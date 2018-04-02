@@ -30,10 +30,9 @@ class JoinChannelSubscriber implements EventSubscriberInterface
      */
     public function onCommand(ReactionAddedEvent $event): void
     {
-
         $reaction = $event->getReaction();
         $io = $event->getIo();
-        if ($reaction->emoji->name !== JoinableChannelMessage::JOIN_REACTION) {
+        if ($reaction->emoji->name !== JoinableChannelMessage::JOIN_REACTION || !$event->isBotMessage()) {
             return;
         }
         if (!JoinableChannelMessage::isJoinableChannel($reaction->message->content)) {

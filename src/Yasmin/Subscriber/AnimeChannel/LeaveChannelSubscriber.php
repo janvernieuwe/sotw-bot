@@ -33,7 +33,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         $reaction = $event->getReaction();
         $io = $event->getIo();
 
-        if ($reaction->emoji->name !== JoinableChannelMessage::LEAVE_REACTION) {
+        if ($reaction->emoji->name !== JoinableChannelMessage::LEAVE_REACTION || !$event->isBotMessage()) {
             return;
         }
         if (!JoinableChannelMessage::isJoinableChannel($reaction->message->content)) {

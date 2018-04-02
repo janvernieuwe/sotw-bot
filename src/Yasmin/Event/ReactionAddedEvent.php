@@ -83,4 +83,12 @@ class ReactionAddedEvent extends Event
     {
         return $this->reaction;
     }
+
+    /**
+     * @return bool
+     */
+    public function isBotMessage(): bool
+    {
+        return $this->reaction->message->author->bot;
+    }
 }
