@@ -196,7 +196,8 @@ class CreateSubscriber implements EventSubscriberInterface
         $link = $link[0];
         $link .= '?'.http_build_query($query);
         $createChannelMessage = sprintf(
-            ":tv: Kijk nu mee naar **%s**\nChannel: %s\nAnime: %s",
+            ":tv: Kijk nu mee naar **%s**\nChannel: %s\n"
+            ."Anime: %s\nJe kan dit kanaal joinen en leaven door de knoppen hieronder.",
             $this->anime->title,
             Util::channelLink((int)$channel->id),
             $link
