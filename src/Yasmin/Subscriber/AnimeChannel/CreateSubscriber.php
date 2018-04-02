@@ -14,6 +14,7 @@ use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\Role;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Jikan\Model\Anime;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use function GuzzleHttp\Psr7\parse_query;
 
@@ -28,31 +29,36 @@ class CreateSubscriber implements EventSubscriberInterface
      * @var Anime
      */
     protected $anime;
-
     /**
      * @var Client
      */
     protected $client;
-
     /**
      * @var string
      */
     protected $link;
-
     /**
      * @var Message
      */
     protected $message;
-
     /**
      * @var SeasonalAnimeChannel
      */
     protected $channel;
-
     /**
      * @var int
      */
     protected $everyoneRole;
+
+    /**
+     * @var TextChannel
+     */
+    private $textChannel;
+
+    /**
+     * @var SymfonyStyle
+     */
+    private $io;
 
     /**
      * @var MyAnimeListClient
@@ -96,7 +102,7 @@ class CreateSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        $io = $event->getIo();
+        $this->io = $io = $event->getIo();
         $this->message = $message = $event->getMessage();
         /** @var Client client */
         $this->client = $event->getMessage()->client;
@@ -167,10 +173,11 @@ class CreateSubscriber implements EventSubscriberInterface
             ]
         )->done(
             function (TextChannel $channel) use ($role) {
+                $this->textChannel = $channel;
                 $channel->setTopic(sprintf('%s || %s', $this->anime->title, $this->link));
                 $channel->send(
                     sprintf(
-                        ":tv: Hoi iedeen! in dit channel kijken we naar **%s**.\n%s",
+                        ":tv: Hoi iedeen! In dit channel kijken we naar **%s**.\n%s",
                         $this->anime->title,
                         $this->link
                     )
@@ -221,5 +228,6 @@ class CreateSubscriber implements EventSubscriberInterface
         $message->react(JoinableChannelMessage::LEAVE_REACTION);
         //$message->react(JoinableChannelMessage::DELETE_REACTION);
         $this->message->delete();
+        $this->io->success(sprintf('Anime channel #%s created for %s.', $this->textChannel->name, $this->anime->title));
     }
 }

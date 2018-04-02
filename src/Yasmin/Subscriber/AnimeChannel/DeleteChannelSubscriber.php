@@ -57,7 +57,7 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
         /** @var TextChannel $tmpChannel */
         $tmpChannel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
         $tmpChannel->delete('Remove joinable channel');
-        $io->success('Tmp channel removed #'.$channel->name);
+        $io->success('Anime channel removed #'.$channel->name);
         $reaction->message->delete();
     }
 }

@@ -34,6 +34,7 @@ class RunCommand extends ContainerAwareCommand
     /**
      * RunCommand constructor.
      * @param CotsChannel $cots
+     * @param RewatchChannel $rewatch
      */
     public function __construct(CotsChannel $cots, RewatchChannel $rewatch)
     {
@@ -67,10 +68,11 @@ class RunCommand extends ContainerAwareCommand
         $client = new Client([], $loop);
 
         // Warm up cache on startup
-        $io->section('Warming up the cache...');
+        $io->section('Warming up the caches ...');
         $this->cots->getTop10();
+        $io->success('Character of the season');
         $this->rewatch->getValidNominations();
-        $io->success('Cache warmed.');
+        $io->success('Rewatch');
 
         // Run the bot
         $io->section('Start listening');
@@ -93,6 +95,7 @@ class RunCommand extends ContainerAwareCommand
                     return;
                 }
                 if ($io->isVerbose()) {
+                    /** @noinspection PhpUndefinedFieldInspection */
                     $io->writeln(
                         'Received Message from '.$message->author->tag.' in '.
                         ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
@@ -110,15 +113,10 @@ class RunCommand extends ContainerAwareCommand
                 if ($reaction->me) {
                     return;
                 }
-                $users = $reaction->users->all();
-                $usernames = [];
-                foreach ($users as $id => $user) {
-                    $usernames[$id] = $user->username;
-                }
                 if ($io->isVerbose()) {
                     /** @noinspection PhpUndefinedFieldInspection */
                     $output = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
-                        .implode(', ', $usernames).' in channel #'.$reaction->message->channel->name;
+                        .$reaction->users->last()->username.' in channel #'.$reaction->message->channel->name;
                     $io->writeln($output);
                 }
                 $event = new ReactionAddedEvent($reaction, $io, $adminRole);
