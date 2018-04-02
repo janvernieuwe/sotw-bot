@@ -2,6 +2,7 @@
 
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
+use App\Channel\Channel;
 use App\Message\JoinableChannelMessage;
 use App\Util\Util;
 use App\Yasmin\Event\ReactionAddedEvent;
@@ -51,18 +52,21 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         $member = $reaction->message->guild->members->get($user->id);
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-        $roleId = $channelMessage->getRoleId();
 
         // Join
-        if (!$member->roles->has($roleId)) {
-            $member->addRole($roleId, 'User joined channel');
-            $joinMessage = sprintf(
-                ':inbox_tray:  %s kijkt nu mee naar %s',
-                Util::mention((int)$user->id),
-                Util::channelLink((int)$channel->id)
-            );
-            $channel->send($joinMessage);
-        }
+        $channel->overwritePermissions(
+            $member->id,
+            Channel::ROLE_VIEW_MESSAGES,
+            0,
+            'User left the channel'
+        );
+        $joinMessage = sprintf(
+            ':inbox_tray:  %s kijkt nu mee naar %s',
+            Util::mention((int)$user->id),
+            Util::channelLink((int)$channel->id)
+        );
+        $channel->send($joinMessage);
+
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' joined #'.$channel->name);
     }

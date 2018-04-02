@@ -4,7 +4,6 @@ namespace App\Yasmin\Subscriber\AnimeChannel;
 
 use App\Message\JoinableChannelMessage;
 use App\Yasmin\Event\ReactionAddedEvent;
-use CharlotteDunois\Yasmin\Models\Role;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -48,12 +47,8 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
         $channelMessage = new JoinableChannelMessage($reaction->message);
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-        $roleId = $channelMessage->getRoleId();
 
         // Delete
-        /** @var Role $role */
-        $role = $reaction->message->guild->roles->get($roleId);
-        $role->delete('Remove joinable role');
         /** @var TextChannel $tmpChannel */
         $tmpChannel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
         $tmpChannel->delete('Remove joinable channel');

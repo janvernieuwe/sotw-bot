@@ -2,6 +2,7 @@
 
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
+use App\Channel\Channel;
 use App\Message\JoinableChannelMessage;
 use App\Util\Util;
 use App\Yasmin\Event\ReactionAddedEvent;
@@ -52,19 +53,23 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         $member = $reaction->message->guild->members->get($user->id);
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-        $roleId = $channelMessage->getRoleId();
 
         // Leave
-        if ($member->roles->has($roleId)) {
-            $member->removeRole($roleId, 'User left channel');
-            $channel->send(
-                sprintf(
-                    ':outbox_tray: %s kijkt nu niet meer mee naar %s',
-                    Util::mention((int)$member->id),
-                    Util::channelLink($channelMessage->getChannelId())
-                )
-            );
-        }
+        /** @var  $override */
+        $channel->overwritePermissions(
+            $member->id,
+            0,
+            Channel::ROLE_VIEW_MESSAGES,
+            'User left the channel'
+        );
+        //$member->removeRole($roleId, 'User left channel');
+        $channel->send(
+            sprintf(
+                ':outbox_tray: %s kijkt nu niet meer mee naar %s',
+                Util::mention((int)$member->id),
+                Util::channelLink($channelMessage->getChannelId())
+            )
+        );
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' left #'.$channel->name);
     }

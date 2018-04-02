@@ -11,7 +11,6 @@ use App\Yasmin\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
-use CharlotteDunois\Yasmin\Models\Role;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Jikan\Model\Anime;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -116,36 +115,14 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->anime = $this->mal->loadAnime(MyAnimeListClient::getAnimeId($this->link));
         $name = $name[2];
         $guild = $message->guild;
-        $this->createRole($guild, $name);
+        $this->createChannel($guild, $name);
     }
 
     /**
      * @param Guild $guild
      * @param string $name
      */
-    protected function createRole(Guild $guild, string $name)
-    {
-        $guild
-            ->createRole(
-                [
-                    'name'        => $name,
-                    'permissions' => 0,
-                    'mentionable' => false,
-                ]
-            )
-            ->done(
-                function (Role $role) use ($guild, $name) {
-                    $this->createChannel($role, $guild, $name);
-                }
-            );
-    }
-
-    /**
-     * @param Role $role
-     * @param Guild $guild
-     * @param string $name
-     */
-    protected function createChannel(Role $role, Guild $guild, string $name)
+    protected function createChannel(Guild $guild, string $name)
     {
         $guild->createChannel(
             [
@@ -158,11 +135,6 @@ class CreateSubscriber implements EventSubscriberInterface
                         'type' => 'role',
                     ],
                     [
-                        'id'    => $role->id,
-                        'allow' => Channel::ROLE_VIEW_MESSAGES,
-                        'type'  => 'role',
-                    ],
-                    [
                         'id'    => $this->client->user->id,
                         'allow' => Channel::ROLE_VIEW_MESSAGES,
                         'type'  => 'member',
@@ -172,7 +144,7 @@ class CreateSubscriber implements EventSubscriberInterface
                 'nsfw'                 => false,
             ]
         )->done(
-            function (TextChannel $channel) use ($role) {
+            function (TextChannel $channel) {
                 $this->textChannel = $channel;
                 $channel->setTopic(sprintf('%s || %s', $this->anime->title, $this->link));
                 $channel->send(
@@ -182,20 +154,18 @@ class CreateSubscriber implements EventSubscriberInterface
                         $this->link
                     )
                 );
-                $this->createJoinMessage($channel, $role);
+                $this->createJoinMessage($channel);
             }
         );
     }
 
     /**
      * @param TextChannel $channel
-     * @param Role $role
      */
-    public function createJoinMessage(TextChannel $channel, Role $role)
+    public function createJoinMessage(TextChannel $channel)
     {
         $parts = parse_url($this->link);
         $query = parse_query($parts['query'] ?? '');
-        $query['r'] = $role->id;
         $query['c'] = $channel->id;
         if (!preg_match('#https?://myanimelist.net/anime/\d+#', $this->link, $link)) {
             return;

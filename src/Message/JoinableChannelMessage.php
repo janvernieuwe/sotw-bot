@@ -9,7 +9,6 @@ namespace App\Message;
 class JoinableChannelMessage
 {
     public const CHANNEL_REGXP = '/(c=)(\d+)/';
-    public const ROLE_REGXP = '/(r=)(\d+)/';
     public const JOIN_REACTION = '▶';
     public const LEAVE_REACTION = '⏹';
     public const DELETE_REACTION = '🚮';
@@ -34,26 +33,7 @@ class JoinableChannelMessage
      */
     public static function isJoinableChannel(string $content): bool
     {
-        if (!preg_match(self::CHANNEL_REGXP, $content)) {
-            return false;
-        }
-        if (!preg_match(self::ROLE_REGXP, $content)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getRoleId(): ?int
-    {
-        if (preg_match(self::ROLE_REGXP, $this->message->content, $role)) {
-            return (int)$role[2];
-        }
-
-        return null;
+        return preg_match(self::CHANNEL_REGXP, $content);
     }
 
     /**
