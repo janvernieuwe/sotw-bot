@@ -48,7 +48,10 @@ class CreateSubscriber implements EventSubscriberInterface
      * @var int
      */
     protected $everyoneRole;
-
+    /**
+     * @var int
+     */
+    private $parent;
     /**
      * @var TextChannel
      */
@@ -65,27 +68,19 @@ class CreateSubscriber implements EventSubscriberInterface
     private $mal;
 
     /**
-     * @var int
-     */
-    private $seasonalCategoryId;
-
-    /**
      * CreateSubscriber constructor.
      * @param SeasonalAnimeChannel $channel
      * @param MyAnimeListClient $mal
      * @param int $everyoneRole
-     * @param int $seasonalCategoryId
      */
     public function __construct(
         SeasonalAnimeChannel $channel,
         MyAnimeListClient $mal,
-        int $everyoneRole,
-        int $seasonalCategoryId
+        int $everyoneRole
     ) {
         $this->channel = $channel;
         $this->everyoneRole = $everyoneRole;
         $this->mal = $mal;
-        $this->seasonalCategoryId = $seasonalCategoryId;
     }
 
     /**
@@ -105,15 +100,16 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->message = $message = $event->getMessage();
         /** @var Client client */
         $this->client = $event->getMessage()->client;
-        $matchCommand = preg_match('/^(\!haamc create\-channel )([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc create\-channel )(\d+)\s([\S]*)\s?(.*)$/', $message->content, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $this->link = $name[3];
+        $this->parent = (int)$name[2];
+        $this->link = $name[4];
         $this->anime = $this->mal->loadAnime(MyAnimeListClient::getAnimeId($this->link));
-        $name = $name[2];
+        $name = $name[3];
         $guild = $message->guild;
         $this->createChannel($guild, $name);
     }
@@ -140,7 +136,7 @@ class CreateSubscriber implements EventSubscriberInterface
                         'type'  => 'member',
                     ],
                 ],
-                'parent'               => $this->seasonalCategoryId,
+                'parent'               => $this->parent,
                 'nsfw'                 => false,
             ]
         )->done(

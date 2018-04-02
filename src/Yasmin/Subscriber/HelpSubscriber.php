@@ -39,7 +39,7 @@ class HelpSubscriber implements EventSubscriberInterface
 ```        
 All commands are prefixed with !haamc
 
-channel-create <channel-name> <mal-anime-link>
+channel-create <category-id> <channel-name> <mal-anime-link>
     This command creates an anime channel link in the channel you type it in.
     Users can join the channel by clicking the reactions below it.
     The channel & role can be removed by admins by adding the :put_litter_in_its_place: reaction to the message
