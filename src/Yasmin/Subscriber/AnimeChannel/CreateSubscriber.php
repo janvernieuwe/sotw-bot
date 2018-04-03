@@ -169,7 +169,7 @@ class CreateSubscriber implements EventSubscriberInterface
         }
         $link = $link[0];
         $link .= '?'.http_build_query($query);
-        $createChannelMessage = $this->generateJoinMessage($this->anime->title, (int)$channel->id, $link);
+        $createChannelMessage = $this->generateJoinMessage($this->anime, (int)$channel->id, $link);
         $this->message->channel
             ->send($createChannelMessage)
             ->done(

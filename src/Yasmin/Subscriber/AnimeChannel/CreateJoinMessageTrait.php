@@ -16,10 +16,11 @@ trait CreateJoinMessageTrait
     public function generateJoinMessage(Anime $anime, int $channelId, string $link): string
     {
         return sprintf(
-            ":tv: **%s** (*%s)\nChannel: %s\nAnime: %s",
+            ":tv: **%s** \nchannel: %s | date: *%s* | episodes: %s \nmal: %s",
             $anime->title,
-            $anime->aired_string,
             Util::channelLink($channelId),
+            $anime->aired_string,
+            $anime->episodes ?: '?',
             $link
         );
     }
