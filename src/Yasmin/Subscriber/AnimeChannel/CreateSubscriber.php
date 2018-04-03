@@ -100,7 +100,7 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->message = $message = $event->getMessage();
         /** @var Client client */
         $this->client = $event->getMessage()->client;
-        $matchCommand = preg_match('/^(\!haamc create\-channel )(\d+)\s([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc channel )(\d+)\s([\S]*)\s?(.*)$/', $message->content, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }

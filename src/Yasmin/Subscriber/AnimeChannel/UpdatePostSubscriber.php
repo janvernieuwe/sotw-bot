@@ -4,7 +4,6 @@ namespace App\Yasmin\Subscriber\AnimeChannel;
 
 use App\Message\JoinableChannelMessage;
 use App\MyAnimeList\MyAnimeListClient;
-use App\Util\Util;
 use App\Yasmin\Event\ReactionAddedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

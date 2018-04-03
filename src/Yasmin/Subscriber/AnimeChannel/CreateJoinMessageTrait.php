@@ -13,28 +13,6 @@ use Jikan\Model\Anime;
 trait CreateJoinMessageTrait
 {
     /**
-     * @param Anime $anime
-     * @param int $channelId
-     * @param string $link
-     * @param int $subs
-     * @return string
-     */
-    public function generateJoinMessage(Anime $anime, int $channelId, string $link, int $subs = 0): string
-    {
-        return '';
-
-        return sprintf(
-            ":tv: **%s** \nchannel: %s | datum: %s | afleveringen: %s | kijkers: %s | mal: %s",
-            $anime->title,
-            Util::channelLink($channelId),
-            $anime->aired_string,
-            $anime->episodes ?: '?',
-            $subs,
-            $link
-        );
-    }
-
-    /**
      * @param JoinableChannelMessage $message
      * @param int $subs
      * @return array
@@ -51,7 +29,7 @@ trait CreateJoinMessageTrait
         $channelid = (int)$channelid[1];
 
         return $this->generateRichChannelMessage($anime, $channelid, $message->getEmbeddedAnimeLink(), $subs);
-    }
+    }/** @noinspection MoreThanThreeArgumentsInspection */
 
     /**
      * @param Anime $anime

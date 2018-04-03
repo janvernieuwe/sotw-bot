@@ -2,8 +2,6 @@
 
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
-use CharlotteDunois\Yasmin\Models\MessageEmbed;
-
 /**
  * Trait UpdateSubsTrait
  * @package App\Yasmin\Subscriber\AnimeChannel
