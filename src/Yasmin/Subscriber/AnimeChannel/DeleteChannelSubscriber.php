@@ -35,7 +35,7 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
         if ($reaction->emoji->name !== JoinableChannelMessage::DELETE_REACTION) {
             return;
         }
-        if (!JoinableChannelMessage::isJoinableChannel($reaction->message->content)) {
+        if (!JoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
             $io->writeln('Not a joinable channel reaction');
 
             return;

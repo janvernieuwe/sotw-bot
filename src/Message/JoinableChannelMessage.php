@@ -42,11 +42,42 @@ class JoinableChannelMessage
     }
 
     /**
+     * @param \CharlotteDunois\Yasmin\Models\Message $message
+     * @return bool
+     */
+    public static function isJoinChannelMessage(\CharlotteDunois\Yasmin\Models\Message $message): bool
+    {
+        $message = new self($message);
+
+        return $message->getFieldValue('kijkers') !== null;
+    }
+
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    public function getFieldValue(string $key)
+    {
+        $data = array_filter(
+            $this->message->embeds[0]->fields,
+            function (array $data) use ($key) {
+                return $data['name'] === $key;
+            }
+        );
+        if (!count($data)) {
+            return null;
+        }
+        $data = array_values($data);
+
+        return $data[0]['value'];
+    }
+
+    /**
      * @return int|null
      */
     public function getChannelId(): ?int
     {
-        if (preg_match(self::CHANNEL_REGXP, $this->message->content, $channel)) {
+        if (preg_match(self::CHANNEL_REGXP, $this->getAnimeLink(), $channel)) {
             return (int)$channel[2];
         }
 
@@ -58,7 +89,7 @@ class JoinableChannelMessage
      */
     public function getAnimeId(): ?int
     {
-        if (preg_match('#https?://myanimelist.net/anime/(\d+)#', $this->message->content, $channel)) {
+        if (preg_match('#https?://myanimelist.net/anime/(\d+)#', $this->getAnimeLink(), $channel)) {
             return (int)$channel[1];
         }
 
@@ -70,11 +101,7 @@ class JoinableChannelMessage
      */
     public function getAnimeLink(): ?string
     {
-        if (preg_match('#https?://myanimelist.net/anime/\S+#', $this->message->content, $channel)) {
-            return $channel[0];
-        }
-
-        return '';
+        return $this->message->embeds[0]->url;
     }
 
     /**
@@ -106,26 +133,6 @@ class JoinableChannelMessage
     public function getAnimeTitle(): string
     {
         return $this->message->embeds[0]->title;
-    }
-
-    /**
-     * @param string $key
-     * @return mixed
-     */
-    public function getFieldValue(string $key)
-    {
-        $data = array_filter(
-            $this->message->embeds[0]->fields,
-            function (array $data) use ($key) {
-                return $data['name'] === $key;
-            }
-        );
-        if (!count($data)) {
-            return null;
-        }
-        $data = array_values($data);
-
-        return $data[0]['value'];
     }
 
     /**

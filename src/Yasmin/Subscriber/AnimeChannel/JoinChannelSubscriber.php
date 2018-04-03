@@ -40,7 +40,7 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         if ($reaction->emoji->name !== JoinableChannelMessage::JOIN_REACTION || !$event->isBotMessage()) {
             return;
         }
-        if (!JoinableChannelMessage::isJoinableChannel($reaction->message->content)) {
+        if (!JoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
             $io->writeln('Not a joinable channel reaction');
 
             return;

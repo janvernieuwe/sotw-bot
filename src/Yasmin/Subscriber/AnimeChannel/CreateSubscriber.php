@@ -6,7 +6,6 @@ use App\Channel\Channel;
 use App\Channel\SeasonalAnimeChannel;
 use App\Message\JoinableChannelMessage;
 use App\MyAnimeList\MyAnimeListClient;
-use App\Util\Util;
 use App\Yasmin\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Guild;
@@ -151,7 +150,7 @@ class CreateSubscriber implements EventSubscriberInterface
                         $this->link
                     )
                 );
-                $this->createJoinMessage($channel);
+                $this->sendJoinMessage($channel);
             }
         );
     }
@@ -159,7 +158,7 @@ class CreateSubscriber implements EventSubscriberInterface
     /**
      * @param TextChannel $channel
      */
-    public function createJoinMessage(TextChannel $channel)
+    public function sendJoinMessage(TextChannel $channel)
     {
         $parts = parse_url($this->link);
         $query = parse_query($parts['query'] ?? '');
@@ -169,9 +168,11 @@ class CreateSubscriber implements EventSubscriberInterface
         }
         $link = $link[0];
         $link .= '?'.http_build_query($query);
-        $createChannelMessage = $this->generateJoinMessage($this->anime, (int)$channel->id, $link);
         $this->message->channel
-            ->send($createChannelMessage)
+            ->send(
+                '',
+                $this->generateRichChannelMessage($this->anime, (int)$channel->id, $link)
+            )
             ->done(
                 function (Message $message) {
                     $this->addReactions($message);

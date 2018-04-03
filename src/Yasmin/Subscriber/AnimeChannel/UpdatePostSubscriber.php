@@ -52,7 +52,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         if ($reaction->emoji->name !== JoinableChannelMessage::RELOAD_REACTION || !$event->isBotMessage()) {
             return;
         }
-        if (!JoinableChannelMessage::isJoinableChannel($reaction->message->content)) {
+        if (!JoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
             $io->writeln('Not a joinable channel reaction');
 
             return;
@@ -66,15 +66,11 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         if (!$reaction->message->editable) {
             $io->error('Message is not editable.');
         }
-        $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
+        $channelId = $channelMessage->getChannelId();
+        $channel = $reaction->message->guild->channels->get($channelId);
         $subs = $channelMessage->getSubsciberCount($channel);
         $reaction->message->edit(
-            $this->generateJoinMessage(
-                $anime,
-                $channelMessage->getChannelId(),
-                $channelMessage->getAnimeLink(),
-                $subs
-            ),
+            '',
             $this->generateRichChannelMessage(
                 $anime,
                 $channelMessage->getChannelId(),

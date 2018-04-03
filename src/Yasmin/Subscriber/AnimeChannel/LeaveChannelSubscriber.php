@@ -41,7 +41,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         if ($reaction->emoji->name !== JoinableChannelMessage::LEAVE_REACTION || !$event->isBotMessage()) {
             return;
         }
-        if (!JoinableChannelMessage::isJoinableChannel($reaction->message->content)) {
+        if (!JoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
             $io->writeln('Not a joinable channel reaction');
 
             return;
@@ -76,7 +76,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         );
         $count = $channelMessage->getSubsciberCount($channel) - 1;
         $reaction->message->edit(
-            $this->updateSubscribers($reaction->message, $count),
+            '',
             $this->updateRichJoin($channelMessage, $count)
         );
         $channel->send(
