@@ -45,6 +45,9 @@ class UpdatePostSubscriber implements EventSubscriberInterface
     {
         $reaction = $event->getReaction();
         $io = $event->getIo();
+        if (!$event->isAdmin()) {
+            return;
+        }
         if ($reaction->emoji->name !== JoinableChannelMessage::RELOAD_REACTION || !$event->isBotMessage()) {
             return;
         }
