@@ -12,6 +12,7 @@ class JoinableChannelMessage
     public const JOIN_REACTION = '▶';
     public const LEAVE_REACTION = '⏹';
     public const DELETE_REACTION = '🚮';
+    public const RELOAD_REACTION = '🔁';
 
     /**
      * @var \CharlotteDunois\Yasmin\Models\Message
@@ -46,5 +47,29 @@ class JoinableChannelMessage
         }
 
         return null;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getAnimeId(): ?int
+    {
+        if (preg_match('#https?://myanimelist.net/anime/(\d+)#', $this->message->content, $channel)) {
+            return (int)$channel[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnimeLink(): ?string
+    {
+        if (preg_match('#https?://myanimelist.net/anime/\S+#', $this->message->content, $channel)) {
+            return $channel[0];
+        }
+
+        return '';
     }
 }

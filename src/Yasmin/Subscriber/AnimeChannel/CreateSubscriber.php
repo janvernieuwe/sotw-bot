@@ -24,6 +24,7 @@ use function GuzzleHttp\Psr7\parse_query;
  */
 class CreateSubscriber implements EventSubscriberInterface
 {
+    use CreateJoinMessageTrait;
     /**
      * @var Anime
      */
@@ -168,14 +169,7 @@ class CreateSubscriber implements EventSubscriberInterface
         }
         $link = $link[0];
         $link .= '?'.http_build_query($query);
-        $createChannelMessage = sprintf(
-            ":tv: Kijk nu mee naar **%s**\nChannel: %s\n"
-            ."Anime: %s\nJe kan dit kanaal joinen en leaven door de knoppen hieronder.",
-            $this->anime->title,
-            Util::channelLink((int)$channel->id),
-            $link
-        );
-
+        $createChannelMessage = $this->generateJoinMessage($this->anime->title, (int)$channel->id, $link);
         $this->message->channel
             ->send($createChannelMessage)
             ->done(
