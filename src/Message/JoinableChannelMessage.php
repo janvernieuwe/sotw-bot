@@ -2,6 +2,10 @@
 
 namespace App\Message;
 
+use App\Channel\Channel;
+use CharlotteDunois\Yasmin\Models\PermissionOverwrite;
+use CharlotteDunois\Yasmin\Models\TextChannel;
+
 /**
  * Class JoinableChannelMessage
  * @package App\Message
@@ -71,5 +75,28 @@ class JoinableChannelMessage
         }
 
         return '';
+    }
+
+    /**
+     * @param TextChannel $channel
+     * @return int
+     */
+    public function getSubsciberCount(TextChannel $channel): int
+    {
+        return count($this->getSubscribers($channel)) -1;
+    }
+
+    /**
+     * @param TextChannel $channel
+     * @return array
+     */
+    public function getSubscribers(TextChannel $channel): array
+    {
+        return array_filter(
+            $channel->permissionOverwrites->all(),
+            function (PermissionOverwrite $o) {
+                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES;
+            }
+        );
     }
 }

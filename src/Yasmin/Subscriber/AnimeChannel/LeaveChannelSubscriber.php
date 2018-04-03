@@ -18,6 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class LeaveChannelSubscriber implements EventSubscriberInterface
 {
+    use AccessCheckingTrait;
+    use UpdateSubsTrait;
+
     /**
      * @inheritdoc
      */
@@ -54,6 +57,14 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
 
+        if (!$this->hasAccess($channel, $user->id)) {
+            $io->writeln(sprintf('User %s already has left %s', $user->username, $channel->name));
+            $reaction->remove($reaction->users->last());
+
+
+            return;
+        }
+
         // Leave
         /** @var  $override */
         $channel->overwritePermissions(
@@ -62,7 +73,9 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
             Channel::ROLE_VIEW_MESSAGES,
             'User left the channel'
         );
-        //$member->removeRole($roleId, 'User left channel');
+        $count = $channelMessage->getSubsciberCount($channel) - 1;
+        $io->note($count);
+        $reaction->message->edit($this->updateSubscribers($reaction->message, $count));
         $channel->send(
             sprintf(
                 ':outbox_tray: %s kijkt nu niet meer mee naar %s',

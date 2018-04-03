@@ -18,6 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class JoinChannelSubscriber implements EventSubscriberInterface
 {
+    use UpdateSubsTrait;
+    use AccessCheckingTrait;
+
     /**
      * @inheritdoc
      */
@@ -53,6 +56,13 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
 
+        if ($this->hasAccess($channel, $user->id)) {
+            $io->writeln(sprintf('User %s already has joined %s', $user->username, $channel->name));
+            $reaction->remove($reaction->users->last());
+
+            return;
+        }
+
         // Join
         $channel->overwritePermissions(
             $member->id,
@@ -60,6 +70,8 @@ class JoinChannelSubscriber implements EventSubscriberInterface
             0,
             'User joined the channel'
         );
+        $count = $channelMessage->getSubsciberCount($channel) + 1;
+        $reaction->message->edit($this->updateSubscribers($reaction->message, $count));
         $joinMessage = sprintf(
             ':inbox_tray:  %s kijkt nu mee naar %s',
             Util::mention((int)$user->id),
