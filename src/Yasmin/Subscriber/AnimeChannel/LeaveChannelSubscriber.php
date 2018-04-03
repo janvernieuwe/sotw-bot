@@ -74,7 +74,6 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
             'User left the channel'
         );
         $count = $channelMessage->getSubsciberCount($channel) - 1;
-        $io->note($count);
         $reaction->message->edit($this->updateSubscribers($reaction->message, $count));
         $channel->send(
             sprintf(
