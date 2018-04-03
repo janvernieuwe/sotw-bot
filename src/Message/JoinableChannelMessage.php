@@ -83,7 +83,7 @@ class JoinableChannelMessage
      */
     public function getSubsciberCount(TextChannel $channel): int
     {
-        return count($this->getSubscribers($channel)) -1;
+        return count($this->getSubscribers($channel)) - 1;
     }
 
     /**
@@ -98,5 +98,49 @@ class JoinableChannelMessage
                 return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES;
             }
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnimeTitle(): string
+    {
+        return $this->message->embeds[0]->title;
+    }
+
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    public function getFieldValue(string $key)
+    {
+        $data = array_filter(
+            $this->message->embeds[0]->fields,
+            function (array $data) use ($key) {
+                return $data['name'] === $key;
+            }
+        );
+        if (!count($data)) {
+            return null;
+        }
+        $data = array_values($data);
+
+        return $data[0]['value'];
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getEmbeddedAnimeLink(): ?string
+    {
+        return $this->message->embeds[0]->url;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAnimeImageUrl(): ?string
+    {
+        return $this->message->embeds[0]->thumbnail['url'];
     }
 }

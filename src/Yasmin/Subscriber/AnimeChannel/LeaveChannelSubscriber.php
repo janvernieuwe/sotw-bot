@@ -20,6 +20,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
 {
     use AccessCheckingTrait;
     use UpdateSubsTrait;
+    use CreateJoinMessageTrait;
 
     /**
      * @inheritdoc
@@ -74,7 +75,10 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
             'User left the channel'
         );
         $count = $channelMessage->getSubsciberCount($channel) - 1;
-        $reaction->message->edit($this->updateSubscribers($reaction->message, $count));
+        $reaction->message->edit(
+            $this->updateSubscribers($reaction->message, $count),
+            $this->updateRichJoin($channelMessage, $count)
+        );
         $channel->send(
             sprintf(
                 ':outbox_tray: %s kijkt nu niet meer mee naar %s',

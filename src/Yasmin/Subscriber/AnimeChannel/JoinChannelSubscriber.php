@@ -19,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class JoinChannelSubscriber implements EventSubscriberInterface
 {
     use UpdateSubsTrait;
+    use CreateJoinMessageTrait;
     use AccessCheckingTrait;
 
     /**
@@ -71,7 +72,10 @@ class JoinChannelSubscriber implements EventSubscriberInterface
             'User joined the channel'
         );
         $count = $channelMessage->getSubsciberCount($channel) + 1;
-        $reaction->message->edit($this->updateSubscribers($reaction->message, $count));
+        $reaction->message->edit(
+            $this->updateSubscribers($reaction->message, $count),
+            $this->updateRichJoin($channelMessage, $count)
+        );
         $joinMessage = sprintf(
             ':inbox_tray:  %s kijkt nu mee naar %s',
             Util::mention((int)$user->id),

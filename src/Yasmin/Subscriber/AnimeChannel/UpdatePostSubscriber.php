@@ -4,6 +4,7 @@ namespace App\Yasmin\Subscriber\AnimeChannel;
 
 use App\Message\JoinableChannelMessage;
 use App\MyAnimeList\MyAnimeListClient;
+use App\Util\Util;
 use App\Yasmin\Event\ReactionAddedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -69,6 +70,12 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         $subs = $channelMessage->getSubsciberCount($channel);
         $reaction->message->edit(
             $this->generateJoinMessage(
+                $anime,
+                $channelMessage->getChannelId(),
+                $channelMessage->getAnimeLink(),
+                $subs
+            ),
+            $this->generateRichChannelMessage(
                 $anime,
                 $channelMessage->getChannelId(),
                 $channelMessage->getAnimeLink(),

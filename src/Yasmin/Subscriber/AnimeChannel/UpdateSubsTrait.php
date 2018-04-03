@@ -2,6 +2,8 @@
 
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
+use CharlotteDunois\Yasmin\Models\MessageEmbed;
+
 /**
  * Trait UpdateSubsTrait
  * @package App\Yasmin\Subscriber\AnimeChannel
@@ -15,6 +17,6 @@ trait UpdateSubsTrait
      */
     public function updateSubscribers(string $message, int $subscribers): string
     {
-        return preg_replace('#subs: \*\*(\d+)\*\*#', 'subs: **'.$subscribers.'**', $message);
+        return preg_replace('#kijkers: (\d+)#', 'kijkers: '.$subscribers, $message);
     }
 }
