@@ -21,7 +21,8 @@ trait CreateJoinMessageTrait
      */
     public function generateJoinMessage(Anime $anime, int $channelId, string $link, int $subs = 0): string
     {
-        return ':tv:';
+        return '';
+
         return sprintf(
             ":tv: **%s** \nchannel: %s | datum: %s | afleveringen: %s | kijkers: %s | mal: %s",
             $anime->title,
@@ -84,7 +85,7 @@ trait CreateJoinMessageTrait
                     ],
                     [
                         'name'   => 'kijkers',
-                        'value'  => $subs,
+                        'value'  => (string)$subs,
                         'inline' => true,
                     ],
                 ],

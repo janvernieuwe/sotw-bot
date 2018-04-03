@@ -47,6 +47,7 @@ class JoinableChannelMessage
      */
     public static function isJoinChannelMessage(\CharlotteDunois\Yasmin\Models\Message $message): bool
     {
+        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
         $message = new self($message);
 
         return $message->getFieldValue('kijkers') !== null;

@@ -70,7 +70,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         $channel = $reaction->message->guild->channels->get($channelId);
         $subs = $channelMessage->getSubsciberCount($channel);
         $reaction->message->edit(
-            '',
+            ':tv:',
             $this->generateRichChannelMessage(
                 $anime,
                 $channelMessage->getChannelId(),

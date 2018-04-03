@@ -168,11 +168,9 @@ class CreateSubscriber implements EventSubscriberInterface
         }
         $link = $link[0];
         $link .= '?'.http_build_query($query);
+        $embed = $this->generateRichChannelMessage($this->anime, (int)$channel->id, $link);
         $this->message->channel
-            ->send(
-                '',
-                $this->generateRichChannelMessage($this->anime, (int)$channel->id, $link)
-            )
+            ->send(':tv:', $embed)
             ->done(
                 function (Message $message) {
                     $this->addReactions($message);
