@@ -58,7 +58,7 @@ class JoinChannelSubscriber implements EventSubscriberInterface
             $member->id,
             Channel::ROLE_VIEW_MESSAGES,
             0,
-            'User left the channel'
+            'User joined the channel'
         );
         $joinMessage = sprintf(
             ':inbox_tray:  %s kijkt nu mee naar %s',
