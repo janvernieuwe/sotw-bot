@@ -72,7 +72,6 @@ class JoinChannelSubscriber implements EventSubscriberInterface
             'User joined the channel'
         );
         $count = $channelMessage->getSubsciberCount($channel) + 1;
-        $io->note($count);
         $reaction->message->edit(
             ':tv:',
             $this->updateRichJoin($channelMessage, $count)
