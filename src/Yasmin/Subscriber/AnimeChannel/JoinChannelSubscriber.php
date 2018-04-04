@@ -2,9 +2,7 @@
 
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
-use App\Channel\Channel;
 use App\Message\JoinableChannelMessage;
-use App\Util\Util;
 use App\Yasmin\Event\ReactionAddedEvent;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\TextChannel;
@@ -18,10 +16,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class JoinChannelSubscriber implements EventSubscriberInterface
 {
-    use UpdateSubsTrait;
-    use CreateJoinMessageTrait;
-    use AccessCheckingTrait;
-
     /**
      * @inheritdoc
      */
@@ -56,33 +50,14 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         $member = $reaction->message->guild->members->get($user->id);
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-
-        if ($this->hasAccess($channel, $user->id)) {
+        if ($channelMessage->hasAccess($user->id)) {
             $io->writeln(sprintf('User %s already has joined %s', $user->username, $channel->name));
             $reaction->remove($reaction->users->last());
 
             return;
         }
-
         // Join
-        $channel->overwritePermissions(
-            $member->id,
-            Channel::ROLE_VIEW_MESSAGES,
-            0,
-            'User joined the channel'
-        );
-        $count = $channelMessage->getSubsciberCount($channel) + 1;
-        $reaction->message->edit(
-            ':tv:',
-            $this->updateRichJoin($channelMessage, $count)
-        );
-        $joinMessage = sprintf(
-            ':inbox_tray:  %s kijkt nu mee naar %s',
-            Util::mention((int)$user->id),
-            Util::channelLink((int)$channel->id)
-        );
-        $channel->send($joinMessage);
-
+        $channelMessage->addUser($member);
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' joined #'.$channel->name);
     }

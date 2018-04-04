@@ -14,8 +14,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class UpdatePostSubscriber implements EventSubscriberInterface
 {
-    use CreateJoinMessageTrait;
-
     /**
      * @var MyAnimeListClient
      */
@@ -68,15 +66,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         $channelId = $channelMessage->getChannelId();
         $channel = $reaction->message->guild->channels->get($channelId);
         $subs = $channelMessage->getSubsciberCount($channel);
-        $reaction->message->edit(
-            ':tv:',
-            $this->generateRichChannelMessage(
-                $anime,
-                $channelMessage->getChannelId(),
-                $channelMessage->getAnimeLink(),
-                $subs
-            )
-        );
+        $channelMessage->updateWatchers($subs);
         $reaction->message->react(JoinableChannelMessage::JOIN_REACTION);
         $reaction->message->react(JoinableChannelMessage::LEAVE_REACTION);
         $reaction->remove($reaction->users->last());

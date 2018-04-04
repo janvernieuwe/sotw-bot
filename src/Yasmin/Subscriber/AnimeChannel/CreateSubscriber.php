@@ -3,7 +3,6 @@
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
 use App\Channel\Channel;
-use App\Channel\SeasonalAnimeChannel;
 use App\Message\JoinableChannelMessage;
 use App\MyAnimeList\MyAnimeListClient;
 use App\Yasmin\Event\MessageReceivedEvent;
@@ -23,35 +22,36 @@ use function GuzzleHttp\Psr7\parse_query;
  */
 class CreateSubscriber implements EventSubscriberInterface
 {
-    use CreateJoinMessageTrait;
     /**
      * @var Anime
      */
     protected $anime;
+
     /**
      * @var Client
      */
     protected $client;
+
     /**
      * @var string
      */
     protected $link;
+
     /**
      * @var Message
      */
     protected $message;
-    /**
-     * @var SeasonalAnimeChannel
-     */
-    protected $channel;
+
     /**
      * @var int
      */
     protected $everyoneRole;
+
     /**
      * @var int
      */
     private $parent;
+
     /**
      * @var TextChannel
      */
@@ -69,16 +69,13 @@ class CreateSubscriber implements EventSubscriberInterface
 
     /**
      * CreateSubscriber constructor.
-     * @param SeasonalAnimeChannel $channel
      * @param MyAnimeListClient $mal
      * @param int $everyoneRole
      */
     public function __construct(
-        SeasonalAnimeChannel $channel,
         MyAnimeListClient $mal,
         int $everyoneRole
     ) {
-        $this->channel = $channel;
         $this->everyoneRole = $everyoneRole;
         $this->mal = $mal;
     }
@@ -168,9 +165,9 @@ class CreateSubscriber implements EventSubscriberInterface
         }
         $link = $link[0];
         $link .= '?'.http_build_query($query);
-        $embed = $this->generateRichChannelMessage($this->anime, (int)$channel->id, $link);
+        $embed = JoinableChannelMessage::generateRichChannelMessage($this->anime, (int)$channel->id, $link);
         $this->message->channel
-            ->send(':tv:', $embed)
+            ->send(JoinableChannelMessage::TEXT_MESSAGE, $embed)
             ->done(
                 function (Message $message) {
                     $this->addReactions($message);

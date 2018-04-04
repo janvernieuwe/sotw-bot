@@ -3,8 +3,12 @@
 namespace App\Message;
 
 use App\Channel\Channel;
+use App\Exception\InvalidChannelException;
+use App\Util\Util;
+use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\PermissionOverwrite;
 use CharlotteDunois\Yasmin\Models\TextChannel;
+use Jikan\Model\Anime;
 
 /**
  * Class JoinableChannelMessage
@@ -17,6 +21,7 @@ class JoinableChannelMessage
     public const LEAVE_REACTION = '⏹';
     public const DELETE_REACTION = '🚮';
     public const RELOAD_REACTION = '🔁';
+    public const TEXT_MESSAGE = ':tv:';
 
     /**
      * @var \CharlotteDunois\Yasmin\Models\Message
@@ -76,18 +81,6 @@ class JoinableChannelMessage
     /**
      * @return int|null
      */
-    public function getChannelId(): ?int
-    {
-        if (preg_match(self::CHANNEL_REGXP, $this->getAnimeLink(), $channel)) {
-            return (int)$channel[2];
-        }
-
-        return null;
-    }
-
-    /**
-     * @return int|null
-     */
     public function getAnimeId(): ?int
     {
         if (preg_match('#https?://myanimelist.net/anime/(\d+)#', $this->getAnimeLink(), $channel)) {
@@ -103,6 +96,80 @@ class JoinableChannelMessage
     public function getAnimeLink(): ?string
     {
         return $this->message->embeds[0]->url;
+    }
+
+    /**
+     * @param GuildMember $member
+     */
+    public function addUser(GuildMember $member): void
+    {
+        // No double joins
+        if ($this->hasAccess($member->id)) {
+            return;
+        }
+        // Join channel
+        $channel = $this->getChannelFromMessage();
+        $channel->overwritePermissions(
+            $member->id,
+            Channel::ROLE_VIEW_MESSAGES,
+            0,
+            'User joined the channel'
+        );
+        // Update the member counf
+        $count = $this->getSubsciberCount($channel) + 1;
+        $this->updateWatchers($count);
+        // Announce join
+        $joinMessage = sprintf(
+            ':inbox_tray:  %s kijkt nu mee naar %s',
+            Util::mention((int)$member->id),
+            Util::channelLink((int)$channel->id)
+        );
+        $channel->send($joinMessage);
+    }
+
+    /**
+     * @param int $memberid
+     * @return bool
+     */
+    public function hasAccess(int $memberid): bool
+    {
+        $permissions = $this->getChannelFromMessage()->permissionOverwrites->all();
+        $view = array_filter(
+            $permissions,
+            function (PermissionOverwrite $o) use ($memberid) {
+                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES
+                    && $memberid === (int)$o->id
+                    && $o->type === 'member';
+            }
+        );
+
+        return count($view) > 0;
+    }
+
+    /**
+     * @return TextChannel
+     * @throws InvalidChannelException
+     */
+    public function getChannelFromMessage(): TextChannel
+    {
+        $channel = $this->message->guild->channels->get($this->getChannelId());
+        if ($channel === null) {
+            throw new InvalidChannelException('Channel not found');
+        }
+
+        return $channel;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getChannelId(): ?int
+    {
+        if (preg_match(self::CHANNEL_REGXP, $this->getAnimeLink(), $channel)) {
+            return (int)$channel[2];
+        }
+
+        return null;
     }
 
     /**
@@ -129,6 +196,24 @@ class JoinableChannelMessage
     }
 
     /**
+     * @param int $subs
+     */
+    public function updateWatchers(int $subs = 0): void
+    {
+        preg_match('#\*\*(.*)\*\*#', $this->getAnimeTitle(), $title);
+        $anime = new Anime();
+        $anime->title = $title[1];
+        $anime->episodes = $this->getFieldValue('afleveringen');
+        $anime->aired_string = $this->getFieldValue('datum');
+        $anime->image_url = $this->getAnimeImageUrl();
+        preg_match('/c=(\d+)/', $this->getEmbeddedAnimeLink(), $channelid);
+        $channelid = (int)$channelid[1];
+
+        $embed = self::generateRichChannelMessage($anime, $channelid, $this->getEmbeddedAnimeLink(), $subs);
+        $this->message->edit(self::TEXT_MESSAGE, $embed);
+    }
+
+    /**
      * @return string
      */
     public function getAnimeTitle(): string
@@ -137,18 +222,88 @@ class JoinableChannelMessage
     }
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function getEmbeddedAnimeLink(): ?string
+    public function getAnimeImageUrl(): string
+    {
+        return $this->message->embeds[0]->thumbnail['url'];
+    }/** @noinspection MoreThanThreeArgumentsInspection */
+
+    /**
+     * @return string
+     */
+    public function getEmbeddedAnimeLink(): string
     {
         return $this->message->embeds[0]->url;
     }
 
     /**
-     * @return null|string
+     * @param Anime $anime
+     * @param int $channelId
+     * @param string $link
+     * @param int $subs
+     * @return array
      */
-    public function getAnimeImageUrl(): ?string
+    public static function generateRichChannelMessage(Anime $anime, int $channelId, string $link, int $subs = 0): array
     {
-        return $this->message->embeds[0]->thumbnail['url'];
+        return [
+            'embed' => [
+                'title'     => '**'.$anime->title.'**',
+                'url'       => $link,
+                'thumbnail' => ['url' => $anime->image_url],
+                'fields'    => [
+                    [
+                        'name'   => 'datum',
+                        'value'  => $anime->aired_string,
+                        'inline' => true,
+                    ],
+                    [
+                        'name'   => 'afleveringen',
+                        'value'  => $anime->episodes,
+                        'inline' => true,
+                    ],
+                    [
+                        'name'   => 'channel',
+                        'value'  => Util::channelLink($channelId),
+                        'inline' => true,
+                    ],
+                    [
+                        'name'   => 'kijkers',
+                        'value'  => (string)$subs,
+                        'inline' => true,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param GuildMember $member
+     */
+    public function removeUser(GuildMember $member): void
+    {
+        // No double joins
+        if (!$this->hasAccess($member->id)) {
+            return;
+        }
+        // Remove member
+        $channel = $this->getChannelFromMessage();
+        $channel->overwritePermissions(
+            $member->id,
+            0,
+            Channel::ROLE_VIEW_MESSAGES,
+            'User left the channel'
+        );
+        // Update member count
+        $count = $this->getSubsciberCount($channel) - 1;
+        $this->updateWatchers($count);
+        // Announce leave
+        $channel->send(
+            sprintf(
+                ':outbox_tray: %s kijkt nu niet meer mee naar %s',
+                Util::mention((int)$member->id),
+                Util::channelLink($this->getChannelId())
+            )
+        );
     }
 }

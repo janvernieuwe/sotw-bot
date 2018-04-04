@@ -2,9 +2,7 @@
 
 namespace App\Yasmin\Subscriber\AnimeChannel;
 
-use App\Channel\Channel;
 use App\Message\JoinableChannelMessage;
-use App\Util\Util;
 use App\Yasmin\Event\ReactionAddedEvent;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\TextChannel;
@@ -18,10 +16,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class LeaveChannelSubscriber implements EventSubscriberInterface
 {
-    use AccessCheckingTrait;
-    use UpdateSubsTrait;
-    use CreateJoinMessageTrait;
-
     /**
      * @inheritdoc
      */
@@ -57,35 +51,14 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
         $member = $reaction->message->guild->members->get($user->id);
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-
-        if (!$this->hasAccess($channel, $user->id)) {
+        if (!$channelMessage->hasAccess($user->id)) {
             $io->writeln(sprintf('User %s already has left %s', $user->username, $channel->name));
             $reaction->remove($reaction->users->last());
 
-
             return;
         }
-
         // Leave
-        /** @var  $override */
-        $channel->overwritePermissions(
-            $member->id,
-            0,
-            Channel::ROLE_VIEW_MESSAGES,
-            'User left the channel'
-        );
-        $count = $channelMessage->getSubsciberCount($channel) - 1;
-        $reaction->message->edit(
-            ':tv:',
-            $this->updateRichJoin($channelMessage, $count)
-        );
-        $channel->send(
-            sprintf(
-                ':outbox_tray: %s kijkt nu niet meer mee naar %s',
-                Util::mention((int)$member->id),
-                Util::channelLink($channelMessage->getChannelId())
-            )
-        );
+        $channelMessage->removeUser($member);
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' left #'.$channel->name);
     }
