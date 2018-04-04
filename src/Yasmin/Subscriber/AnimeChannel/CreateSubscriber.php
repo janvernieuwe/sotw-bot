@@ -142,7 +142,8 @@ class CreateSubscriber implements EventSubscriberInterface
                 $channel->setTopic(sprintf('%s || %s', $this->anime->title, $this->link));
                 $channel->send(
                     sprintf(
-                        ":tv: Hoi iedereen! In dit channel kijken we naar **%s**.\n%s",
+                        "%s Hoi iedereen! In dit channel kijken we naar **%s**.\n%s",
+                        JoinableChannelMessage::TEXT_MESSAGE,
                         $this->anime->title,
                         $this->link
                     )

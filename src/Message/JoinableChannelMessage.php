@@ -21,7 +21,7 @@ class JoinableChannelMessage
     public const LEAVE_REACTION = '⏹';
     public const DELETE_REACTION = '🚮';
     public const RELOAD_REACTION = '🔁';
-    public const TEXT_MESSAGE = ':tv:';
+    public const TEXT_MESSAGE = '';
 
     /**
      * @var \CharlotteDunois\Yasmin\Models\Message
@@ -200,9 +200,8 @@ class JoinableChannelMessage
      */
     public function updateWatchers(int $subs = 0): void
     {
-        preg_match('#\*\*(.*)\*\*#', $this->getAnimeTitle(), $title);
         $anime = new Anime();
-        $anime->title = $title[1];
+        $anime->title = $this->getAnimeTitle();
         $anime->episodes = $this->getFieldValue('afleveringen');
         $anime->aired_string = $this->getFieldValue('datum');
         $anime->image_url = $this->getAnimeImageUrl();
@@ -218,7 +217,7 @@ class JoinableChannelMessage
      */
     public function getAnimeTitle(): string
     {
-        return $this->message->embeds[0]->title;
+        return $this->message->embeds[0]->title ?? $this->message->embeds[0]->author['name'];
     }
 
     /**
@@ -246,11 +245,19 @@ class JoinableChannelMessage
      */
     public static function generateRichChannelMessage(Anime $anime, int $channelId, string $link, int $subs = 0): array
     {
+        $authorImg = 'https://cdn.discordapp.com/icons/263798840996397056/a7c4da6b1413943fd4e220061fea55fd.png';
         return [
             'embed' => [
-                'title'     => '**'.$anime->title.'**',
+                'author'    => [
+                    'name'     => $anime->title,
+                    'icon_url' => $authorImg,
+                    'url'      => $link,
+                ],
                 'url'       => $link,
                 'thumbnail' => ['url' => $anime->image_url],
+                'footer'    => [
+                    'text'     => 'Druk op de reactions om te joinen / leaven',
+                ],
                 'fields'    => [
                     [
                         'name'   => 'datum',
@@ -259,7 +266,7 @@ class JoinableChannelMessage
                     ],
                     [
                         'name'   => 'afleveringen',
-                        'value'  => $anime->episodes,
+                        'value'  => $anime->episodes ?: '?',
                         'inline' => true,
                     ],
                     [
