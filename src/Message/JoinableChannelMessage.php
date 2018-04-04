@@ -246,17 +246,18 @@ class JoinableChannelMessage
     public static function generateRichChannelMessage(Anime $anime, int $channelId, string $link, int $subs = 0): array
     {
         $authorImg = 'https://cdn.discordapp.com/icons/263798840996397056/a7c4da6b1413943fd4e220061fea55fd.png';
+
         return [
             'embed' => [
                 'author'    => [
-                    'name'     => $anime->title,
+                    'name'     => trim($anime->title, '*'),
                     'icon_url' => $authorImg,
                     'url'      => $link,
                 ],
                 'url'       => $link,
                 'thumbnail' => ['url' => $anime->image_url],
                 'footer'    => [
-                    'text'     => 'Druk op de reactions om te joinen / leaven',
+                    'text' => 'Druk op de reactions om te joinen / leaven',
                 ],
                 'fields'    => [
                     [
