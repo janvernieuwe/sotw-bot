@@ -5,6 +5,8 @@ namespace App\Yasmin\Subscriber\Rewatch;
 use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Models\Permissions;
+use CharlotteDunois\Yasmin\Models\TextChannel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -51,7 +53,19 @@ class StartSubscriber implements EventSubscriberInterface
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $this->rewatch->openNominations($event->getPermissionsRole());
+
+        /** @var TextChannel $channel */
+        $channel = $message->channel->guild->channels->get($this->rewatch->getChannelId());
+        $channel->send('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
+        $permissions = new Permissions();
+        $permissions->add(Channel::ROLE_VIEW_MESSAGES);
+        $permissions->add(Channel::ROLE_SEND_MESSAGES);
+        $channel->overwritePermissions(
+            $event->getPermissionsRole(),
+            $permissions,
+            0,
+            'Open nominations'
+        );
         $io->success('Opened nominations');
     }
 }

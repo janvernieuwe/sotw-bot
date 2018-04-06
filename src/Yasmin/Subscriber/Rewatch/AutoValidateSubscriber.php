@@ -2,6 +2,7 @@
 
 namespace App\Yasmin\Subscriber\Rewatch;
 
+use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Error\RewatchErrorDm;
 use App\Exception\RuntimeException;
@@ -99,7 +100,14 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
         // Enough nominees, start it
-        $this->rewatch->closeNominations($event->getPermissionsRole());
+        $message->channel->overwritePermissions(
+            $event->getPermissionsRole(),
+            Channel::ROLE_VIEW_MESSAGES,
+            Channel::ROLE_SEND_MESSAGES,
+            'Closed nominations'
+        );
+        $message->channel->send('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');
+        $message->channel->send('We maken de winnaar zondag namiddag bekend.');
         $io->success('Closed nominations');
     }
 }

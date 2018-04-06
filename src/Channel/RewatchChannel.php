@@ -78,25 +78,6 @@ class RewatchChannel extends Channel
     }
 
     /**
-     * @param int $roleId
-     */
-    public function closeNominations(int $roleId)
-    {
-        $this->deny($roleId, Channel::ROLE_SEND_MESSAGES);
-        $this->message('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');
-        $this->message('We maken de winnaar zondag namiddag bekend.');
-    }
-
-    /**
-     * @param int $roleId
-     */
-    public function openNominations(int $roleId)
-    {
-        $this->allow($roleId, Channel::ROLE_SEND_MESSAGES);
-        $this->message('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
-    }
-
-    /**
      * @param RewatchNomination $nomination
      * @return ConstraintViolationListInterface
      */
