@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Yasmin\Subscriber\AnimeChannel;
+
+use App\Message\JoinableChannelMessage;
+use App\Util\Util;
+use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\TextChannel;
+use CharlotteDunois\Yasmin\Utils\Collection;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+/**
+ * Lets admins run symfony commands
+ * Class ValidateSubscriber
+ * @package App\Yasmin\Subscriber
+ */
+class RankingSubscriber implements EventSubscriberInterface
+{
+    /**
+     * @var Message
+     */
+    private $message;
+
+    /**
+     * @var SymfonyStyle
+     */
+    private $io;
+
+    /**
+     * @var TextChannel
+     */
+    private $channel;
+
+    /**
+     * @var int
+     */
+    private $seasonalChannelId;
+
+    /**
+     * RankingSubscriber constructor.
+     * @param int $seasonalChannelId
+     */
+    public function __construct($seasonalChannelId)
+    {
+        $this->seasonalChannelId = $seasonalChannelId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [MessageReceivedEvent::NAME => 'onCommand'];
+    }
+
+    /**
+     * @param MessageReceivedEvent $event
+     */
+    public function onCommand(MessageReceivedEvent $event): void
+    {
+        $this->io = $io = $event->getIo();
+        $this->message = $message = $event->getMessage();
+        if ($message->content !== '!haamc season ranking') {
+            return;
+        }
+        $io->writeln(__CLASS__.' dispatched');
+        $event->stopPropagation();
+
+        $client = $event->getMessage()->client;
+        /** @var TextChannel $channel */
+        $this->channel = $channel = $client->channels->get($this->seasonalChannelId);
+        $channel->fetchMessages()->done([$this, 'onMessagesLoaded']);
+    }
+
+    /**
+     * @param Collection $messages
+     */
+    public function onMessagesLoaded(Collection $messages)
+    {
+        $series = [];
+        /** @var Message $message */
+        foreach ($messages->all() as $message) {
+            if (!JoinableChannelMessage::isJoinChannelMessage($message)) {
+                continue;
+            }
+            $animeChannel = new JoinableChannelMessage($message);
+            $series[] = $animeChannel;
+        }
+        uasort(
+            $series,
+            function (JoinableChannelMessage $a, JoinableChannelMessage $b) {
+                return $a->getWatchers() < $b->getWatchers();
+            }
+        );
+        $this->message->channel->send(self::createRanking($series, $this->seasonalChannelId));
+        $this->io->success('Seasonal ranking displayed');
+    }
+
+    /**
+     * @param array|JoinableChannelMessage[] $channels
+     * @param int $channelId
+     * @return string
+     */
+    public static function createRanking(array $channels, int $channelId): string
+    {
+        $fields = [
+            '__**HAAMC Seasonal Anime Ranking**__ Join de channels in '.Util::channelLink(
+                $channelId
+            ),
+        ];
+        foreach ($channels as $i => $channel) {
+            $fields[] = sprintf(
+                ':film_frames:  #%s **%s** (%s), %s kijkers',
+                $i,
+                $channel->getAnimeTitle(),
+                Util::channelLink($channel->getChannelId()),
+                $channel->getWatchers()
+            );
+        }
+
+        return implode(PHP_EOL, $fields);
+    }
+}

@@ -64,6 +64,9 @@ class JoinableChannelMessage
      */
     public function getFieldValue(string $key)
     {
+        if (!count($this->message->embeds)) {
+            return null;
+        }
         $data = array_filter(
             $this->message->embeds[0]->fields,
             function (array $data) use ($key) {
@@ -246,6 +249,7 @@ class JoinableChannelMessage
     public static function generateRichChannelMessage(Anime $anime, int $channelId, string $link, int $subs = 0): array
     {
         $authorImg = 'https://cdn.discordapp.com/icons/263798840996397056/a7c4da6b1413943fd4e220061fea55fd.png';
+
         return [
             'embed' => [
                 'author'    => [
@@ -256,7 +260,7 @@ class JoinableChannelMessage
                 'url'       => $link,
                 'thumbnail' => ['url' => $anime->image_url],
                 'footer'    => [
-                    'text'     => 'Druk op de reactions om te joinen / leaven',
+                    'text' => 'Druk op de reactions om te joinen / leaven',
                 ],
                 'fields'    => [
                     [
@@ -312,5 +316,13 @@ class JoinableChannelMessage
                 Util::channelLink($this->getChannelId())
             )
         );
+    }
+
+    /**
+     * @return int
+     */
+    public function getWatchers(): int
+    {
+        return (int)$this->getFieldValue('kijkers');
     }
 }
