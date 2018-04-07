@@ -94,6 +94,7 @@ class RankingSubscriber implements EventSubscriberInterface
                 return $a->getWatchers() < $b->getWatchers();
             }
         );
+        $series = array_values($series);
         $this->message->channel->send(self::createRanking($series, $this->seasonalChannelId));
         $this->io->success('Seasonal ranking displayed');
     }
@@ -113,7 +114,7 @@ class RankingSubscriber implements EventSubscriberInterface
         foreach ($channels as $i => $channel) {
             $fields[] = sprintf(
                 ':film_frames:  #%s **%s** (%s), %s kijkers',
-                $i,
+                $i + 1,
                 $channel->getAnimeTitle(),
                 Util::channelLink($channel->getChannelId()),
                 $channel->getWatchers()
