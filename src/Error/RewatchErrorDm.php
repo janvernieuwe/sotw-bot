@@ -27,7 +27,7 @@ Hierbij nog eens de regels waar een nominatie aan moet voldoen:
 * Ongeldige nominaties worden automatisch verwijderd
 * De lengte van de aflevering moet tussen de 20 en 30 minuten zijn
 
-Je nominatie is hierdoor verwijderd of geflagged, maar we zien graag een nieuwe (geldige) nominatie van je!
+Je nominatie is hierdoor verwijderd, maar we zien graag een nieuwe (geldige) nominatie van je!
 EOF;
 
     /**
