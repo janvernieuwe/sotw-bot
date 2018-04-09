@@ -20,10 +20,12 @@ Helaas is je nominatie (%s) voor de rewatch niet geldig om de volgende redenen:
 Hierbij nog eens de regels waar een nominatie aan moet voldoen:
 
 * Nominatie is enkel een link naar de MAL pagina van de anime
-* De serie moet minimaal 10 en maximaal 13 afleveringen bevatten
-* Er zijn maximaal 10 nominaties
+* De serie moet mnimaal 10 en maximaal 13 afleveringen bevatten
+* De nominatie met de meeste stemmen met :arrow_up_small: zal gerewatched worden
 * Geen hentai :smirk:
 * De serie moet minstens 2 jaar oud zijn (eind datum)
+* Ongeldige nominaties worden automatisch verwijderd
+* De lengte van de aflevering moet tussen de 20 en 30 minuten zijn
 
 Je nominatie is hierdoor verwijderd of geflagged, maar we zien graag een nieuwe (geldige) nominatie van je!
 EOF;

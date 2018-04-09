@@ -119,4 +119,22 @@ class RewatchNomination extends Message
     {
         return new \DateTime($this->anime->aired['to']);
     }
+
+    /**
+     * @return int
+     * @Assert\Range(
+     *     min="20",
+     *     max="30",
+     *     maxMessage="De lengte van een aflevering moet tussen de 20 en 30 minuten zijn",
+     *     minMessage="De lengte van een aflevering moet tussen de 20 en 30 minuten zijn",
+     * )
+     */
+    public function getEpisodeLength(): int
+    {
+        if (!preg_match('/^(\d+)/', $this->anime->duration, $length)) {
+            return 0;
+        }
+
+        return (int)$length[1];
+    }
 }

@@ -106,11 +106,7 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public static function createRanking(array $channels, int $channelId): string
     {
-        $fields = [
-            '__**HAAMC Seasonal Anime Ranking**__ Join de channels in '.Util::channelLink(
-                $channelId
-            ),
-        ];
+        $fields = ['__**HAAMC Seasonal Anime Ranking**__ Join de channels in '.Util::channelLink($channelId)];
         foreach ($channels as $i => $channel) {
             $fields[] = sprintf(
                 ':film_frames:  #%s **%s** (%s), %s kijkers',
