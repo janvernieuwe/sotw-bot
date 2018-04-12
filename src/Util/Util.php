@@ -33,4 +33,15 @@ class Util
     {
         return sprintf('<#%s>', $channelId);
     }
+
+    /**
+     * @return \DateTime
+     */
+    public static function getCurrentDate(): \DateTime
+    {
+        $time = new \DateTime();
+        $time->setTimezone(new \DateTimeZone('Europe/Brussels'));
+
+        return $time;
+    }
 }
