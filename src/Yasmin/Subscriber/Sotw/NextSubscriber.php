@@ -3,9 +3,11 @@
 namespace App\Yasmin\Subscriber\Sotw;
 
 use App\Channel\SotwChannel;
+use App\Entity\SotwWinner;
 use App\Exception\RuntimeException;
 use App\Formatter\BBCodeFormatter;
 use App\Yasmin\Event\MessageReceivedEvent;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -23,12 +25,19 @@ class NextSubscriber implements EventSubscriberInterface
     private $sotw;
 
     /**
+     * @var EntityManagerInterface
+     */
+    private $doctrine;
+
+    /**
      * ValidateSubscriber constructor.
      * @param SotwChannel $sotw
+     * @param EntityManagerInterface $doctrine
      */
-    public function __construct(SotwChannel $sotw)
+    public function __construct(SotwChannel $sotw, EntityManagerInterface $doctrine)
     {
         $this->sotw = $sotw;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -68,8 +77,23 @@ class NextSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Announce the winner and unlock the channel
         $winner = $nominations[0];
+
+        // Add the winner to the database
+        $sotwWinner = new SotwWinner();
+        $sotwWinner->setMemberId($message->author->id);
+        $sotwWinner->setAnime($winner->getAnime());
+        $sotwWinner->setArtist($winner->getArtist());
+        $sotwWinner->setTitle($winner->getTitle());
+        $sotwWinner->setDisplayName($message->author->username);
+        $sotwWinner->setCreated(new \DateTime());
+        $sotwWinner->setVotes($winner->getVotes());
+        $sotwWinner->setYoutube($winner->getYoutubeCode());
+
+        $this->doctrine->persist($sotwWinner);
+        $this->doctrine->flush();
+
+        // Announce the winner and unlock the channel
         $io->writeln((string)$winner);
         $this->sotw->announceWinner($winner);
         $this->sotw->addMedals($nominations);

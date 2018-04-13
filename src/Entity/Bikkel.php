@@ -33,6 +33,11 @@ class Bikkel
     private $lastUpdate;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $displayName;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -105,5 +110,24 @@ class Bikkel
     public function addPoint(): int
     {
         return ++$this->points;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    /**
+     * @param mixed $displayName
+     * @return Bikkel
+     */
+    public function setDisplayName($displayName): self
+    {
+        $this->displayName = $displayName;
+
+        return $this;
     }
 }

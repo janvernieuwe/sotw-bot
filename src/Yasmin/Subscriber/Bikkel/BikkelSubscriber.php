@@ -71,6 +71,7 @@ class BikkelSubscriber implements EventSubscriberInterface
         $bikkel = $this->getBikkel($message->author->id);
         $points = $bikkel->addPoint();
         $bikkel->setLastUpdate(Util::getCurrentDate());
+        $bikkel->setDisplayName($message->author->username);
         $this->doctrine->flush();
         $message->reply(sprintf('Je bent een echte bikkel! **+1** (**%s** punten totaal)', $points));
     }
