@@ -2,7 +2,9 @@
 
 namespace App\Context;
 
-use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Client;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
+use CharlotteDunois\Yasmin\Models\Guild;
 use Jikan\Model\Anime;
 
 /**
@@ -32,31 +34,46 @@ class CreateAnimeChannelContext
     private $everyoneRole;
 
     /**
-     * @var Message
+     * @var Guild
      */
-    private $message;
+    private $guild;
+
+    /**
+     * @var Client
+     */
+    private $client;
+
+    /**
+     * @var TextChannelInterface
+     */
+    private $channel;
 
     /**
      * CreateAnimeChannelContext constructor.
-     *
      * @param Anime $anime
      * @param int $parent
      * @param string $channelName
      * @param int $everyoneRole
-     * @param Message $message
+     * @param Guild $guild
+     * @param Client $client
+     * @param TextChannelInterface $channel
      */
     public function __construct(
-        int $parent,
-        string $channelName,
         Anime $anime,
-        int $everyoneRole,
-        Message $message
+        $parent,
+        $channelName,
+        $everyoneRole,
+        Guild $guild,
+        Client $client,
+        TextChannelInterface $channel
     ) {
         $this->anime = $anime;
         $this->parent = $parent;
         $this->channelName = $channelName;
         $this->everyoneRole = $everyoneRole;
-        $this->message = $message;
+        $this->guild = $guild;
+        $this->client = $client;
+        $this->channel = $channel;
     }
 
     /**
@@ -92,10 +109,26 @@ class CreateAnimeChannelContext
     }
 
     /**
-     * @return Message
+     * @return Guild
      */
-    public function getMessage(): Message
+    public function getGuild(): Guild
     {
-        return $this->message;
+        return $this->guild;
+    }
+
+    /**
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
+    }
+
+    /**
+     * @return TextChannelInterface
+     */
+    public function getChannel(): TextChannelInterface
+    {
+        return $this->channel;
     }
 }

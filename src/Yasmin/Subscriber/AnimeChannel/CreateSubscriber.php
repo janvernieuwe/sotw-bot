@@ -101,7 +101,17 @@ class CreateSubscriber implements EventSubscriberInterface
         $link = $name[4];
         $anime = $this->mal->loadAnime(MyAnimeListClient::getAnimeId($link));
         $channelName = $name[3];
-        $context = new CreateAnimeChannelContext($parent, $channelName, $anime, $this->everyoneRole, $message);
+        // Create context
+        $context = new CreateAnimeChannelContext(
+            $anime,
+            $parent,
+            $channelName,
+            $this->everyoneRole,
+            $message->guild,
+            $message->client,
+            $message->channel
+        );
+        // Create channel from context
         $this->channelCreator->create($context);
         $io->success(sprintf('Anime channel %s created for %s', $channelName, $anime->title));
         $message->delete();

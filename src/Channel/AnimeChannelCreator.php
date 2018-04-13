@@ -27,7 +27,7 @@ class AnimeChannelCreator
     public function create(CreateAnimeChannelContext $context): void
     {
         $this->context = $context;
-        $this->createChannel($context->getMessage()->guild, $context->getChannelName());
+        $this->createChannel($context->getGuild(), $context->getChannelName());
     }
 
     /**
@@ -47,7 +47,7 @@ class AnimeChannelCreator
                         'type' => 'role',
                     ],
                     [
-                        'id'    => $this->context->getMessage()->client->user->id,
+                        'id'    => $this->context->getClient()->user->id,
                         'allow' => Channel::ROLE_VIEW_MESSAGES,
                         'type'  => 'member',
                     ],
@@ -83,7 +83,7 @@ class AnimeChannelCreator
             (int)$channel->id,
             $this->context->getAnime()->link_canonical.'?c='.$channel->id
         );
-        $this->context->getMessage()->channel
+        $this->context->getChannel()
             ->send(JoinableChannelMessage::TEXT_MESSAGE, $embed)
             ->done(
                 function (Message $message) {
