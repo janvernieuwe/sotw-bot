@@ -7,7 +7,9 @@ use App\Entity\RewatchWinner;
 use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
 use App\Yasmin\Event\ReactionAddedEvent;
+use CharlotteDunois\Yasmin\Models\MessageReaction;
 use Doctrine\ORM\EntityManagerInterface;
+use RestCord\Model\Channel\Reaction;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -78,12 +80,18 @@ class RecordSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $votes = $reaction->message->reactions->filter(
+            function (MessageReaction $reaction) {
+                return $reaction->emoji->name === '🔼';
+            }
+        );
+
         $watch = new RewatchWinner();
         $watch
             ->setTitle($anime->title)
             ->setEpisodes($anime->episodes)
             ->setAired($anime->aired_string)
-            ->setVotes($nomination->getVotes())
+            ->setVotes(count($votes))
             ->setCreated(new \DateTime())
             ->setAnimeId($anime->mal_id)
             ->setMemberId($reaction->message->author->id)
