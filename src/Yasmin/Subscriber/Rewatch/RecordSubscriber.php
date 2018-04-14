@@ -86,8 +86,8 @@ class RecordSubscriber implements EventSubscriberInterface
             ->setVotes($nomination->getVotes())
             ->setCreated(new \DateTime())
             ->setAnimeId($anime->mal_id)
-            ->setMemberId($reaction->users->last()->id)
-            ->setDisplayName($reaction->users->last()->username);
+            ->setMemberId($reaction->message->author->id)
+            ->setDisplayName($reaction->message->author->username);
 
         $this->doctrine->persist($watch);
         $this->doctrine->flush();
