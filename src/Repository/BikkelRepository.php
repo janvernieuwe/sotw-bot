@@ -51,4 +51,18 @@ class BikkelRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * Get the top 10 Bikkels
+     *
+     * @return Bikkel[]
+     */
+    public function findTop10(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->orderBy('b.points', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+    }
 }
