@@ -25,7 +25,7 @@ class SaySubscriber implements EventSubscriberInterface
     private $discord;
 
     /**
-     * HelpSubscriber constructor.
+     * AdminHelpSubscriber constructor.
      * @param int $adminRole
      * @param DiscordClient $discord
      */

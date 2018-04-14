@@ -42,11 +42,11 @@ class MyAnimeListClient
      */
     public static function getAnimeId(string $url): ?int
     {
-        if (!preg_match('#https?://myanimelist.net/anime/(\d+)#', $url, $anime)) {
+        if (!preg_match('#https?://(www\.)?myanimelist.net/anime/(\d+)#', $url, $anime)) {
             return null;
         }
 
-        return (int)$anime[1];
+        return (int)$anime[2];
     }
 
     /**

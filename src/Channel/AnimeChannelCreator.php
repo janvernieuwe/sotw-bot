@@ -60,6 +60,7 @@ class AnimeChannelCreator
                 $channel->setTopic(
                     sprintf('%s || %s', $this->context->getAnime()->title, $this->context->getAnime()->link_canonical)
                 );
+                /** @var Message $announcement */
                 $channel->send(
                     sprintf(
                         "%s Hoi iedereen! In dit channel kijken we naar **%s**.\n%s",
@@ -67,7 +68,12 @@ class AnimeChannelCreator
                         $this->context->getAnime()->title,
                         $this->context->getAnime()->link_canonical
                     )
+                )->then(
+                    function (Message $announcement) {
+                        $announcement->pin();
+                    }
                 );
+
                 $this->sendJoinMessage($channel);
             }
         );

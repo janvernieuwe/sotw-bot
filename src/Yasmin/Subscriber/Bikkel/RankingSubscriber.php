@@ -50,6 +50,7 @@ class RankingSubscriber implements EventSubscriberInterface
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $io = $event->getIo();
+        $io->writeln(__CLASS__.' dispatched');
 
         $messages = [];
         $bikkels = $this->doctrine

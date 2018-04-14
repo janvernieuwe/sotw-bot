@@ -91,20 +91,20 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->io = $io = $event->getIo();
         $this->message = $message = $event->getMessage();
         /** @var Client client */
-        $matchCommand = preg_match('/^(\!haamc channel )(\d+)\s([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc channel )([\S]*)\s?(.*)$/', $message->content, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $parent = (int)$name[2];
-        $link = $name[4];
+        $link = $name[3];
         $anime = $this->mal->loadAnime(MyAnimeListClient::getAnimeId($link));
-        $channelName = $name[3];
+        $channelName = $name[2];
+
         // Create context
         $context = new CreateAnimeChannelContext(
             $anime,
-            $parent,
+            (int)$message->channel->parentID,
             $channelName,
             $this->everyoneRole,
             $message->guild,

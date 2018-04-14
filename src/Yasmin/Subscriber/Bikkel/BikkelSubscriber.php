@@ -59,12 +59,14 @@ class BikkelSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
 
         if (!$this->isValidHour()) {
-            $message->reply('Probeer nog eens tussen 03:00 en 05:00');
+            $message->reply(':last_quarter_moon_with_face: Echte bikkels leven tussen 03:00 en 05:00!');
+            $io->writeln('Wrong time');
 
             return;
         }
         if ($this->hasCooldown($message->author->id)) {
-            $message->reply('Je hebt al gebikkelt vandaag, probeer het morgen nog eens');
+            $message->reply(':last_quarter_moon_with_face: Je hebt al gebikkelt vandaag, probeer het morgen nog eens');
+            $io->writeln('Already awarded');
 
             return;
         }
@@ -73,24 +75,10 @@ class BikkelSubscriber implements EventSubscriberInterface
         $bikkel->setLastUpdate(Util::getCurrentDate());
         $bikkel->setDisplayName($message->author->username);
         $this->doctrine->flush();
-        $message->reply(sprintf('Je bent een echte bikkel! **+1** (**%s** punten totaal)', $points));
-    }
-
-    /**
-     * @param int $memberId
-     * @return Bikkel
-     */
-    private function getBikkel(int $memberId): Bikkel
-    {
-        $bikkel = $this->bikkelRepo->findOneBy(['memberId' => $memberId]);
-        if ($bikkel instanceof Bikkel) {
-            return $bikkel;
-        }
-        $bikkel = new Bikkel();
-        $bikkel->setMemberId($memberId);
-        $this->doctrine->persist($bikkel);
-
-        return $bikkel;
+        $message->reply(
+            sprintf(':last_quarter_moon_with_face: Je bent een echte bikkel! **+1** (**%s** punten totaal)', $points)
+        );
+        $io->success('Bikkel punt awarded');
     }
 
     /**
@@ -119,5 +107,22 @@ class BikkelSubscriber implements EventSubscriberInterface
         $today = Util::getCurrentDate();
 
         return $member->getLastUpdate()->format('Y-m-d') === $today->format('Y-m-d');
+    }
+
+    /**
+     * @param int $memberId
+     * @return Bikkel
+     */
+    private function getBikkel(int $memberId): Bikkel
+    {
+        $bikkel = $this->bikkelRepo->findOneBy(['memberId' => $memberId]);
+        if ($bikkel instanceof Bikkel) {
+            return $bikkel;
+        }
+        $bikkel = new Bikkel();
+        $bikkel->setMemberId($memberId);
+        $this->doctrine->persist($bikkel);
+
+        return $bikkel;
     }
 }
