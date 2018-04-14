@@ -4,10 +4,12 @@ namespace App\Yasmin\Subscriber\Rewatch;
 
 use App\Channel\Channel;
 use App\Channel\RewatchChannel;
+use App\Entity\RewatchWinner;
 use App\Error\RewatchErrorDm;
 use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
 use App\Yasmin\Event\MessageReceivedEvent;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -28,16 +30,24 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     private $error;
 
     /**
+     * @var EntityManagerInterface
+     */
+    private $doctrine;
+
+    /**
      * AutoValidateSubscriber constructor.
      * @param RewatchChannel $rewatch
      * @param RewatchErrorDm $error
+     * @param EntityManagerInterface $doctrine
      */
     public function __construct(
         RewatchChannel $rewatch,
-        RewatchErrorDm $error
+        RewatchErrorDm $error,
+        EntityManagerInterface $doctrine
     ) {
         $this->rewatch = $rewatch;
         $this->error = $error;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -79,6 +89,25 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Check for single nomination for user and anime
+        $nominations = $this->rewatch->getValidNominations();
+        foreach ($nominations as $check) {
+            if ((int)$message->id === $check->getMessageId()) {
+                continue;
+            }
+            if ($nomination->getAnimeId() === $check->getAnimeId()) {
+                $nomination->setUniqueAnime(false);
+            }
+            if ($nomination->getAuthorId() === $check->getAuthorId()) {
+                $nomination->setUniqueUser(false);
+            }
+        }
+        // Check if the anime won before
+        $previous = $this->doctrine
+            ->getRepository(RewatchWinner::class)
+            ->findOneBy(['animeId' => $anime->mal_id]);
+        $nomination->setPrevious($previous);
+        // Enrich with anime data
         $nomination->setAnime($anime);
         $errors = $this->rewatch->validate($nomination);
         // Invalid

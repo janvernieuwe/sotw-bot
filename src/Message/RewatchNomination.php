@@ -2,6 +2,7 @@
 
 namespace App\Message;
 
+use App\Entity\RewatchWinner;
 use CharlotteDunois\Yasmin\Models\Message as YasminMessage;
 use Jikan\Model\Anime;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,6 +18,21 @@ class RewatchNomination extends Message
      * @var Anime
      */
     private $anime;
+
+    /**
+     * @var RewatchWinner
+     */
+    private $previous;
+
+    /**
+     * @var bool
+     */
+    private $uniqueAnime = true;
+
+    /**
+     * @var bool
+     */
+    private $uniqueUser = true;
 
     /**
      * @param string $content
@@ -136,5 +152,64 @@ class RewatchNomination extends Message
         }
 
         return (int)$length[1];
+    }
+
+    /**
+     * @return RewatchWinner
+     */
+    public function getPrevious(): RewatchWinner
+    {
+        return $this->previous;
+    }
+
+    /**
+     * @param RewatchWinner $previous
+     */
+    public function setPrevious(RewatchWinner $previous = null)
+    {
+        $this->previous = $previous;
+    }
+
+    /**
+     * @return bool
+     * @Assert\IsTrue(message="Je nominatie heeft al eens gewonnen")
+     */
+    public function getValidatePrevious(): bool
+    {
+        return $this->previous === null;
+    }
+
+    /**
+     * @Assert\IsTrue(message="Deze anime is reeds genomineerd")
+     * @return bool
+     */
+    public function isUniqueAnime(): bool
+    {
+        return $this->uniqueAnime;
+    }
+
+    /**
+     * @param bool $uniqueAnime
+     */
+    public function setUniqueAnime(bool $uniqueAnime)
+    {
+        $this->uniqueAnime = $uniqueAnime;
+    }
+
+    /**
+     * @Assert\IsTrue(message="Je hebt al een nominatie gemaakt")
+     * @return bool
+     */
+    public function isUniqueUser(): bool
+    {
+        return $this->uniqueUser;
+    }
+
+    /**
+     * @param bool $uniqueUser
+     */
+    public function setUniqueUser(bool $uniqueUser)
+    {
+        $this->uniqueUser = $uniqueUser;
     }
 }
