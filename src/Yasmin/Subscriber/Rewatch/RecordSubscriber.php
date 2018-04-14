@@ -80,18 +80,12 @@ class RecordSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $votes = $reaction->message->reactions->filter(
-            function (MessageReaction $reaction) {
-                return $reaction->emoji->name === '🔼';
-            }
-        );
-
         $watch = new RewatchWinner();
         $watch
             ->setTitle($anime->title)
             ->setEpisodes($anime->episodes)
             ->setAired($anime->aired_string)
-            ->setVotes(count($votes))
+            ->setVotes($reaction->message->reactions->get('🔼')->count)
             ->setCreated(new \DateTime())
             ->setAnimeId($anime->mal_id)
             ->setMemberId($reaction->message->author->id)
