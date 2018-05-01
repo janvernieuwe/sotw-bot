@@ -18,6 +18,11 @@ class AutoCleanSubsciber implements EventSubscriberInterface
     const MESSAGE_LIMIT = 20;
 
     /**
+     * @var bool
+     */
+    private static $cleaning = false;
+
+    /**
      * @var SymfonyStyle
      */
     private $io;
@@ -54,6 +59,13 @@ class AutoCleanSubsciber implements EventSubscriberInterface
         if ((int)$message->channel->id !== $this->spoilerChannelId) {
             return;
         }
+        // Don't run too much at once
+        if (self::$cleaning) {
+            $event->getIo()->writeln('Already cleaning.');
+
+            return;
+        }
+        self::$cleaning = true;
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $this->io = $event->getIo();
@@ -71,8 +83,12 @@ class AutoCleanSubsciber implements EventSubscriberInterface
 
             return;
         }
-        $last = $channelMessages->last();
-        $last->delete();
+        $lastMessages = $channelMessages->all();
+        $lastMessages = array_splice($lastMessages, 21);
+        foreach ($lastMessages as $message) {
+            $message->delete();
+        }
+        self::$cleaning = false;
         $this->io->writeln('Oldest message removed');
     }
 }
