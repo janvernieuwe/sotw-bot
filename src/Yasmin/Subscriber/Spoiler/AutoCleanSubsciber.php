@@ -84,7 +84,8 @@ class AutoCleanSubsciber implements EventSubscriberInterface
             return;
         }
         $lastMessages = $channelMessages->all();
-        $lastMessages = array_splice($lastMessages, 21);
+        /** @var Message[] $lastMessages */
+        $lastMessages = array_splice($lastMessages, self::MESSAGE_LIMIT);
         foreach ($lastMessages as $message) {
             $message->delete();
         }
