@@ -21,6 +21,7 @@ services:
             $roleId:              '%env(PERMISSIONS_ROLE)%'
             $everyoneRole:        '%env(EVERYONE_ROLE)%'
             $seasonalChannelId:   '%env(SEASONAL_CHANNEL)%'
+            $spoilerChannelId:    '%env(SPOILER_CHANNEL)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
