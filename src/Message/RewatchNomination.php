@@ -73,7 +73,7 @@ class RewatchNomination extends Message
 
     /**
      * @Assert\GreaterThanOrEqual(value="10", message="Te weinig afleveringen (minstens 10)")
-     * @Assert\LessThanOrEqual(value="13", message="Te veel afleveringen (maximaal 13)")
+     * @Assert\LessThanOrEqual(value="26", message="Te veel afleveringen (maximaal 26)")
      *
      * @return int|null
      */
