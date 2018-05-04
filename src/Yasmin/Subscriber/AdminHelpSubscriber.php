@@ -43,6 +43,9 @@ channel <channel-name> <mal-anime-link>
     This command creates an anime channel link in the channel you type it in, channel in the category it is in.
     Users can join the channel by clicking the reactions below it.
     The channel & role can be removed by admins by adding the :put_litter_in_its_place: reaction to the message
+    
+simplechannel <channelname> <description>
+    Same as the command above but with a simple description that will be linked to the channel description.
 
 cots ranking            (shows the character of the season ranking)
 cots start              (start the next character of the season round)
