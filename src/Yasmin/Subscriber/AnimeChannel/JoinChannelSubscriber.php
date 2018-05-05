@@ -35,8 +35,6 @@ class JoinChannelSubscriber implements EventSubscriberInterface
             return;
         }
         if (!JoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
-            $io->writeln('Not a joinable channel reaction');
-
             return;
         }
         $io->writeln(__CLASS__.' dispatched');
