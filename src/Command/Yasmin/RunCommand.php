@@ -131,8 +131,10 @@ class RunCommand extends ContainerAwareCommand
                 // Db con fixer
                 $em = $this->getContainer()->get('doctrine')->getManager();
                 if ($em->getConnection()->ping() === false) {
+                    $io->warning('Lost database connectivity.');
                     $em->getConnection()->close();
                     $em->getConnection()->connect();
+                    $io->success('Database connectivity restored');
                 }
             }
         );
