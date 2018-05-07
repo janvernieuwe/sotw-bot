@@ -124,6 +124,19 @@ class RunCommand extends ContainerAwareCommand
             }
         );
 
+        $client->on(
+            'error',
+            function (\Exception $e) use ($io) {
+                $io->error($e->getMessage());
+                // Db con fixer
+                $em = $this->getContainer()->get('doctrine')->getManager();
+                if ($em->getConnection()->ping() === false) {
+                    $em->getConnection()->close();
+                    $em->getConnection()->connect();
+                }
+            }
+        );
+
         $client->login($container->getParameter('token'));
         $loop->run();
     }
