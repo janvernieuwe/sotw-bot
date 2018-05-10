@@ -3,8 +3,10 @@
 namespace App\Yasmin\Subscriber\Spoiler;
 
 use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Message;
-use CharlotteDunois\Yasmin\Utils\Collection;
+use CharlotteDunois\Yasmin\Models\TextChannel;
+use React\EventLoop\Timer\Timer;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -13,19 +15,19 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class AutoCleanSubsciber implements EventSubscriberInterface
+class TimedSubsciber implements EventSubscriberInterface
 {
-    const MESSAGE_LIMIT = 20;
+    const TIMEOUT = 300;
 
     /**
-     * @var bool
+     * @var Timer
      */
-    private static $cleaning = false;
+    private static $timer;
 
     /**
      * @var SymfonyStyle
      */
-    private $io;
+    private static $io;
 
     /**
      * @var int
@@ -59,37 +61,31 @@ class AutoCleanSubsciber implements EventSubscriberInterface
         if ((int)$message->channel->id !== $this->spoilerChannelId) {
             return;
         }
-        // Don't run too much at once
-        if (self::$cleaning) {
-            $event->getIo()->writeln('Already cleaning.');
-
-            return;
+        $client = $message->client;
+        self::$io = $io = $event->getIo();
+        $io->writeln(__CLASS__.' dispatched');
+        if (self::$timer) {
+            $client->cancelTimer(self::$timer);
         }
-        self::$cleaning = true;
-        $event->getIo()->writeln(__CLASS__.' dispatched');
-        $this->io = $event->getIo();
-        $message->channel->fetchMessages()->done([$this, 'onChannelMessages']);
+        self::$timer = $client->addTimer(self::TIMEOUT, [$this, 'clean']);
+        $io->writeln(sprintf('Spoiler timer reset to %s seconds', self::TIMEOUT));
     }
 
     /**
-     * @param Collection|Message[] $channelMessages
+     * @param Client $client
      */
-    public function onChannelMessages(Collection $channelMessages)
+    public function clean(Client $client)
     {
-        $count = $channelMessages->count();
-        if ($count <= 20) {
-            self::$cleaning = false;
-            $this->io->writeln(sprintf('Not enough messages %s', $count));
-
-            return;
-        }
-        $lastMessages = $channelMessages->all();
-        /** @var Message[] $lastMessages */
-        $lastMessages = array_splice($lastMessages, self::MESSAGE_LIMIT);
-        foreach ($lastMessages as $message) {
-            $message->delete();
-        }
-        self::$cleaning = false;
-        $this->io->writeln('Oldest message removed');
+        /** @var TextChannel $channel */
+        $channel = $client->channels->get($this->spoilerChannelId);
+        $messages = $channel->messages->all();
+        $count = count($messages);
+        array_map(
+            function (Message $message) {
+                $message->delete();
+            },
+            $messages
+        );
+        self::$io->success(sprintf('Removed %s messages from the spoiler channel', $count));
     }
 }
