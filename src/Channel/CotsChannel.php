@@ -105,6 +105,9 @@ class CotsChannel extends Channel
             if (preg_match('/Bij deze zijn de nominaties voor/', $message['content'])) {
                 break;
             }
+            if (preg_match('/Het character van/', $message['content'])) {
+                break;
+            }
             if (CotsNomination::isNomination($message['content'])) {
                 $anime = $this->mal->loadAnime(CotsNomination::getAnimeId($message['content']));
                 $character = $this->mal->loadCharacter(CotsNomination::getCharacterId($message['content']));

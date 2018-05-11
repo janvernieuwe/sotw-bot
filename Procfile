@@ -1,1 +1,1 @@
-worker: php bin/console haamc:yasmin:run -v
+worker: php bin/console haamc:yasmin:runx
