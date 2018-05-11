@@ -4,7 +4,6 @@ namespace App\Yasmin\Event;
 
 use CharlotteDunois\Yasmin\Models\MessageReaction;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class MessageReceivedEvent
@@ -20,10 +19,6 @@ class ReactionAddedEvent extends Event
     protected $reaction;
 
     /**
-     * @var SymfonyStyle
-     */
-    protected $io;
-    /**
      * @var int
      */
     private $adminRole;
@@ -36,33 +31,9 @@ class ReactionAddedEvent extends Event
      */
     public function __construct(MessageReaction $reaction, SymfonyStyle $io, int $adminRole)
     {
+        parent::__construct($io);
         $this->reaction = $reaction;
-        $this->io = $io;
         $this->adminRole = $adminRole;
-    }
-
-    /**
-     * @return SymfonyStyle
-     */
-    public function getIo(): SymfonyStyle
-    {
-        return $this->io;
-    }
-
-    /**
-     * @param SymfonyStyle $io
-     */
-    public function setIo(SymfonyStyle $io): void
-    {
-        $this->io = $io;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasIo(): bool
-    {
-        return $this->io !== null;
     }
 
     /**

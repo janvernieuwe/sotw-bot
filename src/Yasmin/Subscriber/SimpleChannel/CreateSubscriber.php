@@ -68,13 +68,13 @@ class CreateSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        $this->io = $io = $event->getIo();
         $this->message = $message = $event->getMessage();
         /** @var Client client */
         $matchCommand = preg_match('/^(\!haamc simplechannel )([\S]*)\s?(.*)$/', $message->content, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
+        $this->io = $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         [$cmd, $cmd, $channelName, $description] = $name;

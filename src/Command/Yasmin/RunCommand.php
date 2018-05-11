@@ -94,15 +94,17 @@ class RunCommand extends ContainerAwareCommand
                 if ($message->author->bot) {
                     return;
                 }
+                /** @noinspection PhpUndefinedFieldInspection */
+                $logMessage = 'Received Message from '.$message->author->tag.' in '.
+                    ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
+                    .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)';
+
                 if ($io->isVerbose()) {
                     /** @noinspection PhpUndefinedFieldInspection */
-                    $io->writeln(
-                        'Received Message from '.$message->author->tag.' in '.
-                        ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
-                        .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)'
-                    );
+                    $io->writeln($logMessage);
                 }
                 $event = new MessageReceivedEvent($message, $io, $adminRole, $permissionsRole);
+                $event->setLogMessage($logMessage);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
             }
         );
@@ -113,13 +115,15 @@ class RunCommand extends ContainerAwareCommand
                 if ($reaction->me) {
                     return;
                 }
+                /** @noinspection PhpUndefinedFieldInspection */
+                $logMessage = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
+                    .$reaction->users->last()->username.' in channel #'.$reaction->message->channel->name;
+
                 if ($io->isVerbose()) {
-                    /** @noinspection PhpUndefinedFieldInspection */
-                    $output = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
-                        .$reaction->users->last()->username.' in channel #'.$reaction->message->channel->name;
-                    $io->writeln($output);
+                    $io->writeln($logMessage);
                 }
                 $event = new ReactionAddedEvent($reaction, $io, $adminRole);
+                $event->setLogMessage($logMessage);
                 $dispatcher->dispatch(ReactionAddedEvent::NAME, $event);
             }
         );

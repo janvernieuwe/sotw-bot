@@ -47,7 +47,6 @@ class RankingSubscriber implements EventSubscriberInterface
         if ($message->content !== self::COMMAND) {
             return;
         }
-        $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');

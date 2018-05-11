@@ -60,11 +60,11 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        $this->io = $io = $event->getIo();
         $this->message = $message = $event->getMessage();
         if ($message->content !== '!haamc season ranking') {
             return;
         }
+        $this->io = $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 

@@ -4,7 +4,6 @@ namespace App\Yasmin\Event;
 
 use CharlotteDunois\Yasmin\Models\Message;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class MessageReceivedEvent
@@ -20,13 +19,10 @@ class MessageReceivedEvent extends Event
     protected $message;
 
     /**
-     * @var SymfonyStyle
-     */
-    protected $io;
-    /**
      * @var int
      */
     private $adminRole;
+
     /**
      * @var int
      */
@@ -41,8 +37,8 @@ class MessageReceivedEvent extends Event
      */
     public function __construct(Message $message, SymfonyStyle $io, int $adminRole, int $permissionsRole)
     {
+        parent::__construct($io);
         $this->message = $message;
-        $this->io = $io;
         $this->adminRole = $adminRole;
         $this->permissionsRole = $permissionsRole;
     }
@@ -53,30 +49,6 @@ class MessageReceivedEvent extends Event
     public function getMessage(): Message
     {
         return $this->message;
-    }
-
-    /**
-     * @return SymfonyStyle
-     */
-    public function getIo(): SymfonyStyle
-    {
-        return $this->io;
-    }
-
-    /**
-     * @param SymfonyStyle $io
-     */
-    public function setIo(SymfonyStyle $io): void
-    {
-        $this->io = $io;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasIo(): bool
-    {
-        return $this->io !== null;
     }
 
     /**

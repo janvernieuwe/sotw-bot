@@ -28,7 +28,6 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
     public function onCommand(ReactionAddedEvent $event): void
     {
         $reaction = $event->getReaction();
-        $io = $event->getIo();
         if (!$event->isAdmin() || !$event->isBotMessage()) {
             return;
         }
@@ -36,10 +35,9 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
             return;
         }
         if (!SimpleJoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
-            $io->writeln('Not a joinable channel reaction');
-
             return;
         }
+        $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
