@@ -6,20 +6,18 @@ use App\Yasmin\Event\MessageReceivedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Replies to the user that a type was probably made
+ * Help command for normal users
  * Class ValidateSubscriber
  * @package App\Yasmin\Subscriber
  */
-class UnhandledCommandSubscriber implements EventSubscriberInterface
+class PresenceSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc';
-
     /**
      * @inheritdoc
      */
     public static function getSubscribedEvents(): array
     {
-        return [MessageReceivedEvent::NAME => ['onCommand', -255]];
+        return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
     /**
@@ -28,13 +26,23 @@ class UnhandledCommandSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
+        if (!preg_match('/^\!haamc presence (.*)$/', $message->content, $matches) || !$event->isAdmin()) {
             return;
         }
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $message->reply('Huh, waar heb je het over?');
-        $io->writeln('Showed unhandled command message');
+        $presence = $matches[1];
+        $client = $message->client;
+        $client->user->setPresence(
+            [
+                'status' => 'online',
+                'game'   => [
+                    'name' => $presence,
+                    'type' => 0,
+                ],
+            ]
+        );
+        $io->success(sprintf('Presence set to %s', $presence));
     }
 }

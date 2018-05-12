@@ -31,6 +31,8 @@ class RunCommand extends ContainerAwareCommand
      */
     private $rewatch;
 
+    public static $start;
+
     /**
      * RunCommand constructor.
      * @param CotsChannel $cots
@@ -59,6 +61,7 @@ class RunCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        self::$start = time();
         $container = $this->getContainer();
         $adminRole = $container->getParameter('adminRole');
         $permissionsRole = $container->getParameter('permissionsRole');
