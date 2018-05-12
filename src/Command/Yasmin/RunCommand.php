@@ -7,6 +7,7 @@ use App\Channel\RewatchChannel;
 use App\Yasmin\Event\MessageReceivedEvent;
 use App\Yasmin\Event\ReactionAddedEvent;
 use CharlotteDunois\Yasmin\Client;
+use CharlotteDunois\Yasmin\Models\DMChannel;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\MessageReaction;
 use React\EventLoop\Factory;
@@ -21,17 +22,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class RunCommand extends ContainerAwareCommand
 {
+    public static $start;
     /**
      * @var CotsChannel
      */
     private $cots;
-
     /**
      * @var RewatchChannel
      */
     private $rewatch;
-
-    public static $start;
 
     /**
      * RunCommand constructor.
@@ -97,6 +96,11 @@ class RunCommand extends ContainerAwareCommand
                 if ($message->author->bot) {
                     return;
                 }
+                if ($message->channel instanceof DMChannel) {
+                    $io->writeln('Ignoring DM: '.$message->content.' from '.$message->author->username);
+
+                    return;
+                }
                 /** @noinspection PhpUndefinedFieldInspection */
                 $logMessage = 'Received Message from '.$message->author->tag.' in '.
                     ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
@@ -116,6 +120,11 @@ class RunCommand extends ContainerAwareCommand
             'messageReactionAdd',
             function (MessageReaction $reaction) use ($dispatcher, $io, $adminRole) {
                 if ($reaction->me) {
+                    return;
+                }
+                if ($reaction->message->channel instanceof DMChannel) {
+                    $io->writeln('Ignoring DM Reactions');
+
                     return;
                 }
                 /** @noinspection PhpUndefinedFieldInspection */
