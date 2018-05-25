@@ -86,6 +86,7 @@ class RunCommand extends ContainerAwareCommand
                 );
             }
         );
+        // Test change
 
         $client->on(
             'message',
