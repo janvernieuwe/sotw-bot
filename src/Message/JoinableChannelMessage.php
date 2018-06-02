@@ -22,6 +22,7 @@ class JoinableChannelMessage
     public const DELETE_REACTION = '🚮';
     public const RELOAD_REACTION = '🔁';
     public const TEXT_MESSAGE = '';
+    const AUTHOR_IMG_URL = 'https://i.imgur.com/pcdrHvS.png';
 
     /**
      * @var \CharlotteDunois\Yasmin\Models\Message
@@ -248,13 +249,11 @@ class JoinableChannelMessage
      */
     public static function generateRichChannelMessage(Anime $anime, int $channelId, string $link, int $subs = 0): array
     {
-        $authorImg = 'https://cdn.discordapp.com/icons/263798840996397056/a7c4da6b1413943fd4e220061fea55fd.png';
-
         return [
             'embed' => [
                 'author'    => [
                     'name'     => $anime->title,
-                    'icon_url' => $authorImg,
+                    'icon_url' => self::AUTHOR_IMG_URL,
                     'url'      => $link,
                 ],
                 'url'       => $link,
