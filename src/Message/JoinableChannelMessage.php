@@ -257,7 +257,7 @@ class JoinableChannelMessage
                     'url'      => $link,
                 ],
                 'url'       => $link,
-                'thumbnail' => ['url' => $anime->image_url.'?t='.time()],
+                'thumbnail' => ['url' => $anime->image_url],
                 'footer'    => [
                     'text' => 'Druk op de reactions om te joinen / leaven',
                 ],
