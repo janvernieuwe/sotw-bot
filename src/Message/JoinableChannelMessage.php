@@ -210,7 +210,7 @@ class JoinableChannelMessage
         $anime->aired_string = $this->getFieldValue('datum');
         $anime->image_url = $this->getAnimeImageUrl();
         // Update cache buster
-        $anime->image_url = preg_replace('/\?.*$/', '?t='.time(), $anime->image_url);
+        $anime->image_url = preg_replace('/\.jpg.*$/', '.jpg?t='.time(), $anime->image_url);
         preg_match('/c=(\d+)/', $this->getEmbeddedAnimeLink(), $channelid);
         $channelid = (int)$channelid[1];
 
