@@ -54,7 +54,7 @@ class FinishSubscriber implements EventSubscriberInterface
 
         $nominations = $this->rewatch->getValidNominations();
         try {
-            if (count($nominations) !== 10) {
+            if (!count($nominations)) {
                 throw new RuntimeException('Invalid number of nominees '.count($nominations));
             }
             if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {

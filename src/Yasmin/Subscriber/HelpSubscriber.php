@@ -44,6 +44,8 @@ Nani TF doet deze bot allemaal?
 !haamc rewatch ranking         (Rewatch nominatie ranking)
 !haamc season ranking          (Seasonal anime ranking)
 !bikkelpunt                    (Claim je bikkel punt, enkel in bikkeltijd)
+!haamc setmal JouwMalAccount   (Claim je MAL account)
+!haamc getmal :mention:        (Indien gementionde user een mal geset heeft toont deze de account)
 ```
 HELP;
         $message->channel->send($help);

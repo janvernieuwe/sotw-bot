@@ -53,9 +53,9 @@ class RankingSubscriber implements EventSubscriberInterface
 
         $nominations = $this->rewatch->getValidNominations();
         $nominationCount = count($nominations);
-        if ($nominationCount !== 10) {
-            $message->reply('Er zijn nog geen 10 nominaties!');
-            $io->writeln(sprintf('Not enough nominations %s/10 nominations', $nominationCount));
+        if (!$nominationCount) {
+            $message->reply('Er zijn nog geen nominaties!');
+            $io->writeln('No nominations yet', $nominationCount);
 
             return;
         }
