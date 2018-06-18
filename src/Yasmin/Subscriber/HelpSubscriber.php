@@ -42,7 +42,7 @@ Nani TF doet deze bot allemaal?
 !haamc cots ranking            (Character of the season ranking)
 !haamc sotw ranking            (Song of the week ranking)
 !haamc rewatch ranking         (Rewatch nominatie ranking)
-!haamc season ranking          (Seasonal anime ranking)
+!haamc season ranking <page>   (Seasonal anime ranking, per 10)
 !bikkelpunt                    (Claim je bikkel punt, enkel in bikkeltijd)
 !haamc setmal JouwMalAccount   (Claim je MAL account)
 !haamc getmal :mention:        (Indien gementionde user een mal geset heeft toont deze de account)
