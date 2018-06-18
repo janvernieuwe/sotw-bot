@@ -70,12 +70,15 @@ class RunCommand extends ContainerAwareCommand
         $client = new Client([], $loop);
 
         // Warm up cache on startup
-        $io->section('Warming up the caches ...');
-        $this->cots->getTop10();
-        $io->success('Character of the season');
-        $this->rewatch->getValidNominations();
-        $io->success('Rewatch');
-
+        try {
+            $io->section('Warming up the caches ...');
+            $this->cots->getTop10();
+            $io->success('Character of the season');
+            $this->rewatch->getValidNominations();
+            $io->success('Rewatch');
+        } catch (\Exception $e) {
+            $io->error((string)$e);
+        }
         // Run the bot
         $io->section('Start listening');
         $client->on(
