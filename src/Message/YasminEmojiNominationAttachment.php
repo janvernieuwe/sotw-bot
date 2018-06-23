@@ -76,6 +76,8 @@ class YasminEmojiNominationAttachment
 
     /**
      * @Assert\NotBlank(message="Je bericht is de emoji naam")
+     * @Assert\Length(min="2", max="32", minMessage="Emoji naam moet minstens 2 characters lang zijn",
+     *     maxMessage="Emoji mag maximum 32 characters lang zijn")
      * @return string
      */
     public function getName(): string

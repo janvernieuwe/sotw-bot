@@ -3,12 +3,15 @@
 namespace App\Yasmin\Subscriber\Emoji;
 
 use App\Message\YasminEmojiNomination;
+use App\Util\Util;
 use App\Yasmin\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Models\Emoji;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use CharlotteDunois\Yasmin\Utils\Collection;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use function React\Promise\all;
 
 /**
  * Display the current bikkel ranking
@@ -18,6 +21,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class FinishSubscriber implements EventSubscriberInterface
 {
     private const CMD = '!haamc emoji finish';
+
+    /**
+     * @var TextChannel
+     */
+    public static $channel;
+
+    /**
+     * @var Message
+     */
+    public static $message;
+
+    /**
+     * @var YasminEmojiNomination[]
+     */
+    public static $winners = [];
 
     /**
      * @var SymfonyStyle
@@ -53,7 +71,7 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        $message = $event->getMessage();
+        self::$message = $message = $event->getMessage();
         if ($message->content !== self::CMD || !$event->isAdmin()) {
             return;
         }
@@ -61,32 +79,91 @@ class FinishSubscriber implements EventSubscriberInterface
         self::$io = $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
 
-        $channel = $message->guild->channels->get($this->channelId);
-        $channel->fetchMessages()->done(
-            function (Collection $x) {
-                //print_r($x->count());
+        /** @var TextChannel $channel */
+        self::$channel = $channel = $message->guild->channels->get($this->channelId);
+        $channel->fetchMessages(['limit' => 100])->done(
+            function (Collection $result) {
+                $nominations = $this->filter($result->all());
+                self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
+                self::$winners = array_slice($nominations, 0, 50);
+                $this->removeLosers(array_slice($nominations, 49));
             }
         );
     }
 
     /**
      * @param array|Message[] $messages
-     * @return array
+     * @return YasminEmojiNomination[]
      */
-    private function getValidMessages(array $messages): array
+    private function filter(array $messages): array
     {
-        $messages = array_map(
-            function (Message &$message) {
-                $message = new YasminEmojiNomination($message);
-            },
-            $messages
-        );
-
-        return array_filter(
-            $messages,
-            function (YasminEmojiNomination $message) {
-                return $message->isValid();
+        $valid = [];
+        foreach ($messages as $message) {
+            $message = new YasminEmojiNomination($message);
+            if (!$message->isValid()) {
+                continue;
+            }
+            $valid[] = $message;
+        }
+        usort(
+            $valid,
+            function (YasminEmojiNomination $a, YasminEmojiNomination $b) {
+                return $a->getVotes() < $b->getVotes();
             }
         );
+
+        return $valid;
+    }
+
+    /**
+     * @param array|YasminEmojiNomination[] $losers
+     */
+    private function removeLosers(array $losers)
+    {
+        $promises = [];
+        foreach ($losers as $loser) {
+            if (!$loser->isOnServer()) {
+                continue;
+            }
+            self::$io->writeln(sprintf('Loser: %s %s', $loser->getContent(), $loser->getVotes()));
+            self::$message->channel->send(
+                sprintf(':put_litter_in_its_place:  %s', $loser->getContent())
+            );
+            /** @var Emoji $emoji */
+            $emoji = self::$message->guild->emojis->keyBy('name')->get($loser->getEmojiName());
+            $promises[] = $promise = $emoji->delete();
+            $promise->done(
+                function () use ($loser) {
+                    self::$io->success(sprintf('Emoji %s removed', $loser->getEmojiName()));
+                }
+            );
+        }
+        all($promises)->then(
+            function () {
+                $this->addWinners();
+            }
+        );
+    }
+
+    private function addWinners()
+    {
+        foreach (self::$winners as $winner) {
+            if ($winner->isOnServer()) {
+                continue;
+            }
+            self::$io->writeln(sprintf('Winner: %s %s', $winner->getContent(), $winner->getVotes()));
+            //self::$message->channel->send($winner->getUrl());
+
+            self::$message->guild->createEmoji($winner->getUrl(), $winner->getEmojiName())->done(
+                function (Emoji $emoji) {
+                    self::$message->channel->send(':new: '.Util::emojiToString($emoji))->done(
+                        function (Message $emojiPost) use ($emoji) {
+                            $emojiPost->react(Util::emojiToString($emoji));
+                            self::$io->success(sprintf('Emoji %s added', $emoji->name));
+                        }
+                    );
+                }
+            );
+        }
     }
 }
