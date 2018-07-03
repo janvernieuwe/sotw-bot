@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "ce41a92436105c978e9730613a1f1c9d",
@@ -1446,17 +1446,26 @@
         },
         {
             "name": "jikan-me/jikan",
-            "version": "v1.15.0",
+            "version": "v1.16.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jikan-me/jikan.git",
-                "reference": "aa866bf8470902736f596fc5e9102d91d8eb1a95"
+                "reference": "4476586fce04026b6539a56cece3bc0536076675"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/aa866bf8470902736f596fc5e9102d91d8eb1a95",
-                "reference": "aa866bf8470902736f596fc5e9102d91d8eb1a95",
+                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/4476586fce04026b6539a56cece3bc0536076675",
+                "reference": "4476586fce04026b6539a56cece3bc0536076675",
                 "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3",
+                "php": "^7.0"
+            },
+            "require-dev": {
+                "php-vcr/php-vcr": "~1.3.2",
+                "php-vcr/phpunit-testlistener-vcr": "^3.0",
+                "phpunit/phpunit": "^6.3"
             },
             "type": "library",
             "autoload": {
@@ -1473,11 +1482,11 @@
             "authors": [
                 {
                     "name": "Irfan",
-                    "email": "irfan@jikan.me"
+                    "email": "irfan@jikan.moe"
                 }
             ],
             "description": "Jikan is an unofficial MyAnimeList API",
-            "time": "2018-03-24T05:09:10+00:00"
+            "time": "2018-07-02T20:04:06+00:00"
         },
         {
             "name": "league/fractal",

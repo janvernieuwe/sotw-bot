@@ -6,11 +6,13 @@ use App\Util\Util;
 use Jikan\Jikan;
 use Jikan\Model\Anime;
 use Jikan\Model\Character;
+use Jikan\Model\Manga;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 /**
  * Cached MyAnimeList client
  * Class Client
+ *
  * @package App\MyAnimeList
  */
 class MyAnimeListClient
@@ -27,8 +29,9 @@ class MyAnimeListClient
 
     /**
      * Client constructor.
+     *
      * @param AdapterInterface $cache
-     * @param Jikan $jikan
+     * @param Jikan            $jikan
      */
     public function __construct(AdapterInterface $cache, Jikan $jikan)
     {
@@ -38,6 +41,7 @@ class MyAnimeListClient
 
     /**
      * @param string $url
+     *
      * @return null|int
      */
     public static function getAnimeId(string $url): ?int
@@ -50,7 +54,22 @@ class MyAnimeListClient
     }
 
     /**
+     * @param string $url
+     *
+     * @return null|int
+     */
+    public static function getIdFromUrl(string $url): ?int
+    {
+        if (!preg_match('#https?://(www\.)?myanimelist.net/\w+/(\d+)#', $url, $ids)) {
+            return null;
+        }
+
+        return (int)$ids[2];
+    }
+
+    /**
      * @param int $id
+     *
      * @return Anime
      */
     public function loadAnime(int $id): Anime
@@ -72,6 +91,29 @@ class MyAnimeListClient
 
     /**
      * @param int $id
+     *
+     * @return Manga
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function loadManga(int $id): Manga
+    {
+        $key = 'jikan_manga_'.$id;
+        if ($this->cache->hasItem($key)) {
+            return $this->cache->getItem($key)->get();
+        }
+
+        $manga = Util::instantiate(Manga::class, $this->jikan->Manga($id)->response);
+        $item = $this->cache->getItem($key);
+        $item->set($manga);
+        $item->expiresAfter(strtotime('+7 day'));
+        $this->cache->save($item);
+
+        return $manga;
+    }
+
+    /**
+     * @param int $id
+     *
      * @return Character
      */
     public function loadCharacter(int $id): Character
