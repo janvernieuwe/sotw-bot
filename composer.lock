@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce41a92436105c978e9730613a1f1c9d",
+    "content-hash": "5aff0b2ea05f14a596f330e330745769",
     "packages": [
         {
             "name": "charlottedunois/eventemitter",
@@ -1446,16 +1446,16 @@
         },
         {
             "name": "jikan-me/jikan",
-            "version": "v1.16.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jikan-me/jikan.git",
-                "reference": "4476586fce04026b6539a56cece3bc0536076675"
+                "reference": "73a566a8643bdeaf224cb45c47779802af65d6de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/4476586fce04026b6539a56cece3bc0536076675",
-                "reference": "4476586fce04026b6539a56cece3bc0536076675",
+                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/73a566a8643bdeaf224cb45c47779802af65d6de",
+                "reference": "73a566a8643bdeaf224cb45c47779802af65d6de",
                 "shasum": ""
             },
             "require": {
@@ -1486,7 +1486,7 @@
                 }
             ],
             "description": "Jikan is an unofficial MyAnimeList API",
-            "time": "2018-07-02T20:04:06+00:00"
+            "time": "2018-07-05T22:19:49+00:00"
         },
         {
             "name": "league/fractal",
@@ -5844,6 +5844,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "jikan-me/jikan": 20,
         "restcord/restcord": 20,
         "roave/security-advisories": 20,
         "symfony/lts": 20
