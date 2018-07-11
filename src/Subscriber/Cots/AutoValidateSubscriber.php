@@ -3,7 +3,6 @@
 namespace App\Subscriber\Cots;
 
 use App\Channel\CotsChannel;
-use App\Error\CotsErrorDm;
 use App\Event\MessageReceivedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -16,11 +15,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AutoValidateSubscriber implements EventSubscriberInterface
 {
     public const LIMIT = 25;
-
-    /**
-     * @var CotsErrorDm
-     */
-    private $error;
 
     /**
      * @var CotsChannel
@@ -36,17 +30,14 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      * AutoValidateSubscriber constructor.
      *
      * @param CotsChannel $character
-     * @param CotsErrorDm $error
      * @param string      $season
      *
      * @internal param RewatchChannel $rewatch
      */
     public function __construct(
         CotsChannel $character,
-        CotsErrorDm $error,
         string $season
     ) {
-        $this->error = $error;
         $this->cots = $character;
         $this->season = $season;
     }
@@ -89,7 +80,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $nomination->setSeason($this->season);
         // Validate the nomination
         if (!$this->error->isValid($nomination)) {
-            $this->error->send($nomination, $this->season);
+            //$this->error->send($nomination, $this->season);
             $io->error(implode(PHP_EOL, $this->error->getErrorArray($nomination)).PHP_EOL.$message->content);
             $message->delete();
 

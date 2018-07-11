@@ -3,7 +3,6 @@
 namespace App\Subscriber\Sotw;
 
 use App\Channel\SotwChannel;
-use App\Error\SotwErrorDm;
 use App\Event\MessageReceivedEvent;
 use App\Message\SotwNomination;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,20 +21,13 @@ class AutoValidateSubsciber implements EventSubscriberInterface
     private $sotw;
 
     /**
-     * @var SotwErrorDm
-     */
-    private $error;
-
-    /**
      * ValidateSubscriber constructor.
      *
      * @param SotwChannel $sotw
-     * @param SotwErrorDm $error
      */
-    public function __construct(SotwChannel $sotw, SotwErrorDm $error)
+    public function __construct(SotwChannel $sotw)
     {
         $this->sotw = $sotw;
-        $this->error = $error;
     }
 
     /**

@@ -59,25 +59,17 @@ services:
           - '@cache.jikan'
           - '@jikan'
 
-    RestCord\DiscordClient:
-        class: RestCord\DiscordClient
-        arguments:
-          -
-            token:      "%env(TOKEN)%"
-            logger:     "@log.null"
-        public: true
-
     App\Channel\SotwChannel:
         class: App\Channel\SotwChannel
         arguments:
           $channelId: '%env(SOTW_CHANNEL_ID)%'
         public: true
-
-    App\Channel\EmojiChannel:
-        class: App\Channel\EmojiChannel
-        arguments:
-          $channelId: '%env(EMOJI_CHANNEL_ID)%'
-        public: true
+#
+#    App\Channel\EmojiChannel:
+#        class: App\Channel\EmojiChannel
+#        arguments:
+#          $channelId: '%env(EMOJI_CHANNEL_ID)%'
+#        public: true
 
     App\Channel\RewatchChannel:
         class: App\Channel\RewatchChannel

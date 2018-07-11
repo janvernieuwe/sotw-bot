@@ -61,6 +61,7 @@ class NominationSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
+        /** @noinspection PhpUndefinedFieldInspection */
         if ($this->channelId !== (int)$message->channel->id) {
             return;
         }
@@ -108,7 +109,7 @@ class NominationSubscriber implements EventSubscriberInterface
      * @param Message      $message
      * @param string       $error
      */
-    private function error(SymfonyStyle $io, Message $message, string $error)
+    private function error(SymfonyStyle $io, Message $message, string $error): void
     {
         $io->error($error);
         $message->reply($error)->done(

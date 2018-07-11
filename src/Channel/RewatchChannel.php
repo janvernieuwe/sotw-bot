@@ -13,29 +13,36 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @package App\Discord
  */
-class RewatchChannel extends Channel
+class RewatchChannel
 {
     /**
      * @var ValidatorInterface
      */
     private $validator;
+    /**
+     * @var MyAnimeListClient
+     */
+    private $mal;
+    /**
+     * @var string
+     */
+    private $channelId;
 
     /**
      * SongOfTheWeek constructor.
      *
-     * @param DiscordClient      $discord
      * @param MyAnimeListClient  $mal
      * @param ValidatorInterface $validator
      * @param string             $channelId
      */
     public function __construct(
-        DiscordClient $discord,
         MyAnimeListClient $mal,
         ValidatorInterface $validator,
         string $channelId
     ) {
         $this->validator = $validator;
-        parent::__construct($discord, $channelId, $mal);
+        $this->mal = $mal;
+        $this->channelId = $channelId;
     }
 
     /**

@@ -3,17 +3,15 @@
 namespace App\Message;
 
 use App\Entity\RewatchWinner;
-use CharlotteDunois\Yasmin\Models\Message as YasminMessage;
 use Jikan\Model\Anime;
 use Symfony\Component\Validator\Constraints as Assert;
-use function GuzzleHttp\Psr7\parse_query;
 
 /**
  * Class SotwNomination
  *
  * @package App\Entity
  */
-class RewatchNomination extends Message
+class RewatchNomination
 {
     /**
      * @var Anime
@@ -46,32 +44,23 @@ class RewatchNomination extends Message
     }
 
     /**
-     * @param YasminMessage $message
-     *
-     * @return RewatchNomination
-     */
-    public static function fromYasmin(YasminMessage $message): RewatchNomination
-    {
-        return new self(parent::yasminToArray($message));
-    }
-
-    /**
      * @return int|null
      */
     public function getAnimeId(): ?int
     {
-        $url = parse_url($this->message['content']);
-        $url['query'] = $url['query'] ?? '';
-        $params = parse_query($url['query']);
-        if (isset($params['id'])) {
-            return (int)$params['id'];
-        }
-        preg_match_all('/\/(\d+)\/?/', $this->message['content'], $matches);
-        if (!isset($matches[1][0])) {
-            return null;
-        }
-
-        return (int)$matches[1][0];
+        return null;
+//        $url = parse_url($this->message['content']);
+//        $url['query'] = $url['query'] ?? '';
+//        $params = parse_query($url['query']);
+//        if (isset($params['id'])) {
+//            return (int)$params['id'];
+//        }
+//        preg_match_all('/\/(\d+)\/?/', $this->message['content'], $matches);
+//        if (!isset($matches[1][0])) {
+//            return null;
+//        }
+//
+//        return (int)$matches[1][0];
     }
 
     /**
@@ -168,7 +157,7 @@ class RewatchNomination extends Message
     /**
      * @param RewatchWinner $previous
      */
-    public function setPrevious(RewatchWinner $previous = null)
+    public function setPrevious(RewatchWinner $previous = null): void
     {
         $this->previous = $previous;
     }
@@ -194,7 +183,7 @@ class RewatchNomination extends Message
     /**
      * @param bool $uniqueAnime
      */
-    public function setUniqueAnime(bool $uniqueAnime)
+    public function setUniqueAnime(bool $uniqueAnime): void
     {
         $this->uniqueAnime = $uniqueAnime;
     }
@@ -211,7 +200,7 @@ class RewatchNomination extends Message
     /**
      * @param bool $uniqueUser
      */
-    public function setUniqueUser(bool $uniqueUser)
+    public function setUniqueUser(bool $uniqueUser): void
     {
         $this->uniqueUser = $uniqueUser;
     }

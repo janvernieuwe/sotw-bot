@@ -20,25 +20,37 @@ class CotsChannel extends Channel
      * @var int
      */
     private $roleId;
+    /**
+     * @var MyAnimeListClient
+     */
+    private $mal;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+    /**
+     * @var int
+     */
+    private $channelId;
 
     /**
      * CotsChannel constructor.
      *
-     * @param DiscordClient      $discord
      * @param MyAnimeListClient  $mal
      * @param ValidatorInterface $validator
      * @param int                $channelId
      * @param int                $roleId
      */
     public function __construct(
-        DiscordClient $discord,
         MyAnimeListClient $mal,
         ValidatorInterface $validator,
         int $channelId,
         int $roleId
     ) {
-        parent::__construct($discord, $channelId, $mal);
         $this->roleId = $roleId;
+        $this->mal = $mal;
+        $this->validator = $validator;
+        $this->channelId = $channelId;
     }
 
     /**

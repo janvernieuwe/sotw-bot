@@ -2,16 +2,22 @@
 
 namespace App\Message;
 
+use CharlotteDunois\Yasmin\Models\Message;
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class SotwNomination
  *
- * @package App\Entity
+ * @package App\Message
  */
-class SotwNomination extends Message
+class SotwNomination
 {
+    /**
+     * @var string
+     */
+    private $author;
+
     /**
      * @var string
      * @Assert\Type(type="string", message="Artiest is ongeldig")
@@ -51,27 +57,18 @@ class SotwNomination extends Message
     }
 
     /**
-     * @param \CharlotteDunois\Yasmin\Models\Message $message
+     * @param Message $message
      *
      * @return SotwNomination
      */
-    public static function fromYasmin(\CharlotteDunois\Yasmin\Models\Message $message): SotwNomination
+    public static function fromMessage(Message $message): SotwNomination
     {
-        return self::fromMessage(parent::yasminToArray($message));
-    }
-
-    /**
-     * @param array $message
-     *
-     * @return SotwNomination
-     */
-    public static function fromMessage(array $message): SotwNomination
-    {
-        $nominee = new self($message);
-        $nominee->artist = self::matchPattern('artist', $message['content']);
-        $nominee->title = self::matchPattern('title', $message['content']);
-        $nominee->anime = self::matchPattern('anime', $message['content']);
-        $nominee->youtube = self::matchPattern('url', $message['content']);
+        $nominee = new self();
+        $nominee->artist = self::matchPattern('artist', $message->content);
+        $nominee->title = self::matchPattern('title', $message->content);
+        $nominee->anime = self::matchPattern('anime', $message->content);
+        $nominee->youtube = self::matchPattern('url', $message->content);
+        $nominee->author = $message->author->username;
 
         return $nominee;
     }
@@ -152,5 +149,13 @@ class SotwNomination extends Message
     public function getAnime(): string
     {
         return $this->anime;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthor(): string
+    {
+        return $this->author;
     }
 }

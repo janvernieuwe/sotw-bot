@@ -9,8 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class Message
  *
  * @package App\Message
+ * @deprecated
  */
-class Message
+final class Message
 {
     /**
      * @Assert\Type(type="array", message="Message is not an array")

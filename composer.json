@@ -6,7 +6,6 @@
         "ext-iconv": "*",
         "charlottedunois/yasmin": "^0.4",
         "jikan-me/jikan": "dev-master",
-        "restcord/restcord": "dev-develop",
         "roave/security-advisories": "dev-master",
         "symfony/console": "^4.0",
         "symfony/dotenv": "^4.0",

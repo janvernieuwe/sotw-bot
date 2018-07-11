@@ -20,10 +20,6 @@ class SaySubscriber implements EventSubscriberInterface
      * @var int
      */
     private $adminRole;
-    /**
-     * @var DiscordClient
-     */
-    private $discord;
 
     /**
      * AdminHelpSubscriber constructor.
@@ -31,10 +27,9 @@ class SaySubscriber implements EventSubscriberInterface
      * @param int           $adminRole
      * @param DiscordClient $discord
      */
-    public function __construct(int $adminRole, DiscordClient $discord)
+    public function __construct(int $adminRole)
     {
         $this->adminRole = $adminRole;
-        $this->discord = $discord;
     }
 
     /**

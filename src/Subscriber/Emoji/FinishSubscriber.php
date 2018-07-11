@@ -88,8 +88,8 @@ class FinishSubscriber implements EventSubscriberInterface
             function (Collection $result) {
                 $nominations = $this->filter($result->all());
                 self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
-                self::$winners = array_slice($nominations, 0, 50);
-                $this->removeLosers(array_slice($nominations, 49));
+                self::$winners = \array_slice($nominations, 0, 50);
+                $this->removeLosers(\array_slice($nominations, 49));
             }
         );
     }
@@ -122,7 +122,7 @@ class FinishSubscriber implements EventSubscriberInterface
     /**
      * @param array|YasminEmojiNomination[] $losers
      */
-    private function removeLosers(array $losers)
+    private function removeLosers(array $losers): void
     {
         $promises = [];
         foreach ($losers as $loser) {
@@ -149,7 +149,7 @@ class FinishSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function addWinners()
+    private function addWinners(): void
     {
         foreach (self::$winners as $winner) {
             if ($winner->isOnServer()) {

@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @package App\Message
  */
-class CotsNomination extends Message
+class CotsNomination
 {
     const CHARACTER_REGXP = '#https?://myanimelist.net/character/(\d+)#';
     const ANIME_REGXP = '#https?://myanimelist.net/anime/(\d+)#';

@@ -25,10 +25,6 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      */
     private $rewatch;
 
-    /**
-     * @var RewatchErrorDm
-     */
-    private $error;
 
     /**
      * @var EntityManagerInterface
@@ -39,16 +35,13 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      * AutoValidateSubscriber constructor.
      *
      * @param RewatchChannel         $rewatch
-     * @param RewatchErrorDm         $error
      * @param EntityManagerInterface $doctrine
      */
     public function __construct(
         RewatchChannel $rewatch,
-        RewatchErrorDm $error,
         EntityManagerInterface $doctrine
     ) {
         $this->rewatch = $rewatch;
-        $this->error = $error;
         $this->doctrine = $doctrine;
     }
 

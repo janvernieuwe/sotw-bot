@@ -29,18 +29,24 @@ class SotwChannel extends Channel
      * @var ValidatorInterface
      */
     private $validator;
+    /**
+     * @var int
+     */
+    private $channelId;
+    /**
+     * @var MyAnimeListClient
+     */
+    private $mal;
 
     /**
      * SongOfTheWeek constructor.
      *
-     * @param DiscordClient      $discord
      * @param int                $channelId
      * @param ValidatorInterface $validator
      * @param int                $roleId
      * @param MyAnimeListClient  $mal
      */
     public function __construct(
-        DiscordClient $discord,
         int $channelId,
         ValidatorInterface $validator,
         int $roleId,
@@ -48,7 +54,8 @@ class SotwChannel extends Channel
     ) {
         $this->roleId = $roleId;
         $this->validator = $validator;
-        parent::__construct($discord, $channelId, $mal);
+        $this->channelId = $channelId;
+        $this->mal = $mal;
     }
 
     /**
