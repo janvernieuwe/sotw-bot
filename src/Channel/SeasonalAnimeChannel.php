@@ -8,6 +8,7 @@ use CharlotteDunois\Yasmin\Models\TextChannel;
 
 /**
  * Class SeasonalAnimeChannel
+ *
  * @package App\Channel
  */
 class SeasonalAnimeChannel
@@ -19,6 +20,7 @@ class SeasonalAnimeChannel
 
     /**
      * SeasonalAnimeChannel constructor.
+     *
      * @param int $everyoneRole
      */
     public function __construct(int $everyoneRole)
@@ -28,7 +30,7 @@ class SeasonalAnimeChannel
 
     /**
      * @param Guild $guild
-     * @param $name
+     * @param       $name
      */
     public function create(Guild $guild, $name): void
     {

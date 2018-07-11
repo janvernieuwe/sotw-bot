@@ -6,6 +6,7 @@ use App\Message\CotsNomination;
 
 /**
  * Class CotsErrorDm
+ *
  * @package App\Error
  */
 class CotsErrorDm extends AbstractErrorDm
@@ -26,7 +27,7 @@ EOF;
 
     /**
      * @param CotsNomination $nomination
-     * @param string $season
+     * @param string         $season
      */
     public function send(CotsNomination $nomination, string $season): void
     {

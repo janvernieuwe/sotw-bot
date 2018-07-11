@@ -8,6 +8,7 @@ use CharlotteDunois\Yasmin\Models\Guild;
 
 /**
  * Class CreateSimpleChannelContext
+ *
  * @package App\Context
  */
 class CreateSimpleChannelContext
@@ -49,12 +50,13 @@ class CreateSimpleChannelContext
 
     /**
      * CreateSimpleChannelContext constructor.
-     * @param int $parent
-     * @param string $channelName
-     * @param string $description
-     * @param int $everyoneRole
-     * @param Guild $guild
-     * @param Client $client
+     *
+     * @param int                  $parent
+     * @param string               $channelName
+     * @param string               $description
+     * @param int                  $everyoneRole
+     * @param Guild                $guild
+     * @param Client               $client
      * @param TextChannelInterface $channel
      */
     public function __construct(

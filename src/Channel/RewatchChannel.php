@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SongOfTheWeek
+ *
  * @package App\Discord
  */
 class RewatchChannel extends Channel
@@ -21,10 +22,11 @@ class RewatchChannel extends Channel
 
     /**
      * SongOfTheWeek constructor.
-     * @param DiscordClient $discord
-     * @param MyAnimeListClient $mal
+     *
+     * @param DiscordClient      $discord
+     * @param MyAnimeListClient  $mal
      * @param ValidatorInterface $validator
-     * @param string $channelId
+     * @param string             $channelId
      */
     public function __construct(
         DiscordClient $discord,
@@ -55,6 +57,7 @@ class RewatchChannel extends Channel
 
     /**
      * @param int $limit
+     *
      * @return RewatchNomination[]
      * @throws \Exception
      */
@@ -79,6 +82,7 @@ class RewatchChannel extends Channel
 
     /**
      * @param RewatchNomination $nomination
+     *
      * @return ConstraintViolationListInterface
      */
     public function validate(RewatchNomination $nomination): ConstraintViolationListInterface

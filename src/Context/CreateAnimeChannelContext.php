@@ -9,6 +9,7 @@ use Jikan\Model\Anime;
 
 /**
  * Class CreateAnimeChannelContext
+ *
  * @package App\Context
  */
 class CreateAnimeChannelContext
@@ -50,12 +51,13 @@ class CreateAnimeChannelContext
 
     /**
      * CreateAnimeChannelContext constructor.
-     * @param Anime $anime
-     * @param int $parent
-     * @param string $channelName
-     * @param int $everyoneRole
-     * @param Guild $guild
-     * @param Client $client
+     *
+     * @param Anime                $anime
+     * @param int                  $parent
+     * @param string               $channelName
+     * @param int                  $everyoneRole
+     * @param Guild                $guild
+     * @param Client               $client
      * @param TextChannelInterface $channel
      */
     public function __construct(

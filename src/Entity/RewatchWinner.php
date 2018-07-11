@@ -74,6 +74,7 @@ class RewatchWinner
 
     /**
      * @param int $memberId
+     *
      * @return RewatchWinner
      */
     public function setMemberId(int $memberId): self
@@ -93,6 +94,7 @@ class RewatchWinner
 
     /**
      * @param int $animeId
+     *
      * @return RewatchWinner
      */
     public function setAnimeId(int $animeId): self
@@ -112,6 +114,7 @@ class RewatchWinner
 
     /**
      * @param int $votes
+     *
      * @return RewatchWinner
      */
     public function setVotes(int $votes): self
@@ -131,6 +134,7 @@ class RewatchWinner
 
     /**
      * @param string $displayName
+     *
      * @return RewatchWinner
      */
     public function setDisplayName(string $displayName): self
@@ -150,6 +154,7 @@ class RewatchWinner
 
     /**
      * @param \DateTimeInterface $created
+     *
      * @return RewatchWinner
      */
     public function setCreated(\DateTimeInterface $created): self
@@ -169,6 +174,7 @@ class RewatchWinner
 
     /**
      * @param string $title
+     *
      * @return RewatchWinner
      */
     public function setTitle(string $title): self
@@ -188,6 +194,7 @@ class RewatchWinner
 
     /**
      * @param mixed $episodes
+     *
      * @return RewatchWinner
      */
     public function setEpisodes(int $episodes): self
@@ -207,6 +214,7 @@ class RewatchWinner
 
     /**
      * @param mixed $aired
+     *
      * @return RewatchWinner
      */
     public function setAired(string $aired): self

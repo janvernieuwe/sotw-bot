@@ -4,6 +4,7 @@ namespace App\Exception;
 
 /**
  * Class AmbiguousEntityException
+ *
  * @package App\Exception
  */
 class AmbiguousEntityException extends \Exception
@@ -11,6 +12,7 @@ class AmbiguousEntityException extends \Exception
     /**
      * @param string $entity
      * @param string $id
+     *
      * @return AmbiguousEntityException
      */
     public static function create(string $entity, string $id): AmbiguousEntityException

@@ -13,22 +13,6 @@ class EmojiNomination extends Message
     private $imageSize;
 
     /**
-     * @return bool
-     */
-    public function isGuildNomination(): bool
-    {
-        return (bool)\count($this->message['embeds']);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isUserNomination(): bool
-    {
-        return (bool)\count($this->message['attachments']);
-    }
-
-    /**
      * @Assert\Choice(choices={"png"}, message="Invalid image type, only PNG allowed")
      * @return string
      */
@@ -37,39 +21,6 @@ class EmojiNomination extends Message
         $info = pathinfo($this->getUrl());
 
         return strtolower($info['extension']);
-    }
-
-    /**
-     * @return array
-     */
-    private function getImageSize(): array
-    {
-        if ($this->imageSize === null) {
-            $this->imageSize = getimagesize($this->getUrl());
-        }
-        if (!\is_array($this->imageSize)) {
-            throw new \InvalidArgumentException('Invalid image size');
-        }
-
-        return $this->imageSize;
-    }
-
-    /**
-     * @Assert\EqualTo(value=128, message="The image should have a height of 128 px")
-     * @return int
-     */
-    public function getImageHeight(): int
-    {
-        return $this->getImageSize()[1];
-    }
-
-    /**
-     * @Assert\EqualTo(value=128, message="The image should have a width of 128 px")
-     * @return int
-     */
-    public function getImageWidth(): int
-    {
-        return $this->getImageSize()[0];
     }
 
     /**
@@ -92,9 +43,74 @@ class EmojiNomination extends Message
     /**
      * @return bool
      */
+    public function isUserNomination(): bool
+    {
+        return (bool)\count($this->message['attachments']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGuildNomination(): bool
+    {
+        return (bool)\count($this->message['embeds']);
+    }
+
+    /**
+     * @Assert\EqualTo(value=128, message="The image should have a height of 128 px")
+     * @return int
+     */
+    public function getImageHeight(): int
+    {
+        return $this->getImageSize()[1];
+    }
+
+    /**
+     * @return array
+     */
+    private function getImageSize(): array
+    {
+        if ($this->imageSize === null) {
+            $this->imageSize = getimagesize($this->getUrl());
+        }
+        if (!\is_array($this->imageSize)) {
+            throw new \InvalidArgumentException('Invalid image size');
+        }
+
+        return $this->imageSize;
+    }
+
+    /**
+     * @Assert\EqualTo(value=128, message="The image should have a width of 128 px")
+     * @return int
+     */
+    public function getImageWidth(): int
+    {
+        return $this->getImageSize()[0];
+    }
+
+    /**
+     * @return bool
+     */
     public function isContender(): bool
     {
         return $this->isGuildNomination() || $this->isUserNomination();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVetod(): bool
+    {
+        return $this->hasReaction('👎', false);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getName();
     }
 
     /**
@@ -115,21 +131,5 @@ class EmojiNomination extends Message
         }
 
         return '';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isVetod(): bool
-    {
-        return $this->hasReaction('👎', false);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getName();
     }
 }

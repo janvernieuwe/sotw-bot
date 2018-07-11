@@ -6,12 +6,14 @@ use App\Message\EmojiNomination;
 
 /**
  * Class EmojiChannel
+ *
  * @package App\Channel
  */
 class EmojiChannel extends Channel
 {
     /**
      * @param int $limit
+     *
      * @return EmojiNomination[]
      */
     public function getNominations($limit = 100): array

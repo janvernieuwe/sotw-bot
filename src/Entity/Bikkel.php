@@ -55,6 +55,7 @@ class Bikkel
 
     /**
      * @param int $memberId
+     *
      * @return Bikkel
      */
     public function setMemberId(int $memberId): self
@@ -74,6 +75,7 @@ class Bikkel
 
     /**
      * @param int $points
+     *
      * @return Bikkel
      */
     public function setPoints(int $points): self
@@ -93,6 +95,7 @@ class Bikkel
 
     /**
      * @param \DateTimeInterface $lastUpdate
+     *
      * @return Bikkel
      */
     public function setLastUpdate(\DateTimeInterface $lastUpdate): self
@@ -122,6 +125,7 @@ class Bikkel
 
     /**
      * @param mixed $displayName
+     *
      * @return Bikkel
      */
     public function setDisplayName($displayName): self

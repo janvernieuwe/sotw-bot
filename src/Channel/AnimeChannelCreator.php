@@ -11,6 +11,7 @@ use CharlotteDunois\Yasmin\Models\TextChannel;
 
 /**
  * Class AnimeChannelCreator
+ *
  * @package App\Channel
  */
 class AnimeChannelCreator
@@ -22,6 +23,7 @@ class AnimeChannelCreator
 
     /**
      * @param CreateAnimeChannelContext $context
+     *
      * @internal param MessageReceivedEvent $event
      */
     public function create(CreateAnimeChannelContext $context): void
@@ -31,7 +33,7 @@ class AnimeChannelCreator
     }
 
     /**
-     * @param Guild $guild
+     * @param Guild  $guild
      * @param string $name
      */
     protected function createChannel(Guild $guild, string $name): void

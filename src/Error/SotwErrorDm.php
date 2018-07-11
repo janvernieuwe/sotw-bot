@@ -6,6 +6,7 @@ use App\Message\SotwNomination;
 
 /**
  * Class SotwErrorDm
+ *
  * @package App\Error
  */
 class SotwErrorDm extends AbstractErrorDm

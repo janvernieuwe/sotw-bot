@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SongOfTheWeek
+ *
  * @package App\Discord
  */
 class CotsChannel extends Channel
@@ -22,11 +23,12 @@ class CotsChannel extends Channel
 
     /**
      * CotsChannel constructor.
-     * @param DiscordClient $discord
-     * @param MyAnimeListClient $mal
+     *
+     * @param DiscordClient      $discord
+     * @param MyAnimeListClient  $mal
      * @param ValidatorInterface $validator
-     * @param int $channelId
-     * @param int $roleId
+     * @param int                $channelId
+     * @param int                $roleId
      */
     public function __construct(
         DiscordClient $discord,
@@ -41,6 +43,7 @@ class CotsChannel extends Channel
 
     /**
      * @param Message $message
+     *
      * @return CotsNomination
      * @throws CharacterNotFoundException
      */
@@ -73,7 +76,7 @@ class CotsChannel extends Channel
 
     /**
      * @param CotsNomination $nomination
-     * @param string $season
+     * @param string         $season
      */
     public function announceWinner(CotsNomination $nomination, string $season)
     {
@@ -94,6 +97,7 @@ class CotsChannel extends Channel
 
     /**
      * @param int $limit
+     *
      * @return CotsNomination[]
      * @throws \Exception
      */

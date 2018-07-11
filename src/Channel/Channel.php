@@ -10,13 +10,17 @@ use RestCord\Model\Channel\Reaction;
 
 /**
  * Class Channel
+ *
  * @package App\Channel
  */
 class Channel
 {
     public const ROLE_SEND_MESSAGES = 0x00000800;
     public const ROLE_VIEW_MESSAGES = 0x00000400;
-
+    /**
+     * @var MyAnimeListClient
+     */
+    protected $mal;
     /**
      * @var int
      */
@@ -31,14 +35,10 @@ class Channel
     private $test = false;
 
     /**
-     * @var MyAnimeListClient
-     */
-    protected $mal;
-
-    /**
      * Channel constructor.
-     * @param DiscordClient $discord
-     * @param int $channelId
+     *
+     * @param DiscordClient     $discord
+     * @param int               $channelId
      * @param MyAnimeListClient $mal
      */
     public function __construct(DiscordClient $discord, int $channelId, MyAnimeListClient $mal)
@@ -58,7 +58,7 @@ class Channel
 
     /**
      * @param Message $message
-     * @param string $emoji
+     * @param string  $emoji
      */
     public function addReaction(Message $message, string $emoji): void
     {
@@ -79,7 +79,7 @@ class Channel
 
     /**
      * @param Message $message
-     * @param string $emoji
+     * @param string  $emoji
      */
     public function removeReaction(Message $message, string $emoji): void
     {
@@ -127,6 +127,7 @@ class Channel
 
     /**
      * Deny a role permission on the channel
+     *
      * @param int $role
      * @param int $permission
      */
@@ -160,6 +161,7 @@ class Channel
 
     /**
      * @param int $limit
+     *
      * @return array
      */
     public function getManyMessages(int $limit = 1000): array
@@ -187,6 +189,7 @@ class Channel
 
     /**
      * @param int $limit
+     *
      * @return Result|array
      */
     public function getMessages(int $limit = 10): Result
@@ -200,8 +203,9 @@ class Channel
     }
 
     /**
-     * @param string $uri
+     * @param string      $uri
      * @param string|null $content
+     *
      * @return \RestCord\Model\Channel\Message|array
      */
     public function embedImage(string $uri, string $content = null)
@@ -223,6 +227,7 @@ class Channel
 
     /**
      * @param array $messages
+     *
      * @return array
      */
     public function sortByVotes(array $messages): array
@@ -239,7 +244,8 @@ class Channel
 
     /**
      * @param Message $message
-     * @param string $emoji
+     * @param string  $emoji
+     *
      * @return Reaction[]
      */
     public function getReactions(Message $message, string $emoji): array
@@ -255,6 +261,7 @@ class Channel
 
     /**
      * Get the channel id
+     *
      * @return int
      */
     public function getChannelId(): int

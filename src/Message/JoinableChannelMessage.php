@@ -12,6 +12,7 @@ use Jikan\Model\Anime;
 
 /**
  * Class JoinableChannelMessage
+ *
  * @package App\Message
  */
 class JoinableChannelMessage
@@ -31,6 +32,7 @@ class JoinableChannelMessage
 
     /**
      * JoinableChannelMessage constructor.
+     *
      * @param \CharlotteDunois\Yasmin\Models\Message $message
      */
     public function __construct(\CharlotteDunois\Yasmin\Models\Message $message)
@@ -40,6 +42,7 @@ class JoinableChannelMessage
 
     /**
      * @param string $content
+     *
      * @return bool
      */
     public static function isJoinableChannel(string $content): bool
@@ -49,6 +52,7 @@ class JoinableChannelMessage
 
     /**
      * @param \CharlotteDunois\Yasmin\Models\Message $message
+     *
      * @return bool
      */
     public static function isJoinChannelMessage(\CharlotteDunois\Yasmin\Models\Message $message): bool
@@ -61,6 +65,7 @@ class JoinableChannelMessage
 
     /**
      * @param string $key
+     *
      * @return mixed
      */
     public function getFieldValue(string $key)
@@ -133,6 +138,7 @@ class JoinableChannelMessage
 
     /**
      * @param int $memberid
+     *
      * @return bool
      */
     public function hasAccess(int $memberid): bool
@@ -178,6 +184,7 @@ class JoinableChannelMessage
 
     /**
      * @param TextChannel $channel
+     *
      * @return int
      */
     public function getSubsciberCount(TextChannel $channel): int
@@ -187,6 +194,7 @@ class JoinableChannelMessage
 
     /**
      * @param TextChannel $channel
+     *
      * @return array
      */
     public function getSubscribers(TextChannel $channel): array
@@ -241,10 +249,11 @@ class JoinableChannelMessage
     }
 
     /**
-     * @param Anime $anime
-     * @param int $channelId
+     * @param Anime  $anime
+     * @param int    $channelId
      * @param string $link
-     * @param int $subs
+     * @param int    $subs
+     *
      * @return array
      */
     public static function generateRichChannelMessage(Anime $anime, int $channelId, string $link, int $subs = 0): array

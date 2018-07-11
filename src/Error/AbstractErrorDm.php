@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class AbstractErrorDm
+ *
  * @package App\Error
  */
 abstract class AbstractErrorDm
@@ -26,7 +27,8 @@ abstract class AbstractErrorDm
 
     /**
      * RewatchErrorDm constructor.
-     * @param DiscordClient $discord
+     *
+     * @param DiscordClient      $discord
      * @param ValidatorInterface $validator
      */
     public function __construct(DiscordClient $discord, ValidatorInterface $validator)
@@ -37,6 +39,7 @@ abstract class AbstractErrorDm
 
     /**
      * @param Message $message
+     *
      * @return array
      */
     public function getErrorArray(Message $message): array
@@ -50,6 +53,7 @@ abstract class AbstractErrorDm
 
     /**
      * @param Message $nomination
+     *
      * @return bool
      */
     public function isValid(Message $nomination): bool
@@ -59,6 +63,7 @@ abstract class AbstractErrorDm
 
     /**
      * @param Message $nomination
+     *
      * @return ConstraintViolationListInterface
      */
     public function validate(Message $nomination): ConstraintViolationListInterface
@@ -84,7 +89,7 @@ abstract class AbstractErrorDm
 
     /**
      * @param Message $message
-     * @param string $content
+     * @param string  $content
      */
     protected function sendDM(Message $message, string $content): void
     {

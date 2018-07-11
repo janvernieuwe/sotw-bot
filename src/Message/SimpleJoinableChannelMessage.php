@@ -11,6 +11,7 @@ use CharlotteDunois\Yasmin\Models\TextChannel;
 
 /**
  * Class JoinableChannelMessage
+ *
  * @package App\Message
  */
 class SimpleJoinableChannelMessage
@@ -29,6 +30,7 @@ class SimpleJoinableChannelMessage
 
     /**
      * JoinableChannelMessage constructor.
+     *
      * @param \CharlotteDunois\Yasmin\Models\Message $message
      */
     public function __construct(\CharlotteDunois\Yasmin\Models\Message $message)
@@ -38,6 +40,7 @@ class SimpleJoinableChannelMessage
 
     /**
      * @param \CharlotteDunois\Yasmin\Models\Message $message
+     *
      * @return bool
      */
     public static function isJoinableChannel(\CharlotteDunois\Yasmin\Models\Message $message): bool
@@ -47,6 +50,7 @@ class SimpleJoinableChannelMessage
 
     /**
      * @param \CharlotteDunois\Yasmin\Models\Message $message
+     *
      * @return bool
      */
     public static function isJoinChannelMessage(\CharlotteDunois\Yasmin\Models\Message $message): bool
@@ -59,6 +63,7 @@ class SimpleJoinableChannelMessage
 
     /**
      * @param string $key
+     *
      * @return mixed
      */
     public function getFieldValue(string $key)
@@ -111,6 +116,7 @@ class SimpleJoinableChannelMessage
 
     /**
      * @param int $memberid
+     *
      * @return bool
      */
     public function hasAccess(int $memberid): bool
@@ -180,15 +186,8 @@ class SimpleJoinableChannelMessage
     }
 
     /**
-     * @return string
-     */
-    public function getChannelTopic(): string
-    {
-        return $this->getChannel()->topic;
-    }
-
-    /**
      * Update the the channel message
+     *
      * @param int $count
      */
     public function updateWatchers(int $count): void
@@ -198,9 +197,10 @@ class SimpleJoinableChannelMessage
     }
 
     /**
-     * @param int $channelId
-     * @param int $subsciberCount
+     * @param int    $channelId
+     * @param int    $subsciberCount
      * @param string $message
+     *
      * @return array
      */
     public static function generateRichChannelMessage(int $channelId, int $subsciberCount, string $message): array
@@ -229,6 +229,14 @@ class SimpleJoinableChannelMessage
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getChannelTopic(): string
+    {
+        return $this->getChannel()->topic;
     }
 
     /**

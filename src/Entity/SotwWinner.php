@@ -74,6 +74,7 @@ class SotwWinner
 
     /**
      * @param int $memberId
+     *
      * @return SotwWinner
      */
     public function setMemberId(int $memberId): self
@@ -93,6 +94,7 @@ class SotwWinner
 
     /**
      * @param string $artist
+     *
      * @return SotwWinner
      */
     public function setArtist(string $artist): self
@@ -112,6 +114,7 @@ class SotwWinner
 
     /**
      * @param string $title
+     *
      * @return SotwWinner
      */
     public function setTitle(string $title): self
@@ -131,6 +134,7 @@ class SotwWinner
 
     /**
      * @param string $anime
+     *
      * @return SotwWinner
      */
     public function setAnime(string $anime): self
@@ -150,6 +154,7 @@ class SotwWinner
 
     /**
      * @param string $youtube
+     *
      * @return SotwWinner
      */
     public function setYoutube(string $youtube): self
@@ -169,6 +174,7 @@ class SotwWinner
 
     /**
      * @param \DateTimeInterface $created
+     *
      * @return SotwWinner
      */
     public function setCreated(\DateTimeInterface $created): self
@@ -188,6 +194,7 @@ class SotwWinner
 
     /**
      * @param mixed $votes
+     *
      * @return SotwWinner
      */
     public function setVotes($votes): self
@@ -207,6 +214,7 @@ class SotwWinner
 
     /**
      * @param mixed $displayName
+     *
      * @return SotwWinner
      */
     public function setDisplayName($displayName): self

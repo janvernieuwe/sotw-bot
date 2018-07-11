@@ -2,13 +2,13 @@
 
 namespace App\Message;
 
-use Jikan\Jikan;
 use Jikan\Model\Anime;
 use Jikan\Model\Character;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class CotsNomination
+ *
  * @package App\Message
  */
 class CotsNomination extends Message
@@ -33,9 +33,10 @@ class CotsNomination extends Message
 
     /**
      * CotsNomination constructor.
-     * @param array $message
+     *
+     * @param array     $message
      * @param Character $character
-     * @param Anime $anime
+     * @param Anime     $anime
      */
     public function __construct(array $message, Character $character, Anime $anime)
     {
@@ -46,6 +47,7 @@ class CotsNomination extends Message
 
     /**
      * @param string $content
+     *
      * @return bool
      */
     public static function isNomination(string $content): bool
@@ -55,6 +57,7 @@ class CotsNomination extends Message
 
     /**
      * @param string $content
+     *
      * @return int
      */
     public static function getCharacterId(string $content): int
@@ -68,6 +71,7 @@ class CotsNomination extends Message
 
     /**
      * @param string $content
+     *
      * @return int
      */
     public static function getAnimeId(string $content): int
@@ -81,8 +85,9 @@ class CotsNomination extends Message
 
     /**
      * @param \CharlotteDunois\Yasmin\Models\Message $message
-     * @param Character $character
-     * @param Anime $anime
+     * @param Character                              $character
+     * @param Anime                                  $anime
+     *
      * @return CotsNomination
      */
     public static function fromYasmin(

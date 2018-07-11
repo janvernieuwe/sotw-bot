@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class EmojiAttachment
+ *
  * @package App\Message
  */
 class YasminEmojiNominationAttachment
@@ -29,8 +30,9 @@ class YasminEmojiNominationAttachment
 
     /**
      * EmojiAttachment constructor.
+     *
      * @param MessageAttachment $attachment
-     * @param YasminMessage $message
+     * @param YasminMessage     $message
      */
     public function __construct(MessageAttachment $attachment, YasminMessage $message)
     {

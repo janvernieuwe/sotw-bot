@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SongOfTheWeek
+ *
  * @package App\Discord
  */
 class SotwChannel extends Channel
@@ -31,11 +32,12 @@ class SotwChannel extends Channel
 
     /**
      * SongOfTheWeek constructor.
-     * @param DiscordClient $discord
-     * @param int $channelId
+     *
+     * @param DiscordClient      $discord
+     * @param int                $channelId
      * @param ValidatorInterface $validator
-     * @param int $roleId
-     * @param MyAnimeListClient $mal
+     * @param int                $roleId
+     * @param MyAnimeListClient  $mal
      */
     public function __construct(
         DiscordClient $discord,
@@ -51,6 +53,7 @@ class SotwChannel extends Channel
 
     /**
      * @param int $limit
+     *
      * @return SotwNomination[]
      */
     public function getLastNominations(int $limit = 10): array
@@ -72,6 +75,7 @@ class SotwChannel extends Channel
 
     /**
      * @param string $message
+     *
      * @return bool
      */
     public function isOpenNominationsMessage(string $message): bool
@@ -148,7 +152,7 @@ MESSAGE;
 
     /**
      * @param SotwNomination[] $nominations
-     * @param string $emoji
+     * @param string           $emoji
      */
     public function addPlaceMedal(array &$nominations, string $emoji): void
     {
@@ -169,7 +173,8 @@ MESSAGE;
 
     /**
      * @param SotwNomination[] $nominees
-     * @param bool $throwException
+     * @param bool             $throwException
+     *
      * @return array
      */
     public function validateNominees(array $nominees, bool $throwException = true): array
@@ -192,6 +197,7 @@ MESSAGE;
 
     /**
      * @param SotwNomination $nomination
+     *
      * @return ConstraintViolationListInterface
      */
     public function validate(SotwNomination $nomination): ConstraintViolationListInterface
@@ -201,6 +207,7 @@ MESSAGE;
 
     /**
      * @param SotwNomination $nomination
+     *
      * @return bool
      */
     public function isValid(SotwNomination $nomination): bool

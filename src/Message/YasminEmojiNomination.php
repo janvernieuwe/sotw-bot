@@ -7,6 +7,7 @@ use CharlotteDunois\Yasmin\Models\MessageReaction;
 
 /**
  * Class YasminEmojiNomination
+ *
  * @package App\Message
  */
 class YasminEmojiNomination
@@ -18,6 +19,7 @@ class YasminEmojiNomination
 
     /**
      * YasminEmojiNomination constructor.
+     *
      * @param Message $message
      */
     public function __construct(Message $message)

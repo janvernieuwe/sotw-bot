@@ -6,6 +6,7 @@ use App\Message\RewatchNomination;
 
 /**
  * Class RewatchErrorDm
+ *
  * @package App\Error
  */
 class RewatchErrorDm extends AbstractErrorDm

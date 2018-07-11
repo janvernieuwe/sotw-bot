@@ -7,6 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class SotwNomination
+ *
  * @package App\Entity
  */
 class SotwNomination extends Message
@@ -41,6 +42,7 @@ class SotwNomination extends Message
 
     /**
      * @param string $data
+     *
      * @return bool
      */
     public static function isContenter(string $data): bool
@@ -49,7 +51,18 @@ class SotwNomination extends Message
     }
 
     /**
+     * @param \CharlotteDunois\Yasmin\Models\Message $message
+     *
+     * @return SotwNomination
+     */
+    public static function fromYasmin(\CharlotteDunois\Yasmin\Models\Message $message): SotwNomination
+    {
+        return self::fromMessage(parent::yasminToArray($message));
+    }
+
+    /**
      * @param array $message
+     *
      * @return SotwNomination
      */
     public static function fromMessage(array $message): SotwNomination
@@ -66,6 +79,7 @@ class SotwNomination extends Message
     /**
      * @param string $pattern
      * @param string $content
+     *
      * @return string
      */
     protected static function matchPattern(string $pattern, string $content): string
@@ -79,15 +93,6 @@ class SotwNomination extends Message
         $match = str_replace(['[', ']'], ' ', $matches[1][0]);
 
         return trim($match);
-    }
-
-    /**
-     * @param \CharlotteDunois\Yasmin\Models\Message $message
-     * @return SotwNomination
-     */
-    public static function fromYasmin(\CharlotteDunois\Yasmin\Models\Message $message): SotwNomination
-    {
-        return self::fromMessage(parent::yasminToArray($message));
     }
 
     /**

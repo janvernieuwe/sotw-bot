@@ -11,6 +11,7 @@ use CharlotteDunois\Yasmin\Models\TextChannel;
 
 /**
  * Class SimpleChannelCreator
+ *
  * @package App\Channel
  */
 class SimpleChannelCreator
@@ -22,6 +23,7 @@ class SimpleChannelCreator
 
     /**
      * @param CreateSimpleChannelContext $context
+     *
      * @internal param MessageReceivedEvent $event
      */
     public function create(CreateSimpleChannelContext $context): void
@@ -31,7 +33,7 @@ class SimpleChannelCreator
     }
 
     /**
-     * @param Guild $guild
+     * @param Guild  $guild
      * @param string $name
      */
     protected function createChannel(Guild $guild, string $name): void

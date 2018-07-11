@@ -11,6 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class ShowRolesCommand
+ *
  * @package App\Command
  */
 class ShowRolesCommand extends ContainerAwareCommand
@@ -25,8 +26,9 @@ class ShowRolesCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int|null|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)

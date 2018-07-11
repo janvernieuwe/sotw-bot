@@ -6,6 +6,7 @@ use App\Message\SotwNomination;
 
 /**
  * Class BBCodeFormatter
+ *
  * @package App\Formatter
  */
 class BBCodeFormatter
@@ -17,6 +18,7 @@ class BBCodeFormatter
 
     /**
      * BBCodeFormatter constructor.
+     *
      * @param SotwNomination[] $nominations
      */
     public function __construct(array $nominations)

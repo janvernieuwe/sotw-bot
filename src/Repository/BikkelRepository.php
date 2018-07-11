@@ -16,6 +16,7 @@ class BikkelRepository extends ServiceEntityRepository
 {
     /**
      * BikkelRepository constructor.
+     *
      * @param RegistryInterface $registry
      */
     public function __construct(RegistryInterface $registry)

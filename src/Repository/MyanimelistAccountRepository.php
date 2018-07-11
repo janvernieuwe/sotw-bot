@@ -16,6 +16,7 @@ class MyanimelistAccountRepository extends ServiceEntityRepository
 {
     /**
      * MyanimelistAccountRepository constructor.
+     *
      * @param RegistryInterface $registry
      */
     public function __construct(RegistryInterface $registry)
@@ -25,6 +26,7 @@ class MyanimelistAccountRepository extends ServiceEntityRepository
 
     /**
      * @param int $discordId
+     *
      * @return MyanimelistAccount|null
      */
     public function findOneByDiscordId(int $discordId): ?MyanimelistAccount
@@ -33,7 +35,6 @@ class MyanimelistAccountRepository extends ServiceEntityRepository
             ->andWhere('m.discordId = :val')
             ->setParameter('val', $discordId)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getOneOrNullResult();
     }
 }

@@ -44,6 +44,7 @@ class MyanimelistAccount
 
     /**
      * @param int $discordId
+     *
      * @return MyanimelistAccount
      */
     public function setDiscordId(int $discordId): self
@@ -63,6 +64,7 @@ class MyanimelistAccount
 
     /**
      * @param string $MalNickname
+     *
      * @return MyanimelistAccount
      */
     public function setMalNickname(string $MalNickname): self

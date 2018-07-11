@@ -22,6 +22,7 @@ class Util
 
     /**
      * @param int $userId
+     *
      * @return string
      */
     public static function mention(int $userId): string
@@ -31,6 +32,7 @@ class Util
 
     /**
      * @param int $channelId
+     *
      * @return string
      */
     public static function channelLink(int $channelId): string
@@ -52,7 +54,8 @@ class Util
     /**
      * @param ConstraintViolationListInterface $errorList
      *
-     * @param string $glue
+     * @param string                           $glue
+     *
      * @return string
      */
     public static function errorsToString(ConstraintViolationListInterface $errorList, $glue = "\n"): string
@@ -68,6 +71,7 @@ class Util
 
     /**
      * @param Emoji $emoji
+     *
      * @return string
      */
     public static function emojiToString(Emoji $emoji): string

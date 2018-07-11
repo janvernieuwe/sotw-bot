@@ -7,6 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Message
+ *
  * @package App\Message
  */
 class Message
@@ -19,11 +20,29 @@ class Message
 
     /**
      * Message constructor.
+     *
      * @param array $message
      */
     public function __construct(array $message)
     {
         $this->message = $message;
+    }
+
+    /**
+     * @param YasminMessage $message
+     *
+     * @return array
+     */
+    protected static function yasminToArray(YasminMessage $message): array
+    {
+        return [
+            'id'      => $message->id,
+            'content' => $message->content,
+            'author'  => [
+                'username' => $message->author->username,
+                'id'       => $message->author->id,
+            ],
+        ];
     }
 
     /**
@@ -64,7 +83,8 @@ class Message
 
     /**
      * @param string $emoji
-     * @param bool $onlyMe
+     * @param bool   $onlyMe
+     *
      * @return bool
      */
     public function hasReaction(string $emoji, bool $onlyMe = true): bool
@@ -118,21 +138,5 @@ class Message
     public function getDate(): \DateTime
     {
         return new \DateTime($this->message['timestamp']);
-    }
-
-    /**
-     * @param YasminMessage $message
-     * @return array
-     */
-    protected static function yasminToArray(YasminMessage $message): array
-    {
-        return  [
-            'id'      => $message->id,
-            'content' => $message->content,
-            'author'  => [
-                'username' => $message->author->username,
-                'id'       => $message->author->id,
-            ],
-        ];
     }
 }

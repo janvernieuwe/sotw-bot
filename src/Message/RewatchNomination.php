@@ -10,6 +10,7 @@ use function GuzzleHttp\Psr7\parse_query;
 
 /**
  * Class SotwNomination
+ *
  * @package App\Entity
  */
 class RewatchNomination extends Message
@@ -36,6 +37,7 @@ class RewatchNomination extends Message
 
     /**
      * @param string $content
+     *
      * @return bool
      */
     public static function isContender(string $content): bool
@@ -45,6 +47,7 @@ class RewatchNomination extends Message
 
     /**
      * @param YasminMessage $message
+     *
      * @return RewatchNomination
      */
     public static function fromYasmin(YasminMessage $message): RewatchNomination

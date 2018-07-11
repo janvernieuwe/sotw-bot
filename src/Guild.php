@@ -26,13 +26,36 @@ class Guild
 
     /**
      * Guild constructor.
-     * @param int $id
+     *
+     * @param int           $id
      * @param DiscordClient $discord
      */
     public function __construct(DiscordClient $discord, int $id)
     {
         $this->id = $id;
         $this->discord = $discord;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasEmoji(string $name): bool
+    {
+        $name = $this->escapeEmoji($name);
+        foreach ($this->getEmojis() as $emoji) {
+            if ($emoji->name === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function escapeEmoji(string $name): string
+    {
+        return (string)preg_replace('/\W/', '', $name);
     }
 
     /**
@@ -50,40 +73,7 @@ class Guild
 
     /**
      * @param string $name
-     * @return bool
-     */
-    public function hasEmoji(string $name): bool
-    {
-        $name = $this->escapeEmoji($name);
-        foreach ($this->getEmojis() as $emoji) {
-            if ($emoji->name === $name) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param string $name
-     * @param string $image
-     * @return Emoji
-     */
-    public function addEmoji(string $name, string $image): Emoji
-    {
-        $name = $this->escapeEmoji($name);
-
-        return $this->discord->emoji->createGuildEmoji(
-            [
-                'guild.id' => $this->id,
-                'name'     => $name,
-                'image'    => $image,
-            ]
-        );
-    }
-
-    /**
-     * @param string $name
+     *
      * @return Emoji
      */
     public function getEmojiByName(string $name): Emoji
@@ -111,13 +101,9 @@ class Guild
         sleep(2);
     }
 
-    public function escapeEmoji(string $name): string
-    {
-        return (string)preg_replace('/\W/', '', $name);
-    }
-
     /**
      * @param int $id
+     *
      * @return Emoji
      */
     public function getEmoji(int $id): Emoji
@@ -131,9 +117,10 @@ class Guild
     }
 
     /**
-     * @param int $id
+     * @param int    $id
      * @param string $name
-     * @param array $roles
+     * @param array  $roles
+     *
      * @return Emoji
      */
     public function modifyEmoji(int $id, string $name, array $roles = []): Emoji
@@ -150,6 +137,7 @@ class Guild
 
     /**
      * @param EmojiNomination $nomination
+     *
      * @return Emoji
      */
     public function addEmojiFromNomination(EmojiNomination $nomination): Emoji
@@ -159,6 +147,26 @@ class Guild
         $image = sprintf('data:image/%s;base64,%s', $info['extension'], $encodedData);
 
         sleep(1);
+
         return $this->addEmoji($nomination->getName(), $image);
+    }
+
+    /**
+     * @param string $name
+     * @param string $image
+     *
+     * @return Emoji
+     */
+    public function addEmoji(string $name, string $image): Emoji
+    {
+        $name = $this->escapeEmoji($name);
+
+        return $this->discord->emoji->createGuildEmoji(
+            [
+                'guild.id' => $this->id,
+                'name'     => $name,
+                'image'    => $image,
+            ]
+        );
     }
 }
