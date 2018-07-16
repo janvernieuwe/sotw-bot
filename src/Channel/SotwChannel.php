@@ -3,8 +3,6 @@
 namespace App\Channel;
 
 use App\Message\SotwNomination;
-use App\MyAnimeList\MyAnimeListClient;
-use RestCord\DiscordClient;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -13,6 +11,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Class SongOfTheWeek
  *
  * @package App\Discord
+ * @deprecated
  */
 class SotwChannel extends Channel
 {
@@ -33,10 +32,6 @@ class SotwChannel extends Channel
      * @var int
      */
     private $channelId;
-    /**
-     * @var MyAnimeListClient
-     */
-    private $mal;
 
     /**
      * SongOfTheWeek constructor.
@@ -44,18 +39,15 @@ class SotwChannel extends Channel
      * @param int                $channelId
      * @param ValidatorInterface $validator
      * @param int                $roleId
-     * @param MyAnimeListClient  $mal
      */
     public function __construct(
         int $channelId,
         ValidatorInterface $validator,
-        int $roleId,
-        MyAnimeListClient $mal
+        int $roleId
     ) {
         $this->roleId = $roleId;
         $this->validator = $validator;
         $this->channelId = $channelId;
-        $this->mal = $mal;
     }
 
     /**

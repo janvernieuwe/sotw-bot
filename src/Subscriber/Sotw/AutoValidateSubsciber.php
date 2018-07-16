@@ -2,10 +2,13 @@
 
 namespace App\Subscriber\Sotw;
 
-use App\Channel\SotwChannel;
+use App\Channel\Channel;
+use App\Channel\SongOfTheWeekChannel;
 use App\Event\MessageReceivedEvent;
 use App\Message\SotwNomination;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Lets admins run symfony commands
@@ -16,18 +19,32 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AutoValidateSubsciber implements EventSubscriberInterface
 {
     /**
-     * @var SotwChannel
+     * @var ValidatorInterface
      */
-    private $sotw;
+    private $validator;
 
     /**
-     * ValidateSubscriber constructor.
-     *
-     * @param SotwChannel $sotw
+     * @var int
      */
-    public function __construct(SotwChannel $sotw)
+    private $everyoneRole;
+
+    /**
+     * @var int
+     */
+    private $sotwChannelId;
+
+    /**
+     * AutoValidateSubsciber constructor.
+     *
+     * @param ValidatorInterface $validator
+     * @param int                $everyoneRole
+     * @param int                $sotwChannelId
+     */
+    public function __construct(ValidatorInterface $validator, int $everyoneRole, int $sotwChannelId)
     {
-        $this->sotw = $sotw;
+        $this->validator = $validator;
+        $this->everyoneRole = $everyoneRole;
+        $this->sotwChannelId = $sotwChannelId;
     }
 
     /**
@@ -35,7 +52,6 @@ class AutoValidateSubsciber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -46,17 +62,17 @@ class AutoValidateSubsciber implements EventSubscriberInterface
     {
         $message = $event->getMessage();
         /** @noinspection PhpUndefinedFieldInspection */
-        if ((int)$message->channel->id !== $this->sotw->getChannelId()) {
+        if ((int)$message->channel->id !== $this->sotwChannelId) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $io = $event->getIo();
 
-        $nomination = SotwNomination::fromYasmin($message);
-        $errors = $this->sotw->validate($nomination);
+        $nomination = SotwNomination::fromMessage($message);
+        $errors = $this->validator->validate($nomination);
         if (\count($errors)) {
-            $this->error->send($nomination);
+            //$this->error->send($nomination); // @TODO redo errors
             $message->delete();
             /** @noinspection PhpToStringImplementationInspection */
             $io->error($nomination.PHP_EOL.$errors);
@@ -64,13 +80,26 @@ class AutoValidateSubsciber implements EventSubscriberInterface
             return;
         }
         $message->react('🔼');
-        $nominationCount = count($this->sotw->getLastNominations());
-        if ($nominationCount !== 10) {
-            $io->writeln(sprintf('Not starting yet %s/10 nominations', $nominationCount));
+        $sotw = new SongOfTheWeekChannel($message->channel);
+        $sotw->getNominations(
+            function (array $nominations) use ($io, $message) {
+                $nominationCount = count($nominations);
+                if ($nominationCount !== 10) {
+                    $io->writeln(sprintf('Not starting yet %s/10 nominations', $nominationCount));
 
-            return;
-        }
-        $this->sotw->closeNominations();
-        $io->success('Closed nominations');
+                    return;
+                }
+                /** @var GuildChannelInterface $channel */
+                $message->channel->send('Laat het stemmen beginnen! :checkered_flag:');
+                $channel = $message->guild->channels->get($message->channel->id);
+                $channel->overwritePermissions(
+                    $this->everyoneRole,
+                    0,
+                    Channel::ROLE_SEND_MESSAGES,
+                    'Song of the week nominations closed'
+                );
+                $io->success('Closed nominations');
+            }
+        );
     }
 }

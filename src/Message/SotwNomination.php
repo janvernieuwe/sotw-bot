@@ -3,6 +3,7 @@
 namespace App\Message;
 
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\MessageReaction;
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -47,6 +48,16 @@ class SotwNomination
     private $youtube;
 
     /**
+     * @var int
+     */
+    private $authorId;
+
+    /**
+     * @var int
+     */
+    private $votes;
+
+    /**
      * @param string $data
      *
      * @return bool
@@ -69,6 +80,11 @@ class SotwNomination
         $nominee->anime = self::matchPattern('anime', $message->content);
         $nominee->youtube = self::matchPattern('url', $message->content);
         $nominee->author = $message->author->username;
+        $nominee->authorId = $message->author->id;
+
+        /** @var MessageReaction $reactions */
+        $nominee->votes = $message->reactions->get('🔼');
+        $nominee->votes = $nominee->votes ? $nominee->votes->count - 1 : 0;
 
         return $nominee;
     }
@@ -157,5 +173,21 @@ class SotwNomination
     public function getAuthor(): string
     {
         return $this->author;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAuthorId(): int
+    {
+        return $this->authorId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVotes(): int
+    {
+        return $this->votes;
     }
 }

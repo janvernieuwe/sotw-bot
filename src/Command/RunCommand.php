@@ -149,7 +149,7 @@ class RunCommand extends ContainerAwareCommand
         $client->on(
             'error',
             function (\Exception $e) use ($io) {
-                $io->error($e);
+                $io->error($e->getMessage());
                 if ($io->isVeryVerbose()) {
                     $io->writeln((string)$e);
                 }

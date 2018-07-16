@@ -2,12 +2,18 @@
 
 namespace App\Subscriber\Sotw;
 
-use App\Channel\SotwChannel;
+use App\Channel\Channel;
+use App\Channel\SongOfTheWeekChannel;
 use App\Entity\SotwWinner;
 use App\Event\MessageReceivedEvent;
 use App\Exception\RuntimeException;
 use App\Formatter\BBCodeFormatter;
+use App\Message\SotwNomination;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\TextChannel;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -18,12 +24,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class NextSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc sotw next';
-
-    /**
-     * @var SotwChannel
-     */
-    private $sotw;
+    public const COMMAND = '!haamc sotw next';
 
     /**
      * @var EntityManagerInterface
@@ -31,15 +32,47 @@ class NextSubscriber implements EventSubscriberInterface
     private $doctrine;
 
     /**
+     * @var int
+     */
+    private $sotwChannelId;
+
+    /**
+     * @var SymfonyStyle
+     */
+    private $io;
+
+    /**
+     * @var Message
+     */
+    private $message;
+
+    /**
+     * @var GuildChannelInterface|TextChannel
+     */
+    private $sotwChannel;
+
+    /**
+     * @var int
+     */
+    private $everyoneRole;
+
+    /**
+     * @var
+     */
+    private $channel;
+
+    /**
      * ValidateSubscriber constructor.
      *
-     * @param SotwChannel            $sotw
      * @param EntityManagerInterface $doctrine
+     * @param int                    $sotwChannelId
+     * @param int                    $everyoneRole
      */
-    public function __construct(SotwChannel $sotw, EntityManagerInterface $doctrine)
+    public function __construct(EntityManagerInterface $doctrine, int $sotwChannelId, int $everyoneRole)
     {
-        $this->sotw = $sotw;
         $this->doctrine = $doctrine;
+        $this->sotwChannelId = $sotwChannelId;
+        $this->everyoneRole = $everyoneRole;
     }
 
     /**
@@ -47,7 +80,6 @@ class NextSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -56,39 +88,44 @@ class NextSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        $message = $event->getMessage();
+        $this->message = $message = $event->getMessage();
         if ($message->content !== self::COMMAND || !$event->isAdmin()) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $io = $event->getIo();
+        $this->io = $event->getIo();
 
-        $nominations = $this->sotw->getLastNominations();
-        try {
-            $this->sotw->validateNominees($nominations);
-            if (!\count($nominations)) {
-                throw new RuntimeException('No nominations found');
+        $channel = new SongOfTheWeekChannel($this->sotwChannel = $message->client->channels->get($this->sotwChannelId));
+        $channel->getNominations(
+            function (array $nominations) {
+                $this->onNominationsLoaded($nominations);
             }
-            if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
-                throw new RuntimeException('There is no clear winner!');
-            }
-        } catch (RuntimeException $e) {
-            $message->channel->send(':x: '.$e->getMessage());
-            $io->error($e->getMessage());
+        );
+    }
 
-            return;
+    /**
+     * @param SotwNomination[] $nominations
+     *
+     * @throws RuntimeException
+     */
+    private function onNominationsLoaded(array $nominations): void
+    {
+        if (!\count($nominations)) {
+            throw new RuntimeException('No nominations found');
         }
-
+        if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
+            throw new RuntimeException('There is no clear winner!');
+        }
         $winner = $nominations[0];
 
         // Add the winner to the database
         $sotwWinner = new SotwWinner();
-        $sotwWinner->setMemberId($message->author->id);
+        $sotwWinner->setMemberId($winner->getAuthorId());
         $sotwWinner->setAnime($winner->getAnime());
         $sotwWinner->setArtist($winner->getArtist());
         $sotwWinner->setTitle($winner->getTitle());
-        $sotwWinner->setDisplayName($message->author->username);
+        $sotwWinner->setDisplayName($winner->getAuthor());
         $sotwWinner->setCreated(new \DateTime());
         $sotwWinner->setVotes($winner->getVotes());
         $sotwWinner->setYoutube($winner->getYoutubeCode());
@@ -97,16 +134,42 @@ class NextSubscriber implements EventSubscriberInterface
         $this->doctrine->flush();
 
         // Announce the winner and unlock the channel
-        $io->writeln((string)$winner);
-        $this->sotw->announceWinner($winner);
-        $this->sotw->addMedals($nominations);
-        $this->sotw->openNominations();
-        $io->success('Opened nominations');
+        $this->io->writeln((string)$winner);
+        //$this->sotw->addMedals($nominations); // no medals for now
+        $this->sotwChannel->overwritePermissions(
+            $this->everyoneRole,
+            Channel::ROLE_SEND_MESSAGES,
+            0,
+            'Song of the week nominations opened'
+        );
+        $this->sotwChannel->send(
+            sprintf(
+                ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
+                (int)date('W'),
+                $winner->getArtist(),
+                $winner->getTitle(),
+                $winner->getAnime(),
+                $winner->getAuthorId()
+            )
+        );
+        $message = <<<MESSAGE
+:musical_note: :musical_note: Bij deze zijn de nominaties voor week %s geopend! :musical_note: :musical_note:
+
+Nomineer volgens onderstaande template (kopieer en plak deze, en zet er dan de gegevens in):
+```
+artist: 
+title: 
+anime:  
+url: 
+```
+MESSAGE;
+        $this->sotwChannel->send(sprintf($message, date('W') + 1));
+        $this->io->success('Opened nominations');
 
         // Output post for the forum
         $formatter = new BBCodeFormatter($nominations);
         $bbcode = '```'.$formatter->createMessage().'```';
-        $message->channel->send($bbcode);
-        $io->success('Showed forum post');
+        $this->message->channel->send($bbcode);
+        $this->io->success('Showed forum post');
     }
 }
