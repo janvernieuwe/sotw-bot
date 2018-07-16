@@ -14,6 +14,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
  * Class Client
  *
  * @package App\MyAnimeList
+ * @deprecated
  */
 class MyAnimeListClient
 {
@@ -27,17 +28,6 @@ class MyAnimeListClient
      */
     private $jikan;
 
-    /**
-     * Client constructor.
-     *
-     * @param AdapterInterface $cache
-     * @param Jikan            $jikan
-     */
-    public function __construct(AdapterInterface $cache, Jikan $jikan)
-    {
-        $this->cache = $cache;
-        $this->jikan = $jikan;
-    }
 
     /**
      * @param string $url

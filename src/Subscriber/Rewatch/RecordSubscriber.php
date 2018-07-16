@@ -44,6 +44,7 @@ class RecordSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
+        return [];
         return [ReactionAddedEvent::NAME => 'onCommand'];
     }
 

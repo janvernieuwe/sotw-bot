@@ -5,7 +5,7 @@ namespace App\Context;
 use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\Guild;
-use Jikan\Model\Manga;
+use Jikan\Model\Manga\Manga;
 
 /**
  * Class CreateMangaChannelContext

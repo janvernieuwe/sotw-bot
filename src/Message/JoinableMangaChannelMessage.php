@@ -8,7 +8,7 @@ use App\Util\Util;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\PermissionOverwrite;
 use CharlotteDunois\Yasmin\Models\TextChannel;
-use Jikan\Model\Manga;
+use Jikan\Model\Manga\Manga;
 
 /**
  * Class JoinableMangaChannelMessage
@@ -92,7 +92,7 @@ class JoinableMangaChannelMessage
      */
     public function getMangaId(): ?int
     {
-        if (preg_match('#https?://myanimelist.net/anime/(\d+)#', $this->getMangaLink(), $channel)) {
+        if (preg_match('#https?://myanimelist.net/manga/(\d+)#', $this->getMangaLink(), $channel)) {
             return (int)$channel[1];
         }
 
@@ -108,12 +108,12 @@ class JoinableMangaChannelMessage
     }
 
     /**
+     * @param Manga       $manga
      * @param GuildMember $member
      *
      * @throws InvalidChannelException
-     * @throws InvalidChannelException
      */
-    public function addUser(GuildMember $member): void
+    public function addUser(Manga $manga, GuildMember $member): void
     {
         // No double joins
         if ($this->hasAccess($member->id)) {
@@ -129,7 +129,7 @@ class JoinableMangaChannelMessage
         );
         // Update the member counf
         $count = $this->getSubsciberCount($channel) + 1;
-        $this->updateWatchers($count);
+        $this->updateWatchers($manga, $count);
         // Announce join
         $joinMessage = sprintf(
             ':inbox_tray:  %s leest nu ook %s',
@@ -213,15 +213,11 @@ class JoinableMangaChannelMessage
     }
 
     /**
-     * @param int $subs
+     * @param Manga $manga
+     * @param int   $subs
      */
-    public function updateWatchers(int $subs = 0): void
+    public function updateWatchers(Manga $manga, int $subs = 0): void
     {
-        $manga = new Manga();
-        $manga->title = $this->getMangaTitle();
-        $manga->rank = $this->getFieldValue('rank');
-        $manga->published_string = $this->getFieldValue('datum');
-        $manga->image_url = $this->getMangaImageUrl();
         preg_match('/c=(\d+)/', $this->getEmbeddedMangaLink(), $channelid);
         $channelid = (int)$channelid[1];
 
@@ -266,24 +262,24 @@ class JoinableMangaChannelMessage
         return [
             'embed' => [
                 'author'    => [
-                    'name'     => $manga->title,
+                    'name'     => $manga->getTitle(),
                     'icon_url' => self::AUTHOR_IMG_URL,
                     'url'      => $link,
                 ],
                 'url'       => $link,
-                'thumbnail' => ['url' => $manga->image_url],
+                'thumbnail' => ['url' => $manga->getImageUrl()],
                 'footer'    => [
                     'text' => 'Druk op de reactions om te joinen / leaven',
                 ],
                 'fields'    => [
                     [
                         'name'   => 'datum',
-                        'value'  => $manga->published_string,
+                        'value'  => $manga->getPublished()->getAiredString(),
                         'inline' => true,
                     ],
                     [
                         'name'   => 'rank',
-                        'value'  => $manga->rank,
+                        'value'  => $manga->getRank(),
                         'inline' => true,
                     ],
                     [
@@ -302,12 +298,12 @@ class JoinableMangaChannelMessage
     }
 
     /**
+     * @param Manga       $manga
      * @param GuildMember $member
      *
      * @throws InvalidChannelException
-     * @throws InvalidChannelException
      */
-    public function removeUser(GuildMember $member): void
+    public function removeUser(Manga $manga, GuildMember $member): void
     {
         // No double joins
         if (!$this->hasAccess($member->id)) {
@@ -323,7 +319,7 @@ class JoinableMangaChannelMessage
         );
         // Update member count
         $count = $this->getSubsciberCount($channel) - 1;
-        $this->updateWatchers($count);
+        $this->updateWatchers($manga, $count);
         // Announce leave
         $channel->send(
             sprintf(

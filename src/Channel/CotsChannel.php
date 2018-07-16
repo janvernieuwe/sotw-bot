@@ -4,9 +4,10 @@ namespace App\Channel;
 
 use App\Exception\CharacterNotFoundException;
 use App\Message\CotsNomination;
-use App\MyAnimeList\MyAnimeListClient;
 use CharlotteDunois\Yasmin\Models\Message;
-use RestCord\DiscordClient;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Anime\AnimeRequest;
+use Jikan\Request\Character\CharacterRequest;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -20,14 +21,17 @@ class CotsChannel extends Channel
      * @var int
      */
     private $roleId;
+
     /**
-     * @var MyAnimeListClient
+     * @var MalClient
      */
     private $mal;
+
     /**
      * @var ValidatorInterface
      */
     private $validator;
+
     /**
      * @var int
      */
@@ -36,13 +40,13 @@ class CotsChannel extends Channel
     /**
      * CotsChannel constructor.
      *
-     * @param MyAnimeListClient  $mal
-     * @param ValidatorInterface $validator
-     * @param int                $channelId
-     * @param int                $roleId
+     * @param MalClient $mal
+     * @param ValidatorInterface           $validator
+     * @param int                          $channelId
+     * @param int                          $roleId
      */
     public function __construct(
-        MyAnimeListClient $mal,
+        MalClient $mal,
         ValidatorInterface $validator,
         int $channelId,
         int $roleId
@@ -65,8 +69,8 @@ class CotsChannel extends Channel
             throw new CharacterNotFoundException('Invalid message '.$message->content);
         }
 
-        $anime = $this->mal->loadAnime(CotsNomination::getAnimeId($message->content));
-        $character = $this->mal->loadCharacter(CotsNomination::getCharacterId($message->content));
+        $anime = $this->mal->getAnime(new AnimeRequest(CotsNomination::getAnimeId($message->content)));
+        $character = $this->mal->getCharacter(new CharacterRequest(CotsNomination::getCharacterId($message->content)));
 
         return CotsNomination::fromYasmin($message, $character, $anime);
     }

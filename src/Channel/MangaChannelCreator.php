@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Channel;
 
 use App\Context\CreateMangaChannelContext;
@@ -61,15 +60,15 @@ class MangaChannelCreator
         )->done(
             function (TextChannel $channel) {
                 $channel->setTopic(
-                    sprintf('%s || %s', $this->context->getManga()->title, $this->context->getManga()->link_canonical)
+                    sprintf('%s || %s', $this->context->getManga()->getTitle(), $this->context->getManga()->getUrl())
                 );
                 /** @var Message $announcement */
                 $channel->send(
                     sprintf(
                         "%s Hoi iedereen! In dit channel lezen we **%s**.\n%s",
                         JoinableChannelMessage::TEXT_MESSAGE,
-                        $this->context->getManga()->title,
-                        $this->context->getManga()->link_canonical
+                        $this->context->getManga()->getTitle(),
+                        $this->context->getManga()->getUrl()
                     )
                 )->then(
                     function (Message $announcement) {
@@ -90,7 +89,7 @@ class MangaChannelCreator
         $embed = JoinableMangaChannelMessage::generateRichChannelMessage(
             $this->context->getManga(),
             (int)$channel->id,
-            $this->context->getManga()->link_canonical.'?c='.$channel->id
+            $this->context->getManga()->getUrl().'?c='.$channel->id
         );
         $this->context->getChannel()
             ->send(JoinableChannelMessage::TEXT_MESSAGE, $embed)

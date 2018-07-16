@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RankingSubscriber implements EventSubscriberInterface
 {
-    const LIMIT = 10;
+    public const LIMIT = 10;
     private static $offset = 0;
     /**
      * @var Message
@@ -64,7 +64,6 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        return; // @todo
         $this->message = $message = $event->getMessage();
         if (strpos($message->content, '!haamc season ranking') !== 0) {
             return;
@@ -115,7 +114,7 @@ class RankingSubscriber implements EventSubscriberInterface
     public static function createRanking(array $channels, int $channelId): string
     {
         $fields = ['__**HAAMC Seasonal Anime Ranking**__ Join de channels in '.Util::channelLink($channelId)];
-        $channels = array_slice($channels, self::$offset * self::LIMIT, 10);
+        $channels = \array_slice($channels, self::$offset * self::LIMIT, 10);
         foreach ($channels as $i => $channel) {
             $fields[] = sprintf(
                 ':film_frames:  #%s **%s** (%s), %s kijkers',

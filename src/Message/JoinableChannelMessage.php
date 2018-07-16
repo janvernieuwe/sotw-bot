@@ -8,7 +8,7 @@ use App\Util\Util;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\PermissionOverwrite;
 use CharlotteDunois\Yasmin\Models\TextChannel;
-use Jikan\Model\Anime;
+use Jikan\Model\Anime\Anime;
 
 /**
  * Class JoinableChannelMessage
@@ -23,7 +23,7 @@ class JoinableChannelMessage
     public const DELETE_REACTION = '🚮';
     public const RELOAD_REACTION = '🔁';
     public const TEXT_MESSAGE = '';
-    const AUTHOR_IMG_URL = 'https://i.imgur.com/pcdrHvS.png';
+    public const AUTHOR_IMG_URL = 'https://i.imgur.com/pcdrHvS.png';
 
     /**
      * @var \CharlotteDunois\Yasmin\Models\Message
@@ -108,9 +108,12 @@ class JoinableChannelMessage
     }
 
     /**
+     * @param Anime       $anime
      * @param GuildMember $member
+     *
+     * @throws InvalidChannelException
      */
-    public function addUser(GuildMember $member): void
+    public function addUser(Anime $anime, GuildMember $member): void
     {
         // No double joins
         if ($this->hasAccess($member->id)) {
@@ -126,7 +129,7 @@ class JoinableChannelMessage
         );
         // Update the member counf
         $count = $this->getSubsciberCount($channel) + 1;
-        $this->updateWatchers($count);
+        $this->updateWatchers($anime, $count);
         // Announce join
         $joinMessage = sprintf(
             ':inbox_tray:  %s kijkt nu mee naar %s',
@@ -140,6 +143,7 @@ class JoinableChannelMessage
      * @param int $memberid
      *
      * @return bool
+     * @throws InvalidChannelException
      */
     public function hasAccess(int $memberid): bool
     {
@@ -208,18 +212,13 @@ class JoinableChannelMessage
     }
 
     /**
-     * @param int $subs
+     * @param Anime $anime
+     * @param int   $subs
      */
-    public function updateWatchers(int $subs = 0): void
+    public function updateWatchers(Anime $anime, int $subs = 0): void
     {
-        $anime = new Anime();
-        $anime->title = $this->getAnimeTitle();
-        $anime->episodes = $this->getFieldValue('afleveringen');
-        $anime->aired_string = $this->getFieldValue('datum');
-        $anime->image_url = $this->getAnimeImageUrl();
         preg_match('/c=(\d+)/', $this->getEmbeddedAnimeLink(), $channelid);
         $channelid = (int)$channelid[1];
-
         $embed = self::generateRichChannelMessage($anime, $channelid, $this->getEmbeddedAnimeLink(), $subs);
         $this->message->edit(self::TEXT_MESSAGE, $embed);
     }
@@ -261,24 +260,24 @@ class JoinableChannelMessage
         return [
             'embed' => [
                 'author'    => [
-                    'name'     => $anime->title,
+                    'name'     => $anime->getTitle(),
                     'icon_url' => self::AUTHOR_IMG_URL,
                     'url'      => $link,
                 ],
                 'url'       => $link,
-                'thumbnail' => ['url' => $anime->image_url],
+                'thumbnail' => ['url' => $anime->getImageUrl()],
                 'footer'    => [
                     'text' => 'Druk op de reactions om te joinen / leaven',
                 ],
                 'fields'    => [
                     [
                         'name'   => 'datum',
-                        'value'  => $anime->aired_string,
+                        'value'  => $anime->getAired()->getAiredString(),
                         'inline' => true,
                     ],
                     [
                         'name'   => 'afleveringen',
-                        'value'  => $anime->episodes ?: '?',
+                        'value'  => $anime->getEpisodes() ?: '?',
                         'inline' => true,
                     ],
                     [
@@ -297,9 +296,12 @@ class JoinableChannelMessage
     }
 
     /**
+     * @param Anime       $anime
      * @param GuildMember $member
+     *
+     * @throws InvalidChannelException
      */
-    public function removeUser(GuildMember $member): void
+    public function removeUser(Anime $anime, GuildMember $member): void
     {
         // No double joins
         if (!$this->hasAccess($member->id)) {
@@ -315,7 +317,7 @@ class JoinableChannelMessage
         );
         // Update member count
         $count = $this->getSubsciberCount($channel) - 1;
-        $this->updateWatchers($count);
+        $this->updateWatchers($anime, $count);
         // Announce leave
         $channel->send(
             sprintf(

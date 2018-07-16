@@ -7,6 +7,8 @@ use App\Message\JoinableChannelMessage;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use CharlotteDunois\Yasmin\Models\User;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Anime\AnimeRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -18,6 +20,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class LeaveChannelSubscriber implements EventSubscriberInterface
 {
     /**
+     * @var MalClient
+     */
+    private $mal;
+
+    /**
+     * DeleteChannelSubscriber constructor.
+     *
+     * @param MalClient $mal
+     */
+    public function __construct(MalClient $mal)
+    {
+        $this->mal = $mal;
+    }
+
+    /**
      * @inheritdoc
      */
     public static function getSubscribedEvents(): array
@@ -27,6 +44,8 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
 
     /**
      * @param ReactionAddedEvent $event
+     *
+     * @throws \App\Exception\InvalidChannelException
      */
     public function onCommand(ReactionAddedEvent $event): void
     {
@@ -44,6 +63,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
 
         // Load
         $channelMessage = new JoinableChannelMessage($reaction->message);
+        $anime = $this->mal->getAnime(new AnimeRequest($channelMessage->getAnimeId()));
         /** @var User $user */
         $user = $reaction->users->last();
         /** @var GuildMember $member */
@@ -57,7 +77,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
             return;
         }
         // Leave
-        $channelMessage->removeUser($member);
+        $channelMessage->removeUser($anime, $member);
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' left #'.$channel->name);
     }

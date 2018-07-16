@@ -221,4 +221,12 @@ MESSAGE;
     {
         return \count($this->validate($nomination)) === 0;
     }
+
+    /**
+     * @return int
+     */
+    public function getChannelId(): int
+    {
+        return $this->channelId;
+    }
 }

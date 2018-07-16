@@ -60,15 +60,15 @@ class AnimeChannelCreator
         )->done(
             function (TextChannel $channel) {
                 $channel->setTopic(
-                    sprintf('%s || %s', $this->context->getAnime()->title, $this->context->getAnime()->link_canonical)
+                    sprintf('%s || %s', $this->context->getAnime()->getTitle(), $this->context->getAnime()->getUrl())
                 );
                 /** @var Message $announcement */
                 $channel->send(
                     sprintf(
                         "%s Hoi iedereen! In dit channel kijken we naar **%s**.\n%s",
                         JoinableChannelMessage::TEXT_MESSAGE,
-                        $this->context->getAnime()->title,
-                        $this->context->getAnime()->link_canonical
+                        $this->context->getAnime()->getTitle(),
+                        $this->context->getAnime()->getUrl()
                     )
                 )->then(
                     function (Message $announcement) {
@@ -89,7 +89,7 @@ class AnimeChannelCreator
         $embed = JoinableChannelMessage::generateRichChannelMessage(
             $this->context->getAnime(),
             (int)$channel->id,
-            $this->context->getAnime()->link_canonical.'?c='.$channel->id
+            $this->context->getAnime()->getUrl().'?c='.$channel->id
         );
         $this->context->getChannel()
             ->send(JoinableChannelMessage::TEXT_MESSAGE, $embed)

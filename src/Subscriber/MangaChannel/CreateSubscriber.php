@@ -5,10 +5,11 @@ namespace App\Subscriber\MangaChannel;
 use App\Channel\MangaChannelCreator;
 use App\Context\CreateMangaChannelContext;
 use App\Event\MessageReceivedEvent;
-use App\MyAnimeList\MyAnimeListClient;
 use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Message;
-use Jikan\Model\Anime;
+use Jikan\Helper\Parser;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Manga\MangaRequest;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -20,11 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CreateSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var Anime
-     */
-    protected $anime;
-
     /**
      * @var Client
      */
@@ -51,7 +47,7 @@ class CreateSubscriber implements EventSubscriberInterface
     private $io;
 
     /**
-     * @var MyAnimeListClient
+     * @var MalClient
      */
     private $mal;
 
@@ -63,12 +59,12 @@ class CreateSubscriber implements EventSubscriberInterface
     /**
      * CreateSubscriber constructor.
      *
-     * @param MyAnimeListClient   $mal
+     * @param MalClient           $mal
      * @param int                 $everyoneRole
      * @param MangaChannelCreator $channelCreator
      */
     public function __construct(
-        MyAnimeListClient $mal,
+        MalClient $mal,
         int $everyoneRole,
         MangaChannelCreator $channelCreator
     ) {
@@ -100,7 +96,8 @@ class CreateSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $link = $name[3];
-        $anime = $this->mal->loadManga(MyAnimeListClient::getIdFromUrl($link));
+        $mangaId = Parser::idFromUrl($link);
+        $anime = $this->mal->getManga(new MangaRequest($mangaId));
         $channelName = $name[2];
 
         // Create context
@@ -115,7 +112,7 @@ class CreateSubscriber implements EventSubscriberInterface
         );
         // Create channel from context
         $this->channelCreator->create($context);
-        $io->success(sprintf('Manga channel %s created for %s', $channelName, $anime->title));
+        $io->success(sprintf('Manga channel %s created for %s', $channelName, $anime->getTitle()));
         $message->delete();
     }
 }

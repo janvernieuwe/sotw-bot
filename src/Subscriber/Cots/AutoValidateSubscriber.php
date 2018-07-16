@@ -47,6 +47,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
+        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 

@@ -149,7 +149,10 @@ class RunCommand extends ContainerAwareCommand
         $client->on(
             'error',
             function (\Exception $e) use ($io) {
-                $io->error($e->getMessage());
+                $io->error($e);
+                if ($io->isVeryVerbose()) {
+                    $io->writeln((string)$e);
+                }
                 // Db con fixer
                 $em = $this->getContainer()->get('doctrine')->getManager();
                 if ($em->getConnection()->ping() === false) {

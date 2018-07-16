@@ -7,6 +7,8 @@ use App\Message\JoinableMangaChannelMessage;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use CharlotteDunois\Yasmin\Models\User;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Manga\MangaRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -17,6 +19,23 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class JoinChannelSubscriber implements EventSubscriberInterface
 {
+
+    /**
+     * @var MalClient
+     */
+    private $mal;
+
+    /**
+     * DeleteChannelSubscriber constructor.
+     *
+     * @param MalClient $mal
+     */
+    public function __construct(MalClient $mal)
+    {
+        $this->mal = $mal;
+    }
+
+
     /**
      * @inheritdoc
      */
@@ -27,6 +46,8 @@ class JoinChannelSubscriber implements EventSubscriberInterface
 
     /**
      * @param ReactionAddedEvent $event
+     *
+     * @throws \App\Exception\InvalidChannelException
      */
     public function onCommand(ReactionAddedEvent $event): void
     {
@@ -43,6 +64,8 @@ class JoinChannelSubscriber implements EventSubscriberInterface
 
         // Load
         $channelMessage = new JoinableMangaChannelMessage($reaction->message);
+        $mangaId = $channelMessage->getMangaId();
+        $manga = $this->mal->getManga(new MangaRequest($mangaId));
         /** @var User $user */
         $user = $reaction->users->last();
         /** @var GuildMember $member */
@@ -56,7 +79,7 @@ class JoinChannelSubscriber implements EventSubscriberInterface
             return;
         }
         // Join
-        $channelMessage->addUser($member);
+        $channelMessage->addUser($manga, $member);
         $reaction->remove($reaction->users->last());
         $io->success($user->username.' joined #'.$channel->name);
     }

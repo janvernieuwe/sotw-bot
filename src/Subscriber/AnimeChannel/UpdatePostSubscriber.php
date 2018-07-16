@@ -4,7 +4,8 @@ namespace App\Subscriber\AnimeChannel;
 
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableChannelMessage;
-use App\MyAnimeList\MyAnimeListClient;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Anime\AnimeRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -16,16 +17,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class UpdatePostSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var MyAnimeListClient
+     * @var MalClient
      */
     private $mal;
 
     /**
      * UpdatePostSubscriber constructor.
      *
-     * @param MyAnimeListClient $mal
+     * @param MalClient $mal
      */
-    public function __construct(MyAnimeListClient $mal)
+    public function __construct(MalClient $mal)
     {
         $this->mal = $mal;
     }
@@ -59,17 +60,17 @@ class UpdatePostSubscriber implements EventSubscriberInterface
 
         // Load
         $channelMessage = new JoinableChannelMessage($reaction->message);
-        $anime = $this->mal->loadAnime($channelMessage->getAnimeId());
+        $anime = $this->mal->getAnime(new AnimeRequest($channelMessage->getAnimeId()));
         if (!$reaction->message->editable) {
             $io->error('Message is not editable.');
         }
         $channelId = $channelMessage->getChannelId();
         $channel = $reaction->message->guild->channels->get($channelId);
         $subs = $channelMessage->getSubsciberCount($channel);
-        $channelMessage->updateWatchers($subs);
+        $channelMessage->updateWatchers($anime, $subs);
         $reaction->message->react(JoinableChannelMessage::JOIN_REACTION);
         $reaction->message->react(JoinableChannelMessage::LEAVE_REACTION);
         $reaction->remove($reaction->users->last());
-        $io->success(sprintf('Updated %s anime channel', $anime->title));
+        $io->success(sprintf('Updated %s anime channel', $anime->getTitle()));
     }
 }
