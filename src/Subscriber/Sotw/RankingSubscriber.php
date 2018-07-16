@@ -2,8 +2,11 @@
 
 namespace App\Subscriber\Sotw;
 
-use App\Channel\SotwChannel;
+use App\Channel\SongOfTheWeekChannel;
 use App\Event\MessageReceivedEvent;
+use App\Message\SotwNomination;
+use CharlotteDunois\Yasmin\Models\Message;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -14,21 +17,31 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RankingSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc sotw ranking';
+    public const COMMAND = '!haamc sotw ranking';
 
     /**
-     * @var SotwChannel
+     * @var SymfonyStyle
      */
-    private $sotw;
+    private $io;
+
+    /**
+     * @var Message
+     */
+    private $message;
+
+    /**
+     * @var int
+     */
+    private $sotwChannelId;
 
     /**
      * RankingSubscriber constructor.
      *
-     * @param SotwChannel $sotw
+     * @param int $sotwChannelId
      */
-    public function __construct(SotwChannel $sotw)
+    public function __construct(int $sotwChannelId)
     {
-        $this->sotw = $sotw;
+        $this->sotwChannelId = $sotwChannelId;
     }
 
     /**
@@ -36,7 +49,6 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -45,18 +57,26 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        $message = $event->getMessage();
+        $this->message = $message = $event->getMessage();
         if (strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $io = $event->getIo();
-        $nominations = $this->sotw->getLastNominations();
-        $nominationCount = count($nominations);
-        if ($nominationCount !== 10) {
-            $message->reply('Er zijn nog geen 10 nominaties!');
-            $io->writeln(sprintf('Not enough nominations %s/10 nominations', $nominationCount));
+        $this->io = $event->getIo();
+
+        $sotw = new SongOfTheWeekChannel($message->client->channels->get($this->sotwChannelId));
+        $sotw->getNominations(\Closure::fromCallable([$this, 'outputRanking']));
+    }
+
+    /**
+     * @param SotwNomination[] $nominations
+     */
+    private function outputRanking(array $nominations): void
+    {
+        if (!\count($nominations)) {
+            $this->message->reply('Er zijn nog geen nominaties!');
+            $this->io->writeln('No nominations yet');
 
             return;
         }
@@ -72,7 +92,7 @@ class RankingSubscriber implements EventSubscriberInterface
                 $nomination->getAuthor()
             );
         }
-        $message->channel->send(implode(PHP_EOL, $output));
-        $io->success('Ranking displayed');
+        $this->message->channel->send(implode(PHP_EOL, $output));
+        $this->io->success('Ranking displayed');
     }
 }

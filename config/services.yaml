@@ -43,31 +43,31 @@ services:
 
     log.null:
         class: Psr\Log\NullLogger
-
-    cache.jikan:
-        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
-        arguments:
-          - 'app.jikan'
-          - 0
-          - "%kernel.cache_dir%/jikan"
-        public: true
-
-    jikan:
-        class: Jikan\Jikan
-        public: true
-
-    App\MyAnimeList\MyAnimeListClient:
-        public: true
-        class: App\MyAnimeList\MyAnimeListClient
-        arguments:
-          - '@cache.jikan'
-          - '@jikan'
-
-    App\Channel\SotwChannel:
-        class: App\Channel\SotwChannel
-        arguments:
-          $channelId: '%env(SOTW_CHANNEL_ID)%'
-        public: true
+#
+#    cache.jikan:
+#        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+#        arguments:
+#          - 'app.jikan'
+#          - 0
+#          - "%kernel.cache_dir%/jikan"
+#        public: true
+#
+#    jikan:
+#        class: Jikan\Jikan
+#        public: true
+#
+#    App\MyAnimeList\MyAnimeListClient:
+#        public: true
+#        class: App\MyAnimeList\MyAnimeListClient
+#        arguments:
+#          - '@cache.jikan'
+#          - '@jikan'
+#
+#    App\Channel\SotwChannel:
+#        class: App\Channel\SotwChannel
+#        arguments:
+#          $channelId: '%env(SOTW_CHANNEL_ID)%'
+#        public: true
 #
 #    App\Channel\EmojiChannel:
 #        class: App\Channel\EmojiChannel

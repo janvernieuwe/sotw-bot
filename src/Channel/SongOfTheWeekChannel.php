@@ -7,6 +7,11 @@ use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Utils\Collection;
 
+/**
+ * Class SongOfTheWeekChannel
+ *
+ * @package App\Channel
+ */
 class SongOfTheWeekChannel
 {
     /**
@@ -31,10 +36,12 @@ class SongOfTheWeekChannel
      */
     public function getNominations(callable $callback): void
     {
-        $this->channel->fetchMessages(['limit' => 20])
+        $this->channel
+            ->fetchMessages(['limit' => 20])
             ->done(
                 function (Collection $collection) use ($callback) {
                     $nominations = [];
+                    // Filter the messages
                     /** @var Message $message */
                     foreach ($collection->all() as $message) {
                         if (strpos($message->content, 'Nomineer volgens onderstaande template') !== false) {
@@ -45,6 +52,18 @@ class SongOfTheWeekChannel
                         }
                         $nominations[] = SotwNomination::fromMessage($message);
                     }
+                    // Sort by votes
+                    usort(
+                        $nominations,
+                        function (SotwNomination $a, SotwNomination $b) {
+                            if ($a->getVotes() === $b->getVotes()) {
+                                return 0;
+                            }
+
+                            return $a->getVotes() > $b->getVotes() ? -1 : 1;
+                        }
+                    );
+                    // Return the result
                     $callback($nominations);
                 }
             );

@@ -33,22 +33,22 @@ class SotwChannel extends Channel
      */
     private $channelId;
 
-    /**
-     * SongOfTheWeek constructor.
-     *
-     * @param int                $channelId
-     * @param ValidatorInterface $validator
-     * @param int                $roleId
-     */
-    public function __construct(
-        int $channelId,
-        ValidatorInterface $validator,
-        int $roleId
-    ) {
-        $this->roleId = $roleId;
-        $this->validator = $validator;
-        $this->channelId = $channelId;
-    }
+//    /**
+//     * SongOfTheWeek constructor.
+//     *
+//     * @param int                $channelId
+//     * @param ValidatorInterface $validator
+//     * @param int                $roleId
+//     */
+//    public function __construct(
+//        int $channelId,
+//        ValidatorInterface $validator,
+//        int $roleId
+//    ) {
+//        $this->roleId = $roleId;
+//        $this->validator = $validator;
+//        $this->channelId = $channelId;
+//    }
 
     /**
      * @param int $limit
