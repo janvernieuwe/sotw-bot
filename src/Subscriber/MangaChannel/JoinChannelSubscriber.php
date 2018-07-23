@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\MangaChannel;
 
+use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableMangaChannelMessage;
 use CharlotteDunois\Yasmin\Models\GuildMember;
@@ -52,7 +53,7 @@ class JoinChannelSubscriber implements EventSubscriberInterface
     public function onCommand(ReactionAddedEvent $event): void
     {
         $reaction = $event->getReaction();
-        if ($reaction->emoji->name !== JoinableMangaChannelMessage::JOIN_REACTION || !$event->isBotMessage()) {
+        if ($reaction->emoji->name !== Reaction::JOIN || !$event->isBotMessage()) {
             return;
         }
         if (!JoinableMangaChannelMessage::isJoinChannelMessage($reaction->message)) {

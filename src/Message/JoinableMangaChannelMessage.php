@@ -274,7 +274,7 @@ class JoinableMangaChannelMessage
                 'fields'    => [
                     [
                         'name'   => 'datum',
-                        'value'  => $manga->getPublished()->getAiredString(),
+                        'value'  => (string)$manga->getPublished(),
                         'inline' => true,
                     ],
                     [

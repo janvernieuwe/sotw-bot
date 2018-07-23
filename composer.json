@@ -1,4 +1,10 @@
 {
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../jikan"
+        }
+    ],
     "type": "project",
     "license": "proprietary",
     "require": {

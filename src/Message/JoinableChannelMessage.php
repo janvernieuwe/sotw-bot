@@ -18,10 +18,6 @@ use Jikan\Model\Anime\Anime;
 class JoinableChannelMessage
 {
     public const CHANNEL_REGXP = '/(c=)(\d+)/';
-    public const JOIN_REACTION = '▶';
-    public const LEAVE_REACTION = '⏹';
-    public const DELETE_REACTION = '🚮';
-    public const RELOAD_REACTION = '🔁';
     public const TEXT_MESSAGE = '';
     public const AUTHOR_IMG_URL = 'https://i.imgur.com/pcdrHvS.png';
 
@@ -272,7 +268,7 @@ class JoinableChannelMessage
                 'fields'    => [
                     [
                         'name'   => 'datum',
-                        'value'  => $anime->getAired()->getAiredString(),
+                        'value'  => (string)$anime->getAired(),
                         'inline' => true,
                     ],
                     [

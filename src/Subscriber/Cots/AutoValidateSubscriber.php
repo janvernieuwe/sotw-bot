@@ -17,29 +17,28 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     public const LIMIT = 25;
 
     /**
-     * @var CotsChannel
-     */
-    private $cots;
-
-    /**
      * @var string
      */
     private $season;
 
     /**
+     * @var int
+     */
+    private $cotsChannelId;
+
+    /**
      * AutoValidateSubscriber constructor.
      *
-     * @param CotsChannel $character
-     * @param string      $season
+     * @param string $season
+     *
+     * @param int    $cotsChannelId
      *
      * @internal param RewatchChannel $rewatch
      */
-    public function __construct(
-        CotsChannel $character,
-        string $season
-    ) {
-        $this->cots = $character;
+    public function __construct(string $season, int $cotsChannelId)
+    {
         $this->season = $season;
+        $this->cotsChannelId = $cotsChannelId;
     }
 
     /**
@@ -47,7 +46,6 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -61,45 +59,45 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     {
         $message = $event->getMessage();
         /** @noinspection PhpUndefinedFieldInspection */
-        if ((int)$message->channel->id !== $this->cots->getChannelId()) {
+        if ((int)$message->channel->id !== $this->cotsChannelId) {
             return;
         }
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        // Attempt to load the nomination
-        try {
-            $nomination = $this->cots->loadNomination($message);
-        } catch (\Exception $e) {
-            $io->error($e->getMessage());
-            $message->delete();
-
-            return;
-        }
-        // Set the season for validation
-        $nomination->setSeason($this->season);
-        // Validate the nomination
-        if (!$this->error->isValid($nomination)) {
-            //$this->error->send($nomination, $this->season);
-            $io->error(implode(PHP_EOL, $this->error->getErrorArray($nomination)).PHP_EOL.$message->content);
-            $message->delete();
-
-            return;
-        }
-        // Success
-        $message->react('🔼');
-        $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->title);
-        // Check total nominations
-        $nominations = $this->cots->getLastNominations();
-        $nominationCount = count($nominations);
-        if ($nominationCount !== self::LIMIT) {
-            $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
-
-            return;
-        }
-        // Close channel when limit is reached
-        $this->cots->closeNominations();
-        $io->success('Closed nominations');
+//        // Attempt to load the nomination
+//        try {
+//            $nomination = $this->cots->loadNomination($message);
+//        } catch (\Exception $e) {
+//            $io->error($e->getMessage());
+//            $message->delete();
+//
+//            return;
+//        }
+//        // Set the season for validation
+//        $nomination->setSeason($this->season);
+//        // Validate the nomination
+//        if (!$this->error->isValid($nomination)) {
+//            //$this->error->send($nomination, $this->season);
+//            $io->error(implode(PHP_EOL, $this->error->getErrorArray($nomination)).PHP_EOL.$message->content);
+//            $message->delete();
+//
+//            return;
+//        }
+//        // Success
+//        $message->react(Reaction::VOTE);
+//        $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->title);
+//        // Check total nominations
+//        $nominations = $this->cots->getLastNominations();
+//        $nominationCount = count($nominations);
+//        if ($nominationCount !== self::LIMIT) {
+//            $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
+//
+//            return;
+//        }
+//        // Close channel when limit is reached
+//        $this->cots->closeNominations();
+//        $io->success('Closed nominations');
     }
 }

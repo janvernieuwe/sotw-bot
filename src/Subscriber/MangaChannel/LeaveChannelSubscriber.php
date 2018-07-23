@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\MangaChannel;
 
+use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableMangaChannelMessage;
 use CharlotteDunois\Yasmin\Models\GuildMember;
@@ -51,7 +52,7 @@ class LeaveChannelSubscriber implements EventSubscriberInterface
     {
         $reaction = $event->getReaction();
 
-        if ($reaction->emoji->name !== JoinableMangaChannelMessage::LEAVE_REACTION || !$event->isBotMessage()) {
+        if ($reaction->emoji->name !== Reaction::LEAVE || !$event->isBotMessage()) {
             return;
         }
         if (!JoinableMangaChannelMessage::isJoinChannelMessage($reaction->message)) {

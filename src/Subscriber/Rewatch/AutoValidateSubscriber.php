@@ -5,12 +5,15 @@ namespace App\Subscriber\Rewatch;
 use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Entity\RewatchWinner;
-use App\Error\RewatchErrorDm;
 use App\Event\MessageReceivedEvent;
 use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
+use CharlotteDunois\Yasmin\Models\TextChannel;
 use Doctrine\ORM\EntityManagerInterface;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Anime\AnimeRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Lets admins run symfony commands
@@ -21,28 +24,52 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AutoValidateSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var RewatchChannel
-     */
-    private $rewatch;
-
-
-    /**
      * @var EntityManagerInterface
      */
     private $doctrine;
 
     /**
+     * @var MalClient
+     */
+    private $mal;
+
+    /**
+     * @var MessageReceivedEvent
+     */
+    private $event;
+
+    /**
+     * @var RewatchNomination
+     */
+    private $nomination;
+
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+    /**
+     * @var int
+     */
+    private $rewatchChannelId;
+
+    /**
      * AutoValidateSubscriber constructor.
      *
-     * @param RewatchChannel         $rewatch
      * @param EntityManagerInterface $doctrine
+     * @param MalClient              $mal
+     * @param ValidatorInterface     $validator
+     * @param int                    $rewatchChannelId
      */
     public function __construct(
-        RewatchChannel $rewatch,
-        EntityManagerInterface $doctrine
+        EntityManagerInterface $doctrine,
+        MalClient $mal,
+        ValidatorInterface $validator,
+        int $rewatchChannelId
     ) {
-        $this->rewatch = $rewatch;
         $this->doctrine = $doctrine;
+        $this->mal = $mal;
+        $this->validator = $validator;
+        $this->rewatchChannelId = $rewatchChannelId;
     }
 
     /**
@@ -50,7 +77,6 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -59,9 +85,10 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         /** @noinspection PhpUndefinedFieldInspection */
-        if ((int)$message->channel->id !== $this->rewatch->getChannelId()) {
+        if ((int)$message->channel->id !== $this->rewatchChannelId) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
@@ -72,12 +99,10 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             if (!RewatchNomination::isContender($message->content)) {
                 throw new RuntimeException('Not a contender');
             }
-            $nomination = RewatchNomination::fromYasmin($message);
-            try {
-                $anime = $this->rewatch->getMal()->loadAnime($nomination->getAnimeId());
-            } catch (\Exception $e) {
-                throw new RuntimeException('Invalid anime link');
-            }
+            $nomination = RewatchNomination::fromMessage($message);
+            $anime = $this->mal->getAnime(new AnimeRequest($nomination->getAnimeId()));
+            $nomination->setAnime($anime);
+            $this->nomination = $nomination;
         } catch (RuntimeException $e) {
             $io->error($e->getMessage());
             $message->delete();
@@ -85,47 +110,61 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $rewatch = new RewatchChannel($message->channel, $this->mal);
         // Check for single nomination for user and anime
-        $nominations = $this->rewatch->getValidNominations();
+        $rewatch->getNominations()
+            ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
+    }
+
+    /**
+     * @param RewatchNomination[] $nominations
+     */
+    private function onMessagesLoaded(array $nominations): void
+    {
+        $event = $this->event;
+        $message = $event->getMessage();
+        $io = $event->getIo();
+
         foreach ($nominations as $check) {
             if ((int)$message->id === $check->getMessageId()) {
                 continue;
             }
-            if ($nomination->getAnimeId() === $check->getAnimeId()) {
-                $nomination->setUniqueAnime(false);
+            if ($this->nomination->getAnimeId() === $check->getAnimeId()) {
+                $this->nomination->setUniqueAnime(false);
             }
-            if ($nomination->getAuthorId() === $check->getAuthorId()) {
-                $nomination->setUniqueUser(false);
+            if ($this->nomination->getAuthorId() === $check->getAuthorId()) {
+                $this->nomination->setUniqueUser(false);
             }
         }
         // Check if the anime won before
         $previous = $this->doctrine
             ->getRepository(RewatchWinner::class)
-            ->findOneBy(['animeId' => $anime->mal_id]);
-        $nomination->setPrevious($previous);
+            ->findOneBy(['animeId' => $this->nomination->getAnimeId()]);
+        $this->nomination->setPrevious($previous);
         // Enrich with anime data
-        $nomination->setAnime($anime);
-        $errors = $this->rewatch->validate($nomination);
+        $errors = $this->validator->validate($this->nomination);
         // Invalid
         if (count($errors)) {
             /** @noinspection PhpToStringImplementationInspection */
-            $io->error($nomination->getAuthor().': '.$nomination->getAnime()->title.PHP_EOL.$errors);
-            $this->error->send($nomination);
+            $io->error($this->nomination->getAuthor().': '.$this->nomination->getAnime()->getTitle().PHP_EOL.$errors);
+            //$this->error->send($this->nomination);
             $message->delete();
 
             return;
         }
         // Valid, add reaction
         $message->react('🔼');
-        $io->success($nomination->getAnime()->title);
-        $nominationCount = count($this->rewatch->getValidNominations());
+        $io->success($this->nomination->getAnime()->getTitle());
+        $nominationCount = count($nominations);
         if ($nominationCount !== 10) {
             $io->writeln(sprintf('Not starting yet %s/10 nominations', $nominationCount));
 
             return;
         }
         // Enough nominees, start it
-        $message->channel->overwritePermissions(
+        /** @var TextChannel $channel */
+        $channel = $message->channel;
+        $channel->overwritePermissions(
             $event->getPermissionsRole(),
             Channel::ROLE_VIEW_MESSAGES,
             Channel::ROLE_SEND_MESSAGES,

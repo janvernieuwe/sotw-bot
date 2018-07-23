@@ -2,8 +2,9 @@
 
 namespace App\Message;
 
-use Jikan\Model\Anime;
-use Jikan\Model\Character;
+use CharlotteDunois\Yasmin\Models\Message;
+use Jikan\Model\Anime\Anime;
+use Jikan\Model\Character\Character;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -13,8 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class CotsNomination
 {
-    const CHARACTER_REGXP = '#https?://myanimelist.net/character/(\d+)#';
-    const ANIME_REGXP = '#https?://myanimelist.net/anime/(\d+)#';
+    private const CHARACTER_REGXP = '#https?://myanimelist.net/character/(\d+)#';
+    private const ANIME_REGXP = '#https?://myanimelist.net/anime/(\d+)#';
 
     /**
      * @var Character
@@ -30,17 +31,19 @@ class CotsNomination
      * @var string
      */
     private $season = '';
+    /**
+     * @var array|Message
+     */
+    private $message;
 
     /**
      * CotsNomination constructor.
      *
-     * @param array     $message
      * @param Character $character
      * @param Anime     $anime
      */
-    public function __construct(array $message, Character $character, Anime $anime)
+    public function __construct(Character $character, Anime $anime)
     {
-        parent::__construct($message);
         $this->character = $character;
         $this->anime = $anime;
     }
@@ -84,24 +87,9 @@ class CotsNomination
     }
 
     /**
-     * @param \CharlotteDunois\Yasmin\Models\Message $message
-     * @param Character                              $character
-     * @param Anime                                  $anime
-     *
-     * @return CotsNomination
-     */
-    public static function fromYasmin(
-        \CharlotteDunois\Yasmin\Models\Message $message,
-        Character $character,
-        Anime $anime
-    ): CotsNomination {
-        return new self(parent::yasminToArray($message), $character, $anime);
-    }
-
-    /**
      * @param string $season
      */
-    public function setSeason(string $season)
+    public function setSeason(string $season): void
     {
         $this->season = $season;
     }
@@ -129,7 +117,7 @@ class CotsNomination
     public function getIsCharacterInAnime(): bool
     {
         foreach ($this->character->animeography as $anime) {
-            if ($anime['mal_id'] === $this->anime->mal_id) {
+            if ($anime['mal_id'] === $this->anime->getMalId()) {
                 return true;
             }
         }
@@ -143,6 +131,6 @@ class CotsNomination
      */
     public function getIsValidSeason(): bool
     {
-        return $this->season === $this->anime->premiered;
+        return $this->season === $this->anime->getPremiered();
     }
 }

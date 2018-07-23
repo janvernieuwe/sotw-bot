@@ -24,27 +24,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class RunCommand extends ContainerAwareCommand
 {
     public static $start;
-    /**
-     * @var CotsChannel
-     */
-    private $cots;
-    /**
-     * @var RewatchChannel
-     */
-    private $rewatch;
-
-    /**
-     * RunCommand constructor.
-     *
-     * @param CotsChannel    $cots
-     * @param RewatchChannel $rewatch
-     */
-    public function __construct(CotsChannel $cots, RewatchChannel $rewatch)
-    {
-        parent::__construct();
-        $this->cots = $cots;
-        $this->rewatch = $rewatch;
-    }
 
     protected function configure(): void
     {

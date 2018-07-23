@@ -4,6 +4,7 @@ namespace App\Subscriber\Sotw;
 
 use App\Channel\Channel;
 use App\Channel\SongOfTheWeekChannel;
+use App\Entity\Reaction;
 use App\Event\MessageReceivedEvent;
 use App\Message\SotwNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
@@ -79,7 +80,7 @@ class AutoValidateSubsciber implements EventSubscriberInterface
 
             return;
         }
-        $message->react('🔼');
+        $message->react(Reaction::VOTE);
         $sotw = new SongOfTheWeekChannel($message->channel);
         $sotw->getNominations(
             function (array $nominations) use ($io, $message) {

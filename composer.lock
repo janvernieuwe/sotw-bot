@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3e98fadef02e28cac21adaebbc0912b3",
+    "content-hash": "28cdc26803fb877ea8293db6c9654de6",
     "packages": [
         {
             "name": "charlottedunois/eventemitter",
@@ -1389,16 +1389,11 @@
         {
             "name": "jikan-me/jikan",
             "version": "dev-2.0.0-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jikan-me/jikan.git",
-                "reference": "f66f5e7efed7e14ece41a13e8b40b0bda65d2efe"
-            },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/f66f5e7efed7e14ece41a13e8b40b0bda65d2efe",
-                "reference": "f66f5e7efed7e14ece41a13e8b40b0bda65d2efe",
-                "shasum": ""
+                "type": "path",
+                "url": "../jikan",
+                "reference": "1bcbc89bfabb4e9aa410f3531bcc606433900f52",
+                "shasum": null
             },
             "require": {
                 "fabpot/goutte": "^3.2"
@@ -1420,7 +1415,13 @@
                     ]
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Jikan\\": [
+                        "test/JikanTest"
+                    ]
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -1430,8 +1431,7 @@
                     "email": "irfan@jikan.moe"
                 }
             ],
-            "description": "Jikan is an unofficial MyAnimeList API",
-            "time": "2018-07-11T15:10:26+00:00"
+            "description": "Jikan is an unofficial MyAnimeList API"
         },
         {
             "name": "nikic/php-parser",

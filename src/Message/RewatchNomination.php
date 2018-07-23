@@ -2,8 +2,12 @@
 
 namespace App\Message;
 
+use App\Entity\Reaction;
 use App\Entity\RewatchWinner;
-use Jikan\Model\Anime;
+use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Utils\Collection;
+use Jikan\Helper\Parser;
+use Jikan\Model\Anime\Anime;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -34,6 +38,26 @@ class RewatchNomination
     private $uniqueUser = true;
 
     /**
+     * @var int
+     */
+    private $animeId;
+
+    /**
+     * @var int
+     */
+    private $votes = 0;
+
+    /**
+     * @var string
+     */
+    private $author;
+
+    /**
+     * @var int
+     */
+    private $authorId;
+
+    /**
      * @param string $content
      *
      * @return bool
@@ -44,23 +68,31 @@ class RewatchNomination
     }
 
     /**
+     * @param $message
+     *
+     * @return RewatchNomination
+     */
+    public static function fromMessage(Message $message): RewatchNomination
+    {
+        $instance = new self();
+        $instance->animeId = Parser::idFromUrl($message->content);
+        $instance->author = $message->author->username;
+        $instance->authorId = $message->author->id;
+        $votes = $message->reactions->get(Reaction::VOTE);
+        if ($votes instanceof Collection) {
+            $instance->votes = $votes->count() - 1;
+        }
+
+
+        return $instance;
+    }
+
+    /**
      * @return int|null
      */
     public function getAnimeId(): ?int
     {
-        return null;
-//        $url = parse_url($this->message['content']);
-//        $url['query'] = $url['query'] ?? '';
-//        $params = parse_query($url['query']);
-//        if (isset($params['id'])) {
-//            return (int)$params['id'];
-//        }
-//        preg_match_all('/\/(\d+)\/?/', $this->message['content'], $matches);
-//        if (!isset($matches[1][0])) {
-//            return null;
-//        }
-//
-//        return (int)$matches[1][0];
+        return $this->animeId;
     }
 
     /**
@@ -75,7 +107,7 @@ class RewatchNomination
             return null;
         }
 
-        return $this->anime->episodes;
+        return $this->anime->getEpisodes();
     }
 
     /**
@@ -100,8 +132,8 @@ class RewatchNomination
      */
     public function isHentai(): bool
     {
-        foreach ($this->anime->genre as $genre) {
-            if ($genre['name'] === 'Hentai') {
+        foreach ($this->anime->getGenres() as $genre) {
+            if ($genre->getName() === 'Hentai') {
                 return true;
             }
         }
@@ -121,11 +153,11 @@ class RewatchNomination
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function getEndDate(): \DateTime
+    public function getEndDate(): \DateTimeImmutable
     {
-        return new \DateTime($this->anime->aired['to']);
+        return $this->anime->getAired()->getUntil();
     }
 
     /**
@@ -139,7 +171,7 @@ class RewatchNomination
      */
     public function getEpisodeLength(): int
     {
-        if (!preg_match('/^(\d+)/', $this->anime->duration, $length)) {
+        if (!preg_match('/^(\d+)/', $this->anime->getDuration(), $length)) {
             return 0;
         }
 
@@ -203,5 +235,29 @@ class RewatchNomination
     public function setUniqueUser(bool $uniqueUser): void
     {
         $this->uniqueUser = $uniqueUser;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVotes(): int
+    {
+        return $this->votes;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAuthorId(): int
+    {
+        return $this->authorId;
     }
 }

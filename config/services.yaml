@@ -24,6 +24,8 @@ services:
             $spoilerChannelId:    '%env(SPOILER_CHANNEL)%'
             $emojiChannelId:      '%env(EMOJI_CHANNEL_ID)%'
             $sotwChannelId:       '%env(SOTW_CHANNEL_ID)%'
+            $cotsChannelId:       '%env(COTS_CHANNEL_ID)%'
+            $rewatchChannelId:    '%env(REWATCH_CHANNEL_ID)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -77,10 +79,9 @@ services:
 
     App\Channel\RewatchChannel:
         class: App\Channel\RewatchChannel
-        arguments:
-          $channelId: '%env(REWATCH_CHANNEL_ID)%'
+        autowire: false
 
-    App\Channel\CotsChannel:
-        class: App\Channel\CotsChannel
-        arguments:
-          $channelId: '%env(COTS_CHANNEL_ID)%'
+#    App\Channel\CotsChannel:
+#        class: App\Channel\CotsChannel
+#        arguments:
+#          $channelId: '%env(COTS_CHANNEL_ID)%'

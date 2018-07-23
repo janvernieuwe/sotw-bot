@@ -4,6 +4,7 @@
 namespace App\Channel;
 
 use App\Context\CreateAnimeChannelContext;
+use App\Entity\Reaction;
 use App\Message\JoinableChannelMessage;
 use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
@@ -105,7 +106,7 @@ class AnimeChannelCreator
      */
     protected function addReactions(Message $message): void
     {
-        $message->react(JoinableChannelMessage::JOIN_REACTION);
-        $message->react(JoinableChannelMessage::LEAVE_REACTION);
+        $message->react(Reaction::JOIN);
+        $message->react(Reaction::LEAVE);
     }
 }

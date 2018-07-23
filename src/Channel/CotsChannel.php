@@ -42,19 +42,19 @@ class CotsChannel extends Channel
      *
      * @param MalClient $mal
      * @param ValidatorInterface           $validator
-     * @param int                          $channelId
+     * @param int                          $cotsChannelId
      * @param int                          $roleId
      */
     public function __construct(
         MalClient $mal,
         ValidatorInterface $validator,
-        int $channelId,
+        int $cotsChannelId,
         int $roleId
     ) {
         $this->roleId = $roleId;
         $this->mal = $mal;
         $this->validator = $validator;
-        $this->channelId = $channelId;
+        $this->channelId = $cotsChannelId;
     }
 
     /**

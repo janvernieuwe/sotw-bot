@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\AnimeChannel;
 
+use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableChannelMessage;
 use Jikan\MyAnimeList\MalClient;
@@ -48,7 +49,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         if (!$event->isAdmin()) {
             return;
         }
-        if ($reaction->emoji->name !== JoinableChannelMessage::RELOAD_REACTION || !$event->isBotMessage()) {
+        if ($reaction->emoji->name !== Reaction::REFRESH || !$event->isBotMessage()) {
             return;
         }
         if (!JoinableChannelMessage::isJoinChannelMessage($reaction->message)) {
@@ -68,8 +69,8 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         $channel = $reaction->message->guild->channels->get($channelId);
         $subs = $channelMessage->getSubsciberCount($channel);
         $channelMessage->updateWatchers($anime, $subs);
-        $reaction->message->react(JoinableChannelMessage::JOIN_REACTION);
-        $reaction->message->react(JoinableChannelMessage::LEAVE_REACTION);
+        $reaction->message->react(Reaction::JOIN);
+        $reaction->message->react(Reaction::LEAVE);
         $reaction->remove($reaction->users->last());
         $io->success(sprintf('Updated %s anime channel', $anime->getTitle()));
     }

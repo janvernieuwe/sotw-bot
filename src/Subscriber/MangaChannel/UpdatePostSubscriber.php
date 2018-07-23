@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\MangaChannel;
 
+use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableMangaChannelMessage;
 use Jikan\MyAnimeList\MalClient;
@@ -48,7 +49,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         if (!$event->isAdmin()) {
             return;
         }
-        if ($reaction->emoji->name !== JoinableMangaChannelMessage::RELOAD_REACTION || !$event->isBotMessage()) {
+        if ($reaction->emoji->name !== Reaction::REFRESH || !$event->isBotMessage()) {
             return;
         }
         if (!JoinableMangaChannelMessage::isJoinChannelMessage($reaction->message)) {
@@ -68,8 +69,8 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         $subs = $channelMessage->getSubsciberCount($channel);
         $manga = $this->mal->getManga(new MangaRequest($channelMessage->getMangaId()));
         $channelMessage->updateWatchers($manga, $subs);
-        $reaction->message->react(JoinableMangaChannelMessage::JOIN_REACTION);
-        $reaction->message->react(JoinableMangaChannelMessage::LEAVE_REACTION);
+        $reaction->message->react(Reaction::JOIN);
+        $reaction->message->react(Reaction::LEAVE);
         $reaction->remove($reaction->users->last());
         $io->success(sprintf('Updated %s manga channel', $manga->getTitle()));
     }
