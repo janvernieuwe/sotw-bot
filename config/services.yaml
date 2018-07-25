@@ -46,7 +46,7 @@ services:
     jikan.cache.filesystem:
         class: Doctrine\Common\Cache\FilesystemCache
         arguments:
-          - '%env(JIKAN_CACHE)%'
+          - '%kernel.cache_dir%/jikan'
           - 'app.jikan'
 
     jikan.cache.doctrine:
