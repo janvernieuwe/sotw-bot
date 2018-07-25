@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "28cdc26803fb877ea8293db6c9654de6",
+    "content-hash": "e7ad050149fe5a74404640e3d62df377",
     "packages": [
         {
             "name": "charlottedunois/eventemitter",
@@ -1389,11 +1389,16 @@
         {
             "name": "jikan-me/jikan",
             "version": "dev-2.0.0-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jikan-me/jikan.git",
+                "reference": "fad10e4a0a5e8bb82a265bed3153ca9cc96dac3d"
+            },
             "dist": {
-                "type": "path",
-                "url": "../jikan",
-                "reference": "1bcbc89bfabb4e9aa410f3531bcc606433900f52",
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/fad10e4a0a5e8bb82a265bed3153ca9cc96dac3d",
+                "reference": "fad10e4a0a5e8bb82a265bed3153ca9cc96dac3d",
+                "shasum": ""
             },
             "require": {
                 "fabpot/goutte": "^3.2"
@@ -1401,6 +1406,7 @@
             "require-dev": {
                 "doctrine/collections": "^1.5",
                 "jakub-onderka/php-parallel-lint": "^1.0",
+                "jikan-me/jikan-fixtures": "dev-master",
                 "php-vcr/php-vcr": "~1.3.2",
                 "php-vcr/phpunit-testlistener-vcr": "^3.0",
                 "phpro/grumphp": "^0.14.1",
@@ -1415,13 +1421,7 @@
                     ]
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Jikan\\": [
-                        "test/JikanTest"
-                    ]
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1431,7 +1431,85 @@
                     "email": "irfan@jikan.moe"
                 }
             ],
-            "description": "Jikan is an unofficial MyAnimeList API"
+            "description": "Jikan is an unofficial MyAnimeList API",
+            "time": "2018-07-25T16:43:27+00:00"
+        },
+        {
+            "name": "kevinrob/guzzle-cache-middleware",
+            "version": "v3.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Kevinrob/guzzle-cache-middleware.git",
+                "reference": "dda34401a68c54f06c9338a2cc30ae0aecd879a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/dda34401a68c54f06c9338a2cc30ae0aecd879a1",
+                "reference": "dda34401a68c54f06c9338a2cc30ae0aecd879a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "cache/array-adapter": "^0.4 || ^0.5 || ^1.0",
+                "cache/simple-cache-bridge": "^0.1 || ^1.0",
+                "doctrine/cache": "^1.0",
+                "guzzlehttp/guzzle": "^6.0",
+                "illuminate/cache": "^5.0",
+                "league/flysystem": "^1.0",
+                "phpunit/phpunit": "^4.0 || ^5.0",
+                "psr/cache": "^1.0"
+            },
+            "suggest": {
+                "doctrine/cache": "This library have a lot of ready-to-use cache storage (to be use with Kevinrob\\GuzzleCache\\Storage\\DoctrineCacheStorage)",
+                "guzzlehttp/guzzle": "For using this library. It was created for Guzzle6. (but you can use it with any PSR-7 HTTP Client)",
+                "laravel/framework": "To be use with Kevinrob\\GuzzleCache\\Storage\\LaravelCacheStorage",
+                "league/flysystem": "To be use with Kevinrob\\GuzzleCache\\Storage\\FlysystemStorage",
+                "psr/cache": "To be use with Kevinrob\\GuzzleCache\\Storage\\Psr6CacheStorage",
+                "psr/simple-cache": "To be use with Kevinrob\\GuzzleCache\\Storage\\Psr16CacheStorage"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Kevinrob\\GuzzleCache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kevin Robatel",
+                    "email": "kevinrob2@gmail.com",
+                    "homepage": "https://github.com/Kevinrob"
+                }
+            ],
+            "description": "A HTTP/1.1 Cache for Guzzle 6. It's a simple Middleware to be added in the HandlerStack. (RFC 7234)",
+            "homepage": "https://github.com/Kevinrob/guzzle-cache-middleware",
+            "keywords": [
+                "Etag",
+                "Flysystem",
+                "Guzzle",
+                "cache",
+                "cache-control",
+                "doctrine",
+                "expiration",
+                "guzzle6",
+                "handler",
+                "http",
+                "http 1.1",
+                "middleware",
+                "performance",
+                "php",
+                "promise",
+                "psr6",
+                "psr7",
+                "rfc7234",
+                "validation"
+            ],
+            "time": "2018-01-10T13:55:22+00:00"
         },
         {
             "name": "nikic/php-parser",

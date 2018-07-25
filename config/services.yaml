@@ -40,48 +40,46 @@ services:
     #        tags: ['controller.service_arguments']
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    Jikan\MyAnimeList\MalClient:
-        class: Jikan\MyAnimeList\MalClient
-
     log.null:
         class: Psr\Log\NullLogger
-#
-#    cache.jikan:
-#        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
-#        arguments:
-#          - 'app.jikan'
-#          - 0
-#          - "%kernel.cache_dir%/jikan"
-#        public: true
-#
-#    jikan:
-#        class: Jikan\Jikan
-#        public: true
-#
-#    App\MyAnimeList\MyAnimeListClient:
-#        public: true
-#        class: App\MyAnimeList\MyAnimeListClient
-#        arguments:
-#          - '@cache.jikan'
-#          - '@jikan'
-#
-#    App\Channel\SotwChannel:
-#        class: App\Channel\SotwChannel
-#        arguments:
-#          $channelId: '%env(SOTW_CHANNEL_ID)%'
-#        public: true
-#
-#    App\Channel\EmojiChannel:
-#        class: App\Channel\EmojiChannel
-#        arguments:
-#          $channelId: '%env(EMOJI_CHANNEL_ID)%'
-#        public: true
+
+    jikan.cache.filesystem:
+        class: Doctrine\Common\Cache\FilesystemCache
+        arguments:
+          - '%env(JIKAN_CACHE)%'
+          - 'app.jikan'
+
+    jikan.cache.doctrine:
+        class: Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage
+        arguments: ['@jikan.cache.filesystem']
+
+    jikan.cache.strategy:
+        class: Kevinrob\GuzzleCache\Strategy\GreedyCacheStrategy
+        arguments:
+          - '@jikan.cache.doctrine'
+          - 604800
+
+    jikan.cache.middleware:
+        class: Kevinrob\GuzzleCache\CacheMiddleware
+        arguments: ['@jikan.cache.strategy']
+
+    jikan.stack:
+        class: GuzzleHttp\HandlerStack
+        factory: [GuzzleHttp\HandlerStack, 'create']
+        calls:
+          - ['push', ['@jikan.cache.middleware', 'cache']]
+
+    jikan.guzzle:
+        class: GuzzleHttp\Client
+        arguments:
+          -
+            handler: '@jikan.stack'
+
+    Jikan\MyAnimeList\MalClient:
+        class: Jikan\MyAnimeList\MalClient
+        arguments:
+          - '@jikan.guzzle'
 
     App\Channel\RewatchChannel:
         class: App\Channel\RewatchChannel
         autowire: false
-
-#    App\Channel\CotsChannel:
-#        class: App\Channel\CotsChannel
-#        arguments:
-#          $channelId: '%env(COTS_CHANNEL_ID)%'

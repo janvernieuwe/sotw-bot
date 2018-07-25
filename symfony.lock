@@ -107,6 +107,9 @@
     "justinrainbow/json-schema": {
         "version": "5.2.6"
     },
+    "kevinrob/guzzle-cache-middleware": {
+        "version": "v3.2.1"
+    },
     "monolog/monolog": {
         "version": "1.23.0"
     },

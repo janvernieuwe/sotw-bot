@@ -1,10 +1,4 @@
 {
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../jikan"
-        }
-    ],
     "type": "project",
     "license": "proprietary",
     "require": {
@@ -12,6 +6,7 @@
         "ext-iconv": "*",
         "charlottedunois/yasmin": "^0.4",
         "jikan-me/jikan": "dev-2.0.0-dev",
+        "kevinrob/guzzle-cache-middleware": "^3.2",
         "roave/security-advisories": "dev-master",
         "symfony/console": "^4.0",
         "symfony/dotenv": "^4.0",
