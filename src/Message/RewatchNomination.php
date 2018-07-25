@@ -58,6 +58,11 @@ class RewatchNomination
     private $authorId;
 
     /**
+     * @var int
+     */
+    private $messageId;
+
+    /**
      * @param string $content
      *
      * @return bool
@@ -78,11 +83,8 @@ class RewatchNomination
         $instance->animeId = Parser::idFromUrl($message->content);
         $instance->author = $message->author->username;
         $instance->authorId = $message->author->id;
-        $votes = $message->reactions->get(Reaction::VOTE);
-        if ($votes instanceof Collection) {
-            $instance->votes = $votes->count() - 1;
-        }
-
+        $instance->messageId = $message->id;
+        $instance->votes = $message->reactions->get(Reaction::VOTE)->count -1;
 
         return $instance;
     }
@@ -259,5 +261,13 @@ class RewatchNomination
     public function getAuthorId(): int
     {
         return $this->authorId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMessageId(): int
+    {
+        return $this->messageId;
     }
 }
