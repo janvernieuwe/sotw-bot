@@ -4,6 +4,8 @@ namespace App\Subscriber\Rewatch;
 
 use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
+use App\Message\RewatchNomination;
+use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -14,22 +16,35 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RankingSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc rewatch ranking';
+    public const COMMAND = '!haamc rewatch ranking';
 
     /**
-     * @var RewatchChannel
+     * @var int
      */
-    private $rewatch;
+    private $rewatchChannelId;
+
+    /**
+     * @var MalClient
+     */
+    private $jikan;
+
+    /**
+     * @var MessageReceivedEvent
+     */
+    private $event;
 
     /**
      * ValidateSubscriber constructor.
      *
-     * @param RewatchChannel $rewatch
+     * @param int       $rewatchChannelId
+     * @param MalClient $jikan
      */
     public function __construct(
-        RewatchChannel $rewatch
+        int $rewatchChannelId,
+        MalClient $jikan
     ) {
-        $this->rewatch = $rewatch;
+        $this->rewatchChannelId = $rewatchChannelId;
+        $this->jikan = $jikan;
     }
 
     /**
@@ -37,7 +52,6 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -46,6 +60,7 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         if (strpos($message->content, self::COMMAND) !== 0) {
             return;
@@ -54,7 +69,18 @@ class RankingSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $nominations = $this->rewatch->getValidNominations();
+        $rewatch = new RewatchChannel($message->client->channels->get($this->rewatchChannelId), $this->jikan);
+        $rewatch->getNominations()
+            ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
+    }
+
+    /**
+     * @param RewatchNomination[] $nominations
+     */
+    private function onMessagesLoaded(array $nominations): void
+    {
+        $io = $this->event->getIo();
+        $message = $this->event->getMessage();
         $nominationCount = count($nominations);
         if (!$nominationCount) {
             $message->reply('Er zijn nog geen nominaties!');
@@ -68,12 +94,12 @@ class RankingSubscriber implements EventSubscriberInterface
             $output[] = sprintf(
                 ":tv: %s) **%s** (**%s** votes) door **%s**\neps: *%s* | score: *%s* | aired: *%s*",
                 $i + 1,
-                $anime->title,
+                $anime->getTitle(),
                 $nomination->getVotes(),
                 $nomination->getAuthor(),
-                $anime->episodes,
-                $anime->score,
-                $anime->aired_string
+                $anime->getEpisodes(),
+                $anime->getScore(),
+                (string)$anime->getAired()
             );
         }
         $message->channel->send(implode(PHP_EOL, $output));

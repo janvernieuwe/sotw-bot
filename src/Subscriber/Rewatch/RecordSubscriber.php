@@ -2,12 +2,13 @@
 
 namespace App\Subscriber\Rewatch;
 
-use App\Channel\RewatchChannel;
 use App\Entity\RewatchWinner;
 use App\Event\ReactionAddedEvent;
 use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
 use Doctrine\ORM\EntityManagerInterface;
+use Jikan\MyAnimeList\MalClient;
+use Jikan\Request\Anime\AnimeRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -19,24 +20,32 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class RecordSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var RewatchChannel
-     */
-    private $rewatch;
-    /**
      * @var EntityManagerInterface
      */
     private $doctrine;
 
     /**
+     * @var int
+     */
+    private $rewatchChannelId;
+
+    /**
+     * @var MalClient
+     */
+    private $jikan;
+
+    /**
      * AutoValidateSubscriber constructor.
      *
-     * @param RewatchChannel         $rewatch
+     * @param int                    $rewatchChannelId
      * @param EntityManagerInterface $doctrine
+     * @param MalClient              $jikan
      */
-    public function __construct(RewatchChannel $rewatch, EntityManagerInterface $doctrine)
+    public function __construct(int $rewatchChannelId, EntityManagerInterface $doctrine, MalClient $jikan)
     {
-        $this->rewatch = $rewatch;
         $this->doctrine = $doctrine;
+        $this->rewatchChannelId = $rewatchChannelId;
+        $this->jikan = $jikan;
     }
 
     /**
@@ -44,7 +53,6 @@ class RecordSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [ReactionAddedEvent::NAME => 'onCommand'];
     }
 
@@ -58,7 +66,8 @@ class RecordSubscriber implements EventSubscriberInterface
         if ($reaction->emoji->name !== '⏺' || !$event->isAdmin()) {
             return;
         }
-        if ((int)$reaction->message->channel->id !== $this->rewatch->getChannelId()) {
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ((int)$reaction->message->channel->id !== $this->rewatchChannelId) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
@@ -69,9 +78,9 @@ class RecordSubscriber implements EventSubscriberInterface
             if (!RewatchNomination::isContender($reaction->message->content)) {
                 throw new RuntimeException('Not a contender');
             }
-            $nomination = RewatchNomination::fromYasmin($reaction->message);
+            $nomination = RewatchNomination::fromMessage($reaction->message);
             try {
-                $anime = $this->rewatch->getMal()->loadAnime($nomination->getAnimeId());
+                $anime = $this->jikan->getAnime(new AnimeRequest($nomination->getAnimeId()));
             } catch (\Exception $e) {
                 throw new RuntimeException('Invalid anime link');
             }
@@ -83,18 +92,18 @@ class RecordSubscriber implements EventSubscriberInterface
 
         $watch = new RewatchWinner();
         $watch
-            ->setTitle($anime->title)
-            ->setEpisodes($anime->episodes)
-            ->setAired($anime->aired_string)
+            ->setTitle($anime->getTitle())
+            ->setEpisodes($anime->getEpisodes())
+            ->setAired($anime->getAired())
             ->setVotes($reaction->message->reactions->get('🔼')->count)
             ->setCreated(new \DateTime())
-            ->setAnimeId($anime->mal_id)
+            ->setAnimeId($anime->getMalId())
             ->setMemberId($reaction->message->author->id)
             ->setDisplayName($reaction->message->author->username);
 
         $this->doctrine->persist($watch);
         $this->doctrine->flush();
         $reaction->remove($reaction->users->last());
-        $io->success(sprintf('Recorded %s', $anime->title));
+        $io->success(sprintf('Recorded %s', $anime->getTitle()));
     }
 }

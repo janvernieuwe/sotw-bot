@@ -4,6 +4,8 @@ namespace App\Subscriber\Rewatch;
 
 use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Models\TextChannel;
+use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -15,22 +17,35 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class FinishSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc rewatch finish';
+    public const COMMAND = '!haamc rewatch finish';
 
     /**
-     * @var RewatchChannel
+     * @var MalClient
      */
-    private $rewatch;
+    private $jikan;
+
+    /**
+     * @var MessageReceivedEvent
+     */
+    private $event;
+
+    /**
+     * @var int
+     */
+    private $rewatchChannelId;
 
     /**
      * ValidateSubscriber constructor.
      *
-     * @param RewatchChannel $rewatch
+     * @param MalClient      $jikan
+     * @param int            $rewatchChannelId
      */
     public function __construct(
-        RewatchChannel $rewatch
+        MalClient $jikan,
+        int $rewatchChannelId
     ) {
-        $this->rewatch = $rewatch;
+        $this->jikan = $jikan;
+        $this->rewatchChannelId = $rewatchChannelId;
     }
 
     /**
@@ -38,7 +53,6 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -47,15 +61,25 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $io = $event->getIo();
+        $rewatch = new RewatchChannel($message->channel, $this->jikan);
+        $rewatch->getNominations()
+            ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
+    }
 
-        $nominations = $this->rewatch->getValidNominations();
+    /**
+     * @param array $nominations
+     */
+    private function onMessagesLoaded(array $nominations): void
+    {
+        $message = $this->event->getMessage();
+        $io = $this->event->getIo();
         try {
             if (!count($nominations)) {
                 throw new RuntimeException('Invalid number of nominees '.count($nominations));
@@ -71,7 +95,9 @@ class FinishSubscriber implements EventSubscriberInterface
         }
         $winner = $nominations[0];
         $io->writeln('Announce winner');
-        $this->rewatch->message(
+        /** @var TextChannel $rewatchChannel */
+        $rewatchChannel = $message->client->channels->get($this->rewatchChannelId);
+        $rewatchChannel->send(
             sprintf(
                 ':trophy: Deze rewatch kijken we naar %s (%s), genomineerd door <@!%s>',
                 $winner->getAnime()->title,

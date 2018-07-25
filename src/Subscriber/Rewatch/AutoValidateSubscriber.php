@@ -136,6 +136,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
                 $this->nomination->setUniqueUser(false);
             }
         }
+
         // Check if the anime won before
         $previous = $this->doctrine
             ->getRepository(RewatchWinner::class)

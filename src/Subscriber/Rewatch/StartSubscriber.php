@@ -3,7 +3,6 @@
 namespace App\Subscriber\Rewatch;
 
 use App\Channel\Channel;
-use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Models\Permissions;
 use CharlotteDunois\Yasmin\Models\TextChannel;
@@ -17,22 +16,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class StartSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc rewatch start';
+    public const COMMAND = '!haamc rewatch start';
 
     /**
-     * @var RewatchChannel
+     * @var int
      */
-    private $rewatch;
+    private $rewatchChannelId;
 
     /**
-     * ValidateSubscriber constructor.
+     * StartSubscriber constructor.
      *
-     * @param RewatchChannel $rewatch
+     * @param int       $rewatchChannelId
      */
-    public function __construct(
-        RewatchChannel $rewatch
-    ) {
-        $this->rewatch = $rewatch;
+    public function __construct(int $rewatchChannelId)
+    {
+        $this->rewatchChannelId = $rewatchChannelId;
     }
 
     /**
@@ -40,7 +38,6 @@ class StartSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -58,7 +55,7 @@ class StartSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
 
         /** @var TextChannel $channel */
-        $channel = $message->channel->guild->channels->get($this->rewatch->getChannelId());
+        $channel = $message->guild->channels->get($this->rewatchChannelId);
         $channel->send('Bij deze zijn de nominaties voor de rewatch geopend! :tv:');
         $permissions = new Permissions();
         $permissions->add(Channel::ROLE_VIEW_MESSAGES);
