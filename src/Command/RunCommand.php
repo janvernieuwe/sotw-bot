@@ -2,8 +2,6 @@
 
 namespace App\Command;
 
-use App\Channel\CotsChannel;
-use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
 use App\Event\ReactionAddedEvent;
 use CharlotteDunois\Yasmin\Client;
@@ -51,16 +49,6 @@ class RunCommand extends ContainerAwareCommand
         $loop = Factory::create();
         $client = new Client([], $loop);
 
-        // Warm up cache on startup
-//        try {
-//            $io->section('Warming up the caches ...');
-//            $this->cots->getTop10();
-//            $io->success('Character of the season');
-//            $this->rewatch->getValidNominations();
-//            $io->success('Rewatch');
-//        } catch (\Exception $e) {
-//            $io->error((string)$e);
-//        }
         // Run the bot
         $io->section('Start listening');
         $client->on(
