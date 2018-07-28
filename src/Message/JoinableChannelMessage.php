@@ -222,28 +222,12 @@ class JoinableChannelMessage
     /**
      * @return string
      */
-    public function getAnimeTitle(): string
-    {
-        return $this->message->embeds[0]->title ?? $this->message->embeds[0]->author['name'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getAnimeImageUrl(): string
-    {
-        return $this->message->embeds[0]->thumbnail['url'];
-    }/** @noinspection MoreThanThreeArgumentsInspection */
-
-    /**
-     * @return string
-     */
     public function getEmbeddedAnimeLink(): string
     {
         return $this->message->embeds[0]->url;
     }
 
-    /**
+        /**
      * @param Anime  $anime
      * @param int    $channelId
      * @param string $link
@@ -272,8 +256,8 @@ class JoinableChannelMessage
                         'inline' => true,
                     ],
                     [
-                        'name'   => 'afleveringen',
-                        'value'  => $anime->getEpisodes() ?: '?',
+                        'name'   => 'genres',
+                        'value'  => implode(', ', $anime->getGenres()),
                         'inline' => true,
                     ],
                     [
@@ -289,6 +273,22 @@ class JoinableChannelMessage
                 ],
             ],
         ];
+    }/** @noinspection MoreThanThreeArgumentsInspection */
+
+    /**
+     * @return string
+     */
+    public function getAnimeTitle(): string
+    {
+        return $this->message->embeds[0]->title ?? $this->message->embeds[0]->author['name'];
+    }
+
+/**
+     * @return string
+     */
+    public function getAnimeImageUrl(): string
+    {
+        return $this->message->embeds[0]->thumbnail['url'];
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace App\Subscriber;
 
 use App\Event\MessageReceivedEvent;
-use RestCord\DiscordClient;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class SaySubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc say';
+    public const COMMAND = '!haamc say';
 
     /**
      * @var int
@@ -24,8 +24,7 @@ class SaySubscriber implements EventSubscriberInterface
     /**
      * AdminHelpSubscriber constructor.
      *
-     * @param int           $adminRole
-     * @param DiscordClient $discord
+     * @param int $adminRole
      */
     public function __construct(int $adminRole)
     {
@@ -61,12 +60,9 @@ class SaySubscriber implements EventSubscriberInterface
 
             return;
         }
-        $this->discord->channel->createMessage(
-            [
-                'channel.id' => (int)$cmd[1],
-                'content'    => $cmd[2],
-            ]
-        );
+        /** @var TextChannelInterface $channel */
+        $channel = $message->client->channels->get((int)$cmd[1]);
+        $channel->send($cmd[2]);
         $io->success(
             sprintf('Sent message to channel %s, %s by %s', $cmd[1], $cmd[2], $message->author->username)
         );
