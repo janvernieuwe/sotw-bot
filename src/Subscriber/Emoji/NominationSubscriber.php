@@ -27,6 +27,11 @@ class NominationSubscriber implements EventSubscriberInterface
     private const DELETE_TIMEOUT = 5;
 
     /**
+     * @var MessageReceivedEvent
+     */
+    private $event;
+
+    /**
      * @var int
      */
     private $channelId;
@@ -69,6 +74,7 @@ class NominationSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         /** @noinspection PhpUndefinedFieldInspection */
         if ($this->channelId !== (int)$message->channel->id) {
@@ -107,12 +113,14 @@ class NominationSubscriber implements EventSubscriberInterface
             Channel::ROLE_SEND_MESSAGES,
             'Processing emoji'
         );
+        /** @var TextChannelInterface $emojiChannel */
+        $emojiChannel = $message->client->channels->get($this->channelId);
         $message->guild
             ->createEmoji($attachment->getUrl(), $attachment->getName())
             ->done(
-                function (Emoji $emoji) use ($message, $io, $channel) {
+                function (Emoji $emoji) use ($message, $io, $channel, $emojiChannel) {
                     $message->channel->send(Util::emojiToString($emoji))->done(
-                        function (Message $emojiPost) use ($message, $emoji, $io, $channel) {
+                        function (Message $emojiPost) use ($message, $emoji, $io, $channel, $emojiChannel) {
                             $emojiPost->react(Util::emojiToString($emoji));
                             $message->delete();
                             $emoji->delete();
@@ -122,31 +130,14 @@ class NominationSubscriber implements EventSubscriberInterface
                                 Channel::ROLE_SEND_MESSAGES,
                                 0,
                                 'Processing emoji'
+                            )->done(
+                                function () use ($emojiChannel) {
+                                    $emojiChannel->fetchMessages(['limit' => 100])
+                                        ->done(\Closure::fromCallable([$this, 'countMessages']));
+                                }
                             );
                         }
                     );
-                }
-            );
-
-
-        /** @var TextChannelInterface $emojiChannel */
-        $emojiChannel = $message->client->channels->get($this->channelId);
-        $emojiChannel->fetchMessages(['limit' => 100])
-            ->done(
-                function (Collection $messages) use ($io, $channel, $emojiChannel) {
-                    $count = $messages->count();
-                    if ($count < 100) {
-                        $io->writeln(sprintf('Not closing yet, %s nominations', $count));
-
-                        return;
-                    }
-                    $emojiChannel->send('Laat het stemmen beginnen');
-                    $channel->overwritePermissions(
-                        $this->roleId,
-                        0,
-                        Channel::ROLE_SEND_MESSAGES
-                    );
-                    $io->success('Closed nominations');
                 }
             );
     }
@@ -165,5 +156,29 @@ class NominationSubscriber implements EventSubscriberInterface
                 $err->delete(self::DELETE_TIMEOUT);
             }
         );
+    }
+
+    private function countMessages(Collection $messages)
+    {
+        $io = $this->event->getIo();
+        $count = $messages->count();
+        $message = $this->event->getMessage();
+
+        $emojiChannel = $message->client->channels->get($this->channelId);
+
+        if ($count < 100) {
+            $io->writeln(sprintf('Not closing yet, %s nominations', $count));
+
+            return;
+        }
+        $emojiChannel->send('Laat het stemmen beginnen');
+        /** @var GuildChannelInterface $emojiChannel */
+        $channel = $message->guild->channels->get($this->channelId);
+        $channel->overwritePermissions(
+            $this->roleId,
+            0,
+            Channel::ROLE_SEND_MESSAGES
+        );
+        $io->success('Closed nominations');
     }
 }
