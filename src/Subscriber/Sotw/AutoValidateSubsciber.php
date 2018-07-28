@@ -5,6 +5,7 @@ namespace App\Subscriber\Sotw;
 use App\Channel\Channel;
 use App\Channel\SongOfTheWeekChannel;
 use App\Entity\Reaction;
+use App\Error\Messenger;
 use App\Event\MessageReceivedEvent;
 use App\Message\SotwNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
@@ -73,10 +74,7 @@ class AutoValidateSubsciber implements EventSubscriberInterface
         $nomination = SotwNomination::fromMessage($message);
         $errors = $this->validator->validate($nomination);
         if (\count($errors)) {
-            //$this->error->send($nomination); // @TODO redo errors
-            $message->delete();
-            /** @noinspection PhpToStringImplementationInspection */
-            $io->error($nomination.PHP_EOL.$errors);
+            (new Messenger($message, $errors, $io))->send();
 
             return;
         }

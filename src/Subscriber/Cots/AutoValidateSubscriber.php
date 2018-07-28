@@ -5,6 +5,7 @@ namespace App\Subscriber\Cots;
 use App\Channel\Channel;
 use App\Channel\CotsChannel;
 use App\Entity\Reaction;
+use App\Error\Messenger;
 use App\Event\MessageReceivedEvent;
 use App\Message\CotsNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
@@ -108,9 +109,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $errors = $this->validator->validate($nomination);
         // Validate the nomination
         if ($errors->count()) {
-            //$this->error->send($nomination, $this->season);
-            $io->error((string)$errors);
-            $message->delete();
+            (new Messenger($message, $errors, $io))->send();
 
             return;
         }

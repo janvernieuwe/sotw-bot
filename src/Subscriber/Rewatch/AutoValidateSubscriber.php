@@ -5,6 +5,7 @@ namespace App\Subscriber\Rewatch;
 use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Entity\RewatchWinner;
+use App\Error\Messenger;
 use App\Event\MessageReceivedEvent;
 use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
@@ -146,10 +147,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $errors = $this->validator->validate($this->nomination);
         // Invalid
         if (count($errors)) {
-            /** @noinspection PhpToStringImplementationInspection */
-            $io->error($this->nomination->getAuthor().': '.$this->nomination->getAnime()->getTitle().PHP_EOL.$errors);
-            //$this->error->send($this->nomination);
-            $message->delete();
+            (new Messenger($message, $errors, $io))->send();
 
             return;
         }

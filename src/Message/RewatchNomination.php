@@ -5,7 +5,7 @@ namespace App\Message;
 use App\Entity\Reaction;
 use App\Entity\RewatchWinner;
 use CharlotteDunois\Yasmin\Models\Message;
-use CharlotteDunois\Yasmin\Utils\Collection;
+use CharlotteDunois\Yasmin\Models\MessageReaction;
 use Jikan\Helper\Parser;
 use Jikan\Model\Anime\Anime;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -84,7 +84,8 @@ class RewatchNomination
         $instance->author = $message->author->username;
         $instance->authorId = $message->author->id;
         $instance->messageId = $message->id;
-        $instance->votes = $message->reactions->get(Reaction::VOTE)->count -1;
+        $instance->votes = $message->reactions->get(Reaction::VOTE);
+        $instance->votes = $instance->votes instanceof MessageReaction ? $instance->votes->count - 1 : 0;
 
         return $instance;
     }
@@ -159,7 +160,7 @@ class RewatchNomination
      */
     public function getEndDate(): \DateTimeImmutable
     {
-        return $this->anime->getAired()->getUntil();
+        return $this->anime->getAired()->getUntil() ?? new \DateTimeImmutable();
     }
 
     /**

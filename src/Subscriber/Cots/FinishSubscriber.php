@@ -117,7 +117,7 @@ class FinishSubscriber implements EventSubscriberInterface
         $output = ['De huidige Character of the season ranking is'];
         $top10 = \array_slice($nominations, 0, 10);
         foreach ($top10 as $i => $nomination) {
-            $voiceActors = $nomination->getCharacter()->voice_actor;
+            $voiceActors = $nomination->getCharacter()->getVoiceActors();
             $output[] = sprintf(
                 ":mens: %s) **%s**, *%s*\nvotes: **%s** | door: *%s* | voice actor: *%s* | score: %s",
                 $i + 1,

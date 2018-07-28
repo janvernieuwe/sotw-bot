@@ -4,6 +4,7 @@ namespace App\Message;
 
 use App\Entity\Reaction;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\MessageReaction;
 use Jikan\Model\Anime\Anime;
 use Jikan\Model\Character\Character;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -60,7 +61,8 @@ class CotsNomination
         $instance = new self();
         $instance->anime = $anime;
         $instance->character = $character;
-        $instance->votes = $message->reactions->get(Reaction::VOTE)->count - 1;
+        $instance->votes = $message->reactions->get(Reaction::VOTE);
+        $instance->votes = $instance->votes instanceof MessageReaction ? $instance->votes->count - 1 : 0;
         $instance->author = $message->author->username;
         $instance->authorid = $message->author->id;
 
@@ -135,8 +137,8 @@ class CotsNomination
      */
     public function getIsCharacterInAnime(): bool
     {
-        foreach ($this->character->animeography as $anime) {
-            if ($anime['mal_id'] === $this->anime->getMalId()) {
+        foreach ($this->character->getAnimeography() as $anime) {
+            if ($anime->getMalId() === $this->anime->getMalId()) {
                 return true;
             }
         }
