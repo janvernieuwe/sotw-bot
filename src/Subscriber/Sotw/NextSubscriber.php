@@ -158,12 +158,13 @@ class NextSubscriber implements EventSubscriberInterface
         );
         $this->sotwChannel->send(
             sprintf(
-                ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s>\n",
+                ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s> `%s`\n",
                 (int)date('W'),
                 $winner->getArtist(),
                 $winner->getTitle(),
                 $winner->getAnime(),
-                $winner->getAuthorId()
+                $winner->getAuthorId(),
+                $winner->getYoutube()
             )
         );
         $message = <<<MESSAGE
