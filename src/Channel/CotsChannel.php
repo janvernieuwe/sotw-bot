@@ -92,11 +92,11 @@ class CotsChannel extends Channel
      *
      * @return Promise
      */
-    public function getLastNominations(int $limit = 25): Promise
+    public function getLastNominations(int $limit = 50): Promise
     {
         $deferred = new Deferred();
         $this->channel
-            ->fetchMessages(['limit' => 20])
+            ->fetchMessages(['limit' => $limit])
             ->done(
                 function (Collection $collection) use ($deferred) {
                     $nominations = [];
@@ -155,29 +155,5 @@ class CotsChannel extends Channel
         }
 
         return CotsNomination::fromMessage($message, $character, $anime);
-    }
-
-    /**
-     * @return string
-     * @deprecated
-     */
-    public function getTop10(): string
-    {
-        $output = ['De huidige Character of the season ranking is'];
-        foreach ($this->getLastNominations(10) as $i => $nomination) {
-            $voiceActors = $nomination->getCharacter()->voice_actor;
-            $output[] = sprintf(
-                ":mens: %s) **%s**, *%s*\nvotes: **%s** | door: *%s* | voice actor: *%s* | score: %s",
-                $i + 1,
-                $nomination->getCharacter()->name,
-                $nomination->getAnime()->title,
-                $nomination->getVotes(),
-                $nomination->getAuthor(),
-                count($voiceActors) ? $nomination->getCharacter()->voice_actor[0]['name'] : 'n/a',
-                $nomination->getAnime()->score
-            );
-        }
-
-        return implode(PHP_EOL, $output);
     }
 }

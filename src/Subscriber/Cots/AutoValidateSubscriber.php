@@ -156,7 +156,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $io = $this->event->getIo();
         $message = $this->event->getMessage();
         $nominationCount = count($nominations);
-        if ($nominationCount !== self::LIMIT) {
+        if ($nominationCount < self::LIMIT) {
             $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
 
             return;
