@@ -109,7 +109,21 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $nomination = $cotsChannel->loadNomination($message);
+        try {
+            $nomination = $cotsChannel->loadNomination($message);
+        } catch (\Exception $e) {
+            $message->reply(':x: Ongeldige anime en/of character link')
+                ->done(
+                    function (Message $errorMessage) use ($message, $io) {
+                        $message->delete(10);
+                        $errorMessage->delete(10);
+                        $io->error('Invalid nomination');
+                    }
+                );
+
+            return;
+        }
+
         // Set the season for validation
         $nomination->setSeason($this->season);
 
