@@ -25,6 +25,11 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     public const LIMIT = 25;
 
     /**
+     * @var MessageReceivedEvent
+     */
+    private $event;
+
+    /**
      * @var string
      */
     private $season;
@@ -86,6 +91,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         /** @noinspection PhpUndefinedFieldInspection */
         if ((int)$message->channel->id !== $this->cotsChannelId) {
@@ -138,7 +144,17 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $message->react(Reaction::VOTE);
         $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->getTitle());
         // Check total nominations
-        $nominations = $cotsChannel->getLastNominations();
+        $cotsChannel->getLastNominations()
+            ->done(\Closure::fromCallable([$this, 'onMessagesLoaded']));
+    }
+
+    /**
+     * @param CotsNomination[] $nominations
+     */
+    private function onMessagesLoaded(array $nominations): void
+    {
+        $io = $this->event->getIo();
+        $message = $this->event->getMessage();
         $nominationCount = count($nominations);
         if ($nominationCount !== self::LIMIT) {
             $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
