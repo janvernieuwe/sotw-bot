@@ -106,7 +106,7 @@ class CotsChannel extends Channel
                     foreach ($collection->all() as $message) {
                         if (strpos(
                             $message->content,
-                            'Bij deze zijn de nominaties voor de rewatch geopend!'
+                            'Bij deze zijn de nominaties voor'
                         ) !== false) {
                             break;
                         }

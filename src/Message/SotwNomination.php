@@ -58,16 +58,6 @@ class SotwNomination
     private $votes;
 
     /**
-     * @param string $data
-     *
-     * @return bool
-     */
-    public static function isContenter(string $data): bool
-    {
-        return preg_match('#https?://(www\.|m.)?(youtube\.com|youtu\.be)#im', $data);
-    }
-
-    /**
      * @param Message $message
      *
      * @return SotwNomination
@@ -97,7 +87,7 @@ class SotwNomination
      */
     protected static function matchPattern(string $pattern, string $content): string
     {
-        $pattern = sprintf('/%s\:\s?(.*)/im', $pattern);
+        $pattern = sprintf('/^%s\:\s?(.*)/im', $pattern);
         preg_match_all($pattern, $content, $matches);
         if (!isset($matches[1][0])) {
             return '';
@@ -127,6 +117,25 @@ class SotwNomination
     public function getYoutube(): string
     {
         return $this->youtube;
+    }
+
+    /**
+     * @Assert\IsTrue(message="Ongeldige youtube url")
+     * @return bool
+     */
+    public function isValidYoutubeUrl(): bool
+    {
+        return self::isContenter($this->youtube);
+    }
+
+    /**
+     * @param string $data
+     *
+     * @return bool
+     */
+    public static function isContenter(string $data): bool
+    {
+        return preg_match('#https?://(www\.|m.)?(youtube\.com|youtu\.be)#im', $data);
     }
 
     /**

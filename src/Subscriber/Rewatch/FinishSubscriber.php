@@ -37,8 +37,8 @@ class FinishSubscriber implements EventSubscriberInterface
     /**
      * ValidateSubscriber constructor.
      *
-     * @param MalClient      $jikan
-     * @param int            $rewatchChannelId
+     * @param MalClient $jikan
+     * @param int       $rewatchChannelId
      */
     public function __construct(
         MalClient $jikan,
@@ -68,7 +68,7 @@ class FinishSubscriber implements EventSubscriberInterface
         }
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $rewatch = new RewatchChannel($message->channel, $this->jikan);
+        $rewatch = new RewatchChannel($message->client->channels->get($this->rewatchChannelId), $this->jikan);
         $rewatch->getNominations()
             ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
     }

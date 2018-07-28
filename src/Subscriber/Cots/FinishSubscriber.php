@@ -31,14 +31,17 @@ class FinishSubscriber implements EventSubscriberInterface
      * @var string
      */
     private $season;
+
     /**
      * @var MalClient
      */
     private $jikan;
+
     /**
      * @var int
      */
     private $cotsChannelId;
+
     /**
      * @var int
      */
