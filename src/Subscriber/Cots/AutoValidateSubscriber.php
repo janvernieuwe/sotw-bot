@@ -9,6 +9,7 @@ use App\Error\Messenger;
 use App\Event\MessageReceivedEvent;
 use App\Message\CotsNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use CharlotteDunois\Yasmin\Models\Message;
 use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -96,8 +97,14 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $cotsChannel = new CotsChannel($this->jikan, $message->client->channels->get($this->cotsChannelId));
 
         if (!CotsNomination::isNomination($message->content)) {
-            $io->error('Invalid nomination');
-            $message->delete();
+            $message->reply(':x: Ontbrekende anime en/of character link')
+                ->done(
+                    function (Message $errorMessage) use ($message, $io) {
+                        $message->delete(10);
+                        $errorMessage->delete(10);
+                        $io->error('Invalid nomination');
+                    }
+                );
 
             return;
         }
