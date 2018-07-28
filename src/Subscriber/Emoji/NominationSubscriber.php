@@ -2,11 +2,15 @@
 
 namespace App\Subscriber\Emoji;
 
+use App\Channel\Channel;
 use App\Event\MessageReceivedEvent;
 use App\Message\YasminEmojiNominationAttachment;
 use App\Util\Util;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\Emoji;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Utils\Collection;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -33,17 +37,22 @@ class NominationSubscriber implements EventSubscriberInterface
     private $validator;
 
     /**
+     * @var int
+     */
+    private $roleId;
+
+    /**
      * NominationSubscriber constructor.
      *
      * @param int                $emojiChannelId
      * @param ValidatorInterface $validator
-     *
-     * @internal param int $channelId
+     * @param int                $roleId
      */
-    public function __construct(int $emojiChannelId, ValidatorInterface $validator)
+    public function __construct(int $emojiChannelId, ValidatorInterface $validator, int $roleId)
     {
         $this->channelId = $emojiChannelId;
         $this->validator = $validator;
+        $this->roleId = $roleId;
     }
 
     /**
@@ -90,18 +99,56 @@ class NominationSubscriber implements EventSubscriberInterface
 
             return;
         }
-        $message->guild->createEmoji($attachment->getUrl(), $attachment->getName())->done(
-            function (Emoji $emoji) use ($message, $io) {
-                $message->channel->send(Util::emojiToString($emoji))->done(
-                    function (Message $emojiPost) use ($message, $emoji, $io) {
-                        $emojiPost->react(Util::emojiToString($emoji));
-                        $message->delete();
-                        $emoji->delete();
-                        $io->success(sprintf('Emoji %s nominated', $emoji->name));
-                    }
-                );
-            }
+        /** @var GuildChannelInterface $channel */
+        $channel = $message->guild->channels->get($this->channelId);
+        $channel->overwritePermissions(
+            $this->roleId,
+            0,
+            Channel::ROLE_SEND_MESSAGES,
+            'Processing emoji'
         );
+        $message->guild
+            ->createEmoji($attachment->getUrl(), $attachment->getName())
+            ->done(
+                function (Emoji $emoji) use ($message, $io, $channel) {
+                    $message->channel->send(Util::emojiToString($emoji))->done(
+                        function (Message $emojiPost) use ($message, $emoji, $io, $channel) {
+                            $emojiPost->react(Util::emojiToString($emoji));
+                            $message->delete();
+                            $emoji->delete();
+                            $io->success(sprintf('Emoji %s nominated', $emoji->name));
+                            $channel->overwritePermissions(
+                                $this->roleId,
+                                Channel::ROLE_SEND_MESSAGES,
+                                0,
+                                'Processing emoji'
+                            );
+                        }
+                    );
+                }
+            );
+
+
+        /** @var TextChannelInterface $emojiChannel */
+        $emojiChannel = $message->client->channels->get($this->channelId);
+        $emojiChannel->fetchMessages(['limit' => 100])
+            ->done(
+                function (Collection $messages) use ($io, $channel, $emojiChannel) {
+                    $count = $messages->count();
+                    if ($count < 100) {
+                        $io->writeln(sprintf('Not closing yet, %s nominations', $count));
+
+                        return;
+                    }
+                    $emojiChannel->send('Laat het stemmen beginnen');
+                    $channel->overwritePermissions(
+                        $this->roleId,
+                        0,
+                        Channel::ROLE_SEND_MESSAGES
+                    );
+                    $io->success('Closed nominations');
+                }
+            );
     }
 
     /**
