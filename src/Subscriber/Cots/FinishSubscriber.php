@@ -103,7 +103,7 @@ class FinishSubscriber implements EventSubscriberInterface
         $message = $this->event->getMessage();
         $nominationCount = count($nominations);
         try {
-            if ($nominationCount <= 2) {
+            if ($nominationCount < 2) {
                 throw new RuntimeException('Not enough nominees');
             }
             if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
