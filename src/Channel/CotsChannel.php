@@ -12,7 +12,6 @@ use Jikan\Request\Anime\AnimeRequest;
 use Jikan\Request\Character\CharacterRequest;
 use React\Promise\Deferred;
 use React\Promise\Promise;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class SongOfTheWeek
@@ -146,8 +145,14 @@ class CotsChannel extends Channel
             throw new CharacterNotFoundException('Invalid message '.$message->content);
         }
 
-        $anime = $this->mal->getAnime(new AnimeRequest(CotsNomination::getAnimeId($message->content)));
-        $character = $this->mal->getCharacter(new CharacterRequest(CotsNomination::getCharacterId($message->content)));
+        try {
+            $anime = $this->mal->getAnime(new AnimeRequest(CotsNomination::getAnimeId($message->content)));
+            $character = $this->mal->getCharacter(
+                new CharacterRequest(CotsNomination::getCharacterId($message->content))
+            );
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to load nomination: '.$message->content.' '.$e);
+        }
 
         return CotsNomination::fromMessage($message, $character, $anime);
     }
