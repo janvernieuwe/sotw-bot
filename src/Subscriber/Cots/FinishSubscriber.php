@@ -2,9 +2,14 @@
 
 namespace App\Subscriber\Cots;
 
+use App\Channel\Channel;
 use App\Channel\CotsChannel;
 use App\Event\MessageReceivedEvent;
 use App\Exception\RuntimeException;
+use App\Message\CotsNomination;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
+use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -15,32 +20,48 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class FinishSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc cots finish';
+    public const COMMAND = '!haamc cots finish';
 
     /**
-     * @var CotsChannel
+     * @var MessageReceivedEvent
      */
-    private $cots;
+    private $event;
 
     /**
      * @var string
      */
     private $season;
+    /**
+     * @var MalClient
+     */
+    private $jikan;
+    /**
+     * @var int
+     */
+    private $cotsChannelId;
+    /**
+     * @var int
+     */
+    private $roleId;
 
     /**
      * ValidateSubscriber constructor.
      *
-     * @param CotsChannel $cots
-     * @param string      $season
-     *
-     * @internal param RewatchChannel $rewatch
+     * @param string    $season
+     * @param MalClient $jikan
+     * @param int       $cotsChannelId
+     * @param int       $roleId
      */
     public function __construct(
-        CotsChannel $cots,
-        string $season
+        string $season,
+        MalClient $jikan,
+        int $cotsChannelId,
+        int $roleId
     ) {
-        $this->cots = $cots;
         $this->season = $season;
+        $this->jikan = $jikan;
+        $this->cotsChannelId = $cotsChannelId;
+        $this->roleId = $roleId;
     }
 
     /**
@@ -48,7 +69,6 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -57,6 +77,7 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         if (!$event->isAdmin() || strpos($message->content, self::COMMAND) !== 0) {
             return;
@@ -65,7 +86,18 @@ class FinishSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $nominations = $this->cots->getLastNominations();
+        $cotsChannel = new CotsChannel($this->jikan, $message->client->channels->get($this->cotsChannelId));
+        $cotsChannel->getLastNominations()
+            ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
+    }
+
+    /**
+     * @param CotsNomination[] $nominations
+     */
+    private function onMessagesLoaded(array $nominations): void
+    {
+        $io = $this->event->getIo();
+        $message = $this->event->getMessage();
         $nominationCount = count($nominations);
         try {
             if ($nominationCount <= 2) {
@@ -80,9 +112,46 @@ class FinishSubscriber implements EventSubscriberInterface
 
             return;
         }
-        $this->cots->message($this->cots->getTop10());
+        /** @var TextChannelInterface $cotsChannel */
+        $cotsChannel = $message->client->channels->get($this->cotsChannelId);
+        $output = ['De huidige Character of the season ranking is'];
+        $top10 = \array_slice($nominations, 0, 10);
+        foreach ($top10 as $i => $nomination) {
+            $voiceActors = $nomination->getCharacter()->voice_actor;
+            $output[] = sprintf(
+                ":mens: %s) **%s**, *%s*\nvotes: **%s** | door: *%s* | voice actor: *%s* | score: %s",
+                $i + 1,
+                $nomination->getCharacter()->getName(),
+                $nomination->getAnime()->getTitle(),
+                $nomination->getVotes(),
+                $nomination->getAuthor(),
+                count($voiceActors) ? $nomination->getCharacter()->getVoiceActors()[0]->getName() : 'n/a',
+                $nomination->getAnime()->getScore()
+            );
+        }
+
+        $cotsChannel->send(implode(PHP_EOL, $output));
         $io->success('Displayed top 10');
-        $this->cots->announceWinner($nominations[0], $this->season);
+        /** @var GuildChannelInterface $cotsGuildChannel */
+        $cotsGuildChannel = $message->guild->channels->get($this->cotsChannelId);
+        $cotsGuildChannel->overwritePermissions(
+            $this->roleId,
+            0,
+            Channel::ROLE_SEND_MESSAGES,
+            'Finished character of the season'
+        );
+        $nomination = $nominations[0];
+        $cotsChannel->send(
+            sprintf(
+                ":trophy: Het character van %s is **%s**! van **%s**\n"
+                ."Genomineerd door %s\nhttps://myanimelist.net/character/%s",
+                $this->season,
+                $nomination->getCharacter()->name,
+                $nomination->getAnime()->getTitle(),
+                $nomination->getAuthor(),
+                $nomination->getCharacter()->getMalId()
+            )
+        );
         $io->success('Announced the winner');
     }
 }

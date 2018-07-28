@@ -2,6 +2,7 @@
 
 namespace App\Message;
 
+use App\Entity\Reaction;
 use CharlotteDunois\Yasmin\Models\Message;
 use Jikan\Model\Anime\Anime;
 use Jikan\Model\Character\Character;
@@ -18,6 +19,21 @@ class CotsNomination
     private const ANIME_REGXP = '#https?://myanimelist.net/anime/(\d+)#';
 
     /**
+     * @var string
+     */
+    private $author;
+
+    /**
+     * @var int
+     */
+    private $authorid;
+
+    /**
+     * @var int
+     */
+    private $votes;
+
+    /**
      * @var Character
      */
     private $character;
@@ -31,21 +47,24 @@ class CotsNomination
      * @var string
      */
     private $season = '';
-    /**
-     * @var array|Message
-     */
-    private $message;
 
     /**
-     * CotsNomination constructor.
-     *
-     * @param Character $character
+     * @param Message   $message
      * @param Anime     $anime
+     * @param Character $character
+     *
+     * @return CotsNomination
      */
-    public function __construct(Character $character, Anime $anime)
+    public static function fromMessage(Message $message, Character $character, Anime $anime): CotsNomination
     {
-        $this->character = $character;
-        $this->anime = $anime;
+        $instance = new self();
+        $instance->anime = $anime;
+        $instance->character = $character;
+        $instance->votes = $message->reactions->get(Reaction::VOTE)->count - 1;
+        $instance->author = $message->author->username;
+        $instance->authorid = $message->author->id;
+
+        return $instance;
     }
 
     /**
@@ -132,5 +151,29 @@ class CotsNomination
     public function getIsValidSeason(): bool
     {
         return $this->season === $this->anime->getPremiered();
+    }
+
+    /**
+     * @return int
+     */
+    public function getVotes(): int
+    {
+        return $this->votes;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAuthorid(): int
+    {
+        return $this->authorid;
     }
 }

@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "e7ad050149fe5a74404640e3d62df377",
@@ -1392,12 +1392,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jikan-me/jikan.git",
-                "reference": "fad10e4a0a5e8bb82a265bed3153ca9cc96dac3d"
+                "reference": "702206ea576396552c886dd195af1aec85fb5fc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/fad10e4a0a5e8bb82a265bed3153ca9cc96dac3d",
-                "reference": "fad10e4a0a5e8bb82a265bed3153ca9cc96dac3d",
+                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/702206ea576396552c886dd195af1aec85fb5fc1",
+                "reference": "702206ea576396552c886dd195af1aec85fb5fc1",
                 "shasum": ""
             },
             "require": {
@@ -1432,7 +1432,7 @@
                 }
             ],
             "description": "Jikan is an unofficial MyAnimeList API",
-            "time": "2018-07-25T16:43:27+00:00"
+            "time": "2018-07-26T22:20:00+00:00"
         },
         {
             "name": "kevinrob/guzzle-cache-middleware",

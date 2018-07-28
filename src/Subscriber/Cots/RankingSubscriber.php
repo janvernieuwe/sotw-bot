@@ -4,6 +4,8 @@ namespace App\Subscriber\Cots;
 
 use App\Channel\CotsChannel;
 use App\Event\MessageReceivedEvent;
+use App\Message\CotsNomination;
+use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -14,22 +16,33 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RankingSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc cots ranking';
+    public const COMMAND = '!haamc cots ranking';
 
     /**
-     * @var CotsChannel
+     * @var MessageReceivedEvent
      */
-    private $cots;
+    private $event;
 
     /**
-     * ValidateSubscriber constructor.
+     * @var int
+     */
+    private $cotsChannelId;
+
+    /**
+     * @var MalClient
+     */
+    private $jikan;
+
+    /**
+     * RankingSubscriber constructor.
      *
-     * @param CotsChannel $cots
+     * @param int       $cotsChannelId
+     * @param MalClient $jikan
      */
-    public function __construct(
-        CotsChannel $cots
-    ) {
-        $this->cots = $cots;
+    public function __construct(int $cotsChannelId, MalClient $jikan)
+    {
+        $this->cotsChannelId = $cotsChannelId;
+        $this->jikan = $jikan;
     }
 
     /**
@@ -37,7 +50,6 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -46,6 +58,7 @@ class RankingSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $message = $event->getMessage();
         if (strpos($message->content, self::COMMAND) !== 0) {
             return;
@@ -53,15 +66,44 @@ class RankingSubscriber implements EventSubscriberInterface
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
+        $cotsChannel = new CotsChannel($this->jikan, $message->client->channels->get($this->cotsChannelId));
 
-        $nominations = $this->cots->getLastNominations();
+
+        $cotsChannel->getLastNominations()
+            ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
+    }
+
+    /**
+     * @param CotsNomination[] $nominations
+     */
+    private function onMessagesLoaded(array $nominations): void
+    {
+        $io = $this->event->getIo();
+        $message = $this->event->getMessage();
         if (!count($nominations)) {
             $message->reply('Er zijn nog geen nominaties');
             $io->error('Er zijn nog geen nominaties');
 
             return;
         }
-        $message->channel->send($this->cots->getTop10());
+
+        $output = [];
+        $top10 = \array_slice($nominations, 0, 10);
+        foreach ($top10 as $i => $nomination) {
+            $voiceActors = $nomination->getCharacter()->voice_actor;
+            $output[] = sprintf(
+                ":mens: %s) **%s**, *%s*\nvotes: **%s** | door: *%s* | voice actor: *%s* | score: %s",
+                $i + 1,
+                $nomination->getCharacter()->getName(),
+                $nomination->getAnime()->getTitle(),
+                $nomination->getVotes(),
+                $nomination->getAuthor(),
+                count($voiceActors) ? $nomination->getCharacter()->getVoiceActors()[0]->getName() : 'n/a',
+                $nomination->getAnime()->getScore()
+            );
+        }
+
+        $message->channel->send(implode(PHP_EOL, $output));
         $io->success('Ranking displayed');
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Subscriber\Cots;
 
-use App\Channel\CotsChannel;
+use App\Channel\Channel;
 use App\Event\MessageReceivedEvent;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -14,12 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class StartSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc cots start';
-
-    /**
-     * @var CotsChannel
-     */
-    private $cots;
+    public const COMMAND = '!haamc cots start';
 
     /**
      * @var string
@@ -27,19 +24,30 @@ class StartSubscriber implements EventSubscriberInterface
     private $season;
 
     /**
+     * @var int
+     */
+    private $cotsChannelId;
+
+    /**
+     * @var int
+     */
+    private $roleId;
+
+    /**
      * ValidateSubscriber constructor.
      *
-     * @param CotsChannel $cots
-     * @param string      $season
-     *
-     * @internal param RewatchChannel $rewatch
+     * @param string    $season
+     * @param int       $cotsChannelId
+     * @param int       $roleId
      */
     public function __construct(
-        CotsChannel $cots,
-        string $season
+        string $season,
+        int $cotsChannelId,
+        int $roleId
     ) {
-        $this->cots = $cots;
         $this->season = $season;
+        $this->cotsChannelId = $cotsChannelId;
+        $this->roleId = $roleId;
     }
 
     /**
@@ -47,7 +55,6 @@ class StartSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 
@@ -63,7 +70,18 @@ class StartSubscriber implements EventSubscriberInterface
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        $this->cots->openChannel($this->season);
+
+        /** @var GuildChannelInterface $guildChannel */
+        $guildChannel = $message->guild->channels->get($this->cotsChannelId);
+        $guildChannel->overwritePermissions(
+            $this->roleId,
+            Channel::ROLE_SEND_MESSAGES,
+            0,
+            'Opened Cots nominaions'
+        );
+        /** @var TextChannelInterface $cotsChannel */
+        $cotsChannel = $message->client->channels->get($this->cotsChannelId);
+        $cotsChannel->send(sprintf('Bij deze zijn de nominaties voor season  %s geopend!', $this->season));
         $io->success('Opened nominations');
     }
 }

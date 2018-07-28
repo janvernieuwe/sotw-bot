@@ -2,9 +2,15 @@
 
 namespace App\Subscriber\Cots;
 
+use App\Channel\Channel;
 use App\Channel\CotsChannel;
+use App\Entity\Reaction;
 use App\Event\MessageReceivedEvent;
+use App\Message\CotsNomination;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Lets admins run symfony commands
@@ -27,18 +33,39 @@ class AutoValidateSubscriber implements EventSubscriberInterface
     private $cotsChannelId;
 
     /**
+     * @var MalClient
+     */
+    private $jikan;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+    /**
+     * @var int
+     */
+    private $everyoneRole;
+
+    /**
      * AutoValidateSubscriber constructor.
      *
-     * @param string $season
-     *
-     * @param int    $cotsChannelId
-     *
-     * @internal param RewatchChannel $rewatch
+     * @param string             $season
+     * @param int                $cotsChannelId
+     * @param MalClient          $jikan
+     * @param ValidatorInterface $validator
+     * @param int                $roleId
      */
-    public function __construct(string $season, int $cotsChannelId)
-    {
+    public function __construct(
+        string $season,
+        int $cotsChannelId,
+        MalClient $jikan,
+        ValidatorInterface $validator,
+        int $roleId
+    ) {
         $this->season = $season;
         $this->cotsChannelId = $cotsChannelId;
+        $this->jikan = $jikan;
+        $this->validator = $validator;
+        $this->everyoneRole = $roleId;
     }
 
     /**
@@ -65,39 +92,48 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
+        $cotsChannel = new CotsChannel($this->jikan, $message->client->channels->get($this->cotsChannelId));
 
-//        // Attempt to load the nomination
-//        try {
-//            $nomination = $this->cots->loadNomination($message);
-//        } catch (\Exception $e) {
-//            $io->error($e->getMessage());
-//            $message->delete();
-//
-//            return;
-//        }
-//        // Set the season for validation
-//        $nomination->setSeason($this->season);
-//        // Validate the nomination
-//        if (!$this->error->isValid($nomination)) {
-//            //$this->error->send($nomination, $this->season);
-//            $io->error(implode(PHP_EOL, $this->error->getErrorArray($nomination)).PHP_EOL.$message->content);
-//            $message->delete();
-//
-//            return;
-//        }
-//        // Success
-//        $message->react(Reaction::VOTE);
-//        $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->title);
-//        // Check total nominations
-//        $nominations = $this->cots->getLastNominations();
-//        $nominationCount = count($nominations);
-//        if ($nominationCount !== self::LIMIT) {
-//            $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
-//
-//            return;
-//        }
-//        // Close channel when limit is reached
-//        $this->cots->closeNominations();
-//        $io->success('Closed nominations');
+        if (!CotsNomination::isNomination($message->content)) {
+            $io->error('Invalid nomination');
+            $message->delete();
+
+            return;
+        }
+
+        $nomination = $cotsChannel->loadNomination($message);
+        // Set the season for validation
+        $nomination->setSeason($this->season);
+
+        $errors = $this->validator->validate($nomination);
+        // Validate the nomination
+        if ($errors->count()) {
+            //$this->error->send($nomination, $this->season);
+            $io->error((string)$errors);
+            $message->delete();
+
+            return;
+        }
+        // Success
+        $message->react(Reaction::VOTE);
+        $io->success($nomination->getCharacter()->name.' - '.$nomination->getAnime()->getTitle());
+        // Check total nominations
+        $nominations = $cotsChannel->getLastNominations();
+        $nominationCount = count($nominations);
+        if ($nominationCount !== self::LIMIT) {
+            $io->writeln(sprintf('Not locking yet %s/%s nominations', $nominationCount, self::LIMIT));
+
+            return;
+        }
+        // Close channel when limit is reached
+        /** @var GuildChannelInterface $guildChannel */
+        $guildChannel = $message->guild->channels->get($this->cotsChannelId);
+        $guildChannel->overwritePermissions(
+            $this->everyoneRole,
+            0,
+            Channel::ROLE_SEND_MESSAGES,
+            'Closed Cots nominations'
+        );
+        $io->success('Closed nominations');
     }
 }

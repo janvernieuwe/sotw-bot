@@ -4,10 +4,14 @@ namespace App\Channel;
 
 use App\Exception\CharacterNotFoundException;
 use App\Message\CotsNomination;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Utils\Collection;
 use Jikan\MyAnimeList\MalClient;
 use Jikan\Request\Anime\AnimeRequest;
 use Jikan\Request\Character\CharacterRequest;
+use React\Promise\Deferred;
+use React\Promise\Promise;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -18,43 +22,116 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CotsChannel extends Channel
 {
     /**
-     * @var int
-     */
-    private $roleId;
-
-    /**
      * @var MalClient
      */
     private $mal;
 
     /**
-     * @var ValidatorInterface
+     * @var TextChannelInterface
      */
-    private $validator;
-
-    /**
-     * @var int
-     */
-    private $channelId;
+    private $channel;
 
     /**
      * CotsChannel constructor.
      *
-     * @param MalClient $mal
-     * @param ValidatorInterface           $validator
-     * @param int                          $cotsChannelId
-     * @param int                          $roleId
+     * @param MalClient            $mal
+     * @param TextChannelInterface $channel
      */
     public function __construct(
         MalClient $mal,
-        ValidatorInterface $validator,
-        int $cotsChannelId,
-        int $roleId
+        TextChannelInterface $channel
     ) {
-        $this->roleId = $roleId;
         $this->mal = $mal;
-        $this->validator = $validator;
-        $this->channelId = $cotsChannelId;
+        $this->channel = $channel;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function closeNominations()
+    {
+        $this->deny($this->roleId, Channel::ROLE_SEND_MESSAGES);
+        $this->message('Er kan nu enkel nog gestemd worden op de nominaties :checkered_flag:');
+    }
+
+    /**
+     * @param string $season
+     *
+     * @deprecated
+     */
+    public function openChannel(string $season)
+    {
+        $this->allow($this->roleId, Channel::ROLE_SEND_MESSAGES);
+        $this->message(sprintf('Bij deze zijn de nominaties voor season  %s geopend!', $season));
+    }
+
+    /**
+     * @param CotsNomination $nomination
+     * @param string         $season
+     *
+     * @deprecated
+     */
+    public function announceWinner(CotsNomination $nomination, string $season)
+    {
+        $this->deny($this->roleId, Channel::ROLE_SEND_MESSAGES);
+        $this->message(
+            sprintf(
+                ":trophy: Het character van %s is **%s**! van **%s**\n"
+                ."Genomineerd door %s\nhttps://myanimelist.net/character/%s",
+                $season,
+                $nomination->getCharacter()->name,
+                $nomination->getAnime()->getTitle(),
+                $nomination->getAuthor(),
+                $nomination->getCharacter()->mal_id
+            )
+        );
+        $this->getLastNominations();
+    }
+
+    /**
+     * @param int $limit
+     *
+     * @return Promise
+     */
+    public function getLastNominations(int $limit = 25): Promise
+    {
+        $deferred = new Deferred();
+        $this->channel
+            ->fetchMessages(['limit' => 20])
+            ->done(
+                function (Collection $collection) use ($deferred) {
+                    $nominations = [];
+                    // Filter the messages
+                    /** @var Message $message */
+                    foreach ($collection->all() as $message) {
+                        if (strpos(
+                            $message->content,
+                            'Bij deze zijn de nominaties voor de rewatch geopend!'
+                        ) !== false) {
+                            break;
+                        }
+                        if (!CotsNomination::isNomination($message->content)) {
+                            continue;
+                        }
+                        $nominations[] = $this->loadNomination($message);
+                    }
+                    // Sort by votes
+                    usort(
+                        $nominations,
+                        function (CotsNomination $a, CotsNomination $b) {
+                            if ($a->getVotes() === $b->getVotes()) {
+                                return 0;
+                            }
+
+                            return $a->getVotes() > $b->getVotes() ? -1 : 1;
+                        }
+                    );
+                    // Return the result
+                    $deferred->resolve($nominations);
+                }
+            );
+
+        return $deferred->promise();
     }
 
     /**
@@ -72,77 +149,12 @@ class CotsChannel extends Channel
         $anime = $this->mal->getAnime(new AnimeRequest(CotsNomination::getAnimeId($message->content)));
         $character = $this->mal->getCharacter(new CharacterRequest(CotsNomination::getCharacterId($message->content)));
 
-        return CotsNomination::fromYasmin($message, $character, $anime);
-    }
-
-    public function closeNominations()
-    {
-        $this->deny($this->roleId, Channel::ROLE_SEND_MESSAGES);
-        $this->message('Er kan nu enkel nog gestemd worden op de nominaties :checkered_flag:');
-    }
-
-    /**
-     * @param string $season
-     */
-    public function openChannel(string $season)
-    {
-        $this->allow($this->roleId, Channel::ROLE_SEND_MESSAGES);
-        $this->message(sprintf('Bij deze zijn de nominaties voor season  %s geopend!', $season));
-    }
-
-    /**
-     * @param CotsNomination $nomination
-     * @param string         $season
-     */
-    public function announceWinner(CotsNomination $nomination, string $season)
-    {
-        $this->deny($this->roleId, Channel::ROLE_SEND_MESSAGES);
-        $this->message(
-            sprintf(
-                ":trophy: Het character van %s is **%s**! van **%s**\n"
-                ."Genomineerd door %s\nhttps://myanimelist.net/character/%s",
-                $season,
-                $nomination->getCharacter()->name,
-                $nomination->getAnime()->title,
-                $nomination->getAuthor(),
-                $nomination->getCharacter()->mal_id
-            )
-        );
-        $this->getLastNominations();
-    }
-
-    /**
-     * @param int $limit
-     *
-     * @return CotsNomination[]
-     * @throws \Exception
-     */
-    public function getLastNominations(int $limit = 25): array
-    {
-        $messages = $this->getManyMessages(35);
-        $contenders = [];
-        foreach ($messages as $message) {
-            if (preg_match('/Bij deze zijn de nominaties voor/', $message['content'])) {
-                break;
-            }
-            if (preg_match('/Het character van/', $message['content'])) {
-                break;
-            }
-            if (CotsNomination::isNomination($message['content'])) {
-                $anime = $this->mal->loadAnime(CotsNomination::getAnimeId($message['content']));
-                $character = $this->mal->loadCharacter(CotsNomination::getCharacterId($message['content']));
-                $nomination = new CotsNomination($message, $character, $anime);
-                $contenders[] = $nomination;
-            }
-        }
-        $contenders = $this->sortByVotes($contenders);
-        $contenders = \array_slice($contenders, 0, $limit);
-
-        return $contenders;
+        return CotsNomination::fromMessage($message, $character, $anime);
     }
 
     /**
      * @return string
+     * @deprecated
      */
     public function getTop10(): string
     {
