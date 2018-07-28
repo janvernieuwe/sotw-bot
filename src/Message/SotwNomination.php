@@ -100,6 +100,7 @@ class SotwNomination
 
     /**
      * @return string
+     * @Assert\NotBlank(message="Ongeldig youtube id")
      */
     public function getYoutubeCode(): string
     {

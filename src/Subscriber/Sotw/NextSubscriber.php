@@ -27,6 +27,11 @@ class NextSubscriber implements EventSubscriberInterface
     public const COMMAND = '!haamc sotw next';
 
     /**
+     * @var MessageReceivedEvent
+     */
+    private $event;
+
+    /**
      * @var EntityManagerInterface
      */
     private $doctrine;
@@ -88,6 +93,7 @@ class NextSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
+        $this->event = $event;
         $this->message = $message = $event->getMessage();
         if ($message->content !== self::COMMAND || !$event->isAdmin()) {
             return;
@@ -111,11 +117,19 @@ class NextSubscriber implements EventSubscriberInterface
      */
     private function onNominationsLoaded(array $nominations): void
     {
-        if (!\count($nominations)) {
-            throw new RuntimeException('No nominations found');
+        $io = $this->event->getIo();
+        $message = $this->event->getMessage();
+        if (\count($nominations) < 2) {
+            $io->error('Not enough nominations found');
+            $message->reply(':x: Not enough nominations found');
+
+            return;
         }
         if ($nominations[0]->getVotes() === $nominations[1]->getVotes()) {
-            throw new RuntimeException('There is no clear winner!');
+            $io->error('There is no clear winner!');
+            $message->reply(':x: There is no clear winner!');
+
+            return;
         }
         $winner = $nominations[0];
 
