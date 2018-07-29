@@ -28,7 +28,7 @@ class AutoValidateSubsciber implements EventSubscriberInterface
     /**
      * @var int
      */
-    private $everyoneRole;
+    private $roleId;
 
     /**
      * @var int
@@ -39,13 +39,13 @@ class AutoValidateSubsciber implements EventSubscriberInterface
      * AutoValidateSubsciber constructor.
      *
      * @param ValidatorInterface $validator
-     * @param int                $everyoneRole
+     * @param int                $roleId
      * @param int                $sotwChannelId
      */
-    public function __construct(ValidatorInterface $validator, int $everyoneRole, int $sotwChannelId)
+    public function __construct(ValidatorInterface $validator, int $roleId, int $sotwChannelId)
     {
         $this->validator = $validator;
-        $this->everyoneRole = $everyoneRole;
+        $this->roleId = $roleId;
         $this->sotwChannelId = $sotwChannelId;
     }
 
@@ -92,8 +92,8 @@ class AutoValidateSubsciber implements EventSubscriberInterface
                 $message->channel->send('Laat het stemmen beginnen! :checkered_flag:');
                 $channel = $message->guild->channels->get($message->channel->id);
                 $channel->overwritePermissions(
-                    $this->everyoneRole,
-                    0,
+                    $this->roleId,
+                    Channel::ROLE_VIEW_MESSAGES,
                     Channel::ROLE_SEND_MESSAGES,
                     'Song of the week nominations closed'
                 );

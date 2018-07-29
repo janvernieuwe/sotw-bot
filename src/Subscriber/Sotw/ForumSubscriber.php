@@ -15,28 +15,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ForumSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc sotw forum';
-
-    /**
-     * @var SotwChannel
-     */
-    private $sotw;
-
-    /**
-     * ForumSubscriber constructor.
-     *
-     * @param SotwChannel $sotw
-     */
-    public function __construct(SotwChannel $sotw)
-    {
-        $this->sotw = $sotw;
-    }
+    public const COMMAND = '!haamc sotw forum';
 
     /**
      * @inheritdoc
      */
     public static function getSubscribedEvents(): array
     {
+        return [];
         return [MessageReceivedEvent::NAME => 'onCommand'];
     }
 

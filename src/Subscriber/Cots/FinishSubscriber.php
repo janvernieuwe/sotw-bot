@@ -139,7 +139,7 @@ class FinishSubscriber implements EventSubscriberInterface
         $cotsGuildChannel = $message->guild->channels->get($this->cotsChannelId);
         $cotsGuildChannel->overwritePermissions(
             $this->roleId,
-            0,
+            Channel::ROLE_VIEW_MESSAGES,
             Channel::ROLE_SEND_MESSAGES,
             'Finished character of the season'
         );

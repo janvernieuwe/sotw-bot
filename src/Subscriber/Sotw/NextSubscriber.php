@@ -11,6 +11,7 @@ use App\Formatter\BBCodeFormatter;
 use App\Message\SotwNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\Permissions;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -59,7 +60,7 @@ class NextSubscriber implements EventSubscriberInterface
     /**
      * @var int
      */
-    private $everyoneRole;
+    private $roleId;
 
     /**
      * @var
@@ -71,13 +72,13 @@ class NextSubscriber implements EventSubscriberInterface
      *
      * @param EntityManagerInterface $doctrine
      * @param int                    $sotwChannelId
-     * @param int                    $everyoneRole
+     * @param int                    $roleId
      */
-    public function __construct(EntityManagerInterface $doctrine, int $sotwChannelId, int $everyoneRole)
+    public function __construct(EntityManagerInterface $doctrine, int $sotwChannelId, int $roleId)
     {
         $this->doctrine = $doctrine;
         $this->sotwChannelId = $sotwChannelId;
-        $this->everyoneRole = $everyoneRole;
+        $this->roleId = $roleId;
     }
 
     /**
@@ -150,9 +151,12 @@ class NextSubscriber implements EventSubscriberInterface
         // Announce the winner and unlock the channel
         $this->io->writeln((string)$winner);
         //$this->sotw->addMedals($nominations); // no medals for now
+        $permissions = new Permissions();
+        $permissions->add(Channel::ROLE_VIEW_MESSAGES);
+        $permissions->add(Channel::ROLE_SEND_MESSAGES);
         $this->sotwChannel->overwritePermissions(
-            $this->everyoneRole,
-            Channel::ROLE_SEND_MESSAGES,
+            $this->roleId,
+            $permissions,
             0,
             'Song of the week nominations opened'
         );

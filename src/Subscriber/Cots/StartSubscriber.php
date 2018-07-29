@@ -6,6 +6,7 @@ use App\Channel\Channel;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
+use CharlotteDunois\Yasmin\Models\Permissions;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -73,9 +74,12 @@ class StartSubscriber implements EventSubscriberInterface
 
         /** @var GuildChannelInterface $guildChannel */
         $guildChannel = $message->guild->channels->get($this->cotsChannelId);
+        $permissions = new Permissions();
+        $permissions->add(Channel::ROLE_VIEW_MESSAGES);
+        $permissions->add(Channel::ROLE_SEND_MESSAGES);
         $guildChannel->overwritePermissions(
             $this->roleId,
-            Channel::ROLE_SEND_MESSAGES,
+            $permissions,
             0,
             'Opened Cots nominaions'
         );

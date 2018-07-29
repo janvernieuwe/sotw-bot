@@ -43,14 +43,16 @@ class AutoValidateSubscriber implements EventSubscriberInterface
      * @var MalClient
      */
     private $jikan;
+
     /**
      * @var ValidatorInterface
      */
     private $validator;
+
     /**
      * @var int
      */
-    private $everyoneRole;
+    private $roleId;
 
     /**
      * AutoValidateSubscriber constructor.
@@ -72,7 +74,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         $this->cotsChannelId = $cotsChannelId;
         $this->jikan = $jikan;
         $this->validator = $validator;
-        $this->everyoneRole = $roleId;
+        $this->roleId = $roleId;
     }
 
     /**
@@ -165,8 +167,8 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         /** @var GuildChannelInterface $guildChannel */
         $guildChannel = $message->guild->channels->get($this->cotsChannelId);
         $guildChannel->overwritePermissions(
-            $this->everyoneRole,
-            0,
+            $this->roleId,
+            Channel::ROLE_VIEW_MESSAGES,
             Channel::ROLE_SEND_MESSAGES,
             'Closed Cots nominations'
         );
