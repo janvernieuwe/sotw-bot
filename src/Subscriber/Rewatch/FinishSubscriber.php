@@ -4,6 +4,7 @@ namespace App\Subscriber\Rewatch;
 
 use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
+use App\Message\RewatchNomination;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -74,7 +75,7 @@ class FinishSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array $nominations
+     * @param RewatchNomination[] $nominations
      */
     private function onMessagesLoaded(array $nominations): void
     {
@@ -100,8 +101,8 @@ class FinishSubscriber implements EventSubscriberInterface
         $rewatchChannel->send(
             sprintf(
                 ':trophy: Deze rewatch kijken we naar %s (%s), genomineerd door <@!%s>',
-                $winner->getAnime()->title,
-                $winner->getContent(),
+                $winner->getAnime()->getTitle(),
+                $winner->getAnime()->getUrl(),
                 $winner->getAuthorId()
             )
         );
