@@ -2,9 +2,11 @@
 
 namespace App\Subscriber\Rewatch;
 
+use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
 use App\Message\RewatchNomination;
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -34,19 +36,26 @@ class FinishSubscriber implements EventSubscriberInterface
      * @var int
      */
     private $rewatchChannelId;
+    /**
+     * @var int
+     */
+    private $roleId;
 
     /**
      * ValidateSubscriber constructor.
      *
      * @param MalClient $jikan
      * @param int       $rewatchChannelId
+     * @param int       $roleId
      */
     public function __construct(
         MalClient $jikan,
-        int $rewatchChannelId
+        int $rewatchChannelId,
+        int $roleId
     ) {
         $this->jikan = $jikan;
         $this->rewatchChannelId = $rewatchChannelId;
+        $this->roleId = $roleId;
     }
 
     /**
@@ -107,5 +116,14 @@ class FinishSubscriber implements EventSubscriberInterface
             )
         );
         $io->success('Annouced the winner');
+        /** @var GuildChannelInterface $guildChannel */
+        $guildChannel = $message->guild->channels->get($this->rewatchChannelId);
+        $guildChannel->overwritePermissions(
+            $this->roleId,
+            Channel::ROLE_VIEW_MESSAGES,
+            Channel::ROLE_SEND_MESSAGES,
+            'Closed nominations'
+        );
+        $io->success('Closed channel');
     }
 }
