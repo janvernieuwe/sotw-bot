@@ -166,12 +166,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
         // Close channel when limit is reached
         /** @var GuildChannelInterface $guildChannel */
         $guildChannel = $message->guild->channels->get($this->cotsChannelId);
-        $guildChannel->overwritePermissions(
-            $this->roleId,
-            Channel::ROLE_VIEW_MESSAGES,
-            Channel::ROLE_SEND_MESSAGES,
-            'Closed Cots nominations'
-        );
+        Channel::close($guildChannel, $this->roleId);
         $io->success('Closed nominations');
     }
 }

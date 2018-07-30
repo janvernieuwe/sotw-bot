@@ -112,7 +112,11 @@ class FinishSubscriber implements EventSubscriberInterface
         usort(
             $valid,
             function (YasminEmojiNomination $a, YasminEmojiNomination $b) {
-                return $a->getVotes() < $b->getVotes();
+                if ($a->getVotes() === $b->getVotes()) {
+                    return 0;
+                }
+
+                return $a->getVotes() > $b->getVotes() ? 1 : -1;
             }
         );
 
@@ -133,14 +137,20 @@ class FinishSubscriber implements EventSubscriberInterface
             self::$message->channel->send(
                 sprintf(':put_litter_in_its_place:  %s', $loser->getContent())
             );
-            /** @var Emoji $emoji */
-            $emoji = self::$message->guild->emojis->keyBy('name')->get($loser->getEmojiName());
-            $promises[] = $promise = $emoji->delete();
-            $promise->done(
-                function () use ($loser) {
-                    self::$io->success(sprintf('Emoji %s removed', $loser->getEmojiName()));
-                }
-            );
+
+            try {
+                /** @var Emoji $emoji */
+                $emoji = self::$message->guild->emojis->keyBy('name')->get($loser->getEmojiName());
+                $promises[] = $promise = $emoji->delete();
+                $promise->done(
+                    function () use ($loser) {
+                        self::$io->success(sprintf('Emoji %s removed', $loser->getEmojiName()));
+                    }
+                );
+            } catch (\Exception $e) {
+                self::$io->error($e->getMessage());
+                continue;
+            }
         }
         all($promises)->then(
             function () {

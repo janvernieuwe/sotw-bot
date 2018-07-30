@@ -137,12 +137,7 @@ class FinishSubscriber implements EventSubscriberInterface
         $io->success('Displayed top 10');
         /** @var GuildChannelInterface $cotsGuildChannel */
         $cotsGuildChannel = $message->guild->channels->get($this->cotsChannelId);
-        $cotsGuildChannel->overwritePermissions(
-            $this->roleId,
-            Channel::ROLE_VIEW_MESSAGES,
-            Channel::ROLE_SEND_MESSAGES,
-            'Finished character of the season'
-        );
+        Channel::close($cotsGuildChannel, $this->roleId);
         $nomination = $nominations[0];
         $cotsChannel->send(
             sprintf(

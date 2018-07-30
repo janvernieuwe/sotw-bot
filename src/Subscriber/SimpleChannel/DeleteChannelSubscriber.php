@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\SimpleChannel;
 
+use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\SimpleJoinableChannelMessage;
 use CharlotteDunois\Yasmin\Models\TextChannel;
@@ -32,7 +33,7 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
         if (!$event->isAdmin() || !$event->isBotMessage()) {
             return;
         }
-        if ($reaction->emoji->name !== SimpleJoinableChannelMessage::DELETE_REACTION) {
+        if ($reaction->emoji->name !== Reaction::DELETE) {
             return;
         }
         if (!SimpleJoinableChannelMessage::isJoinChannelMessage($reaction->message)) {

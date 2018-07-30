@@ -90,13 +90,7 @@ class AutoValidateSubsciber implements EventSubscriberInterface
                 }
                 /** @var GuildChannelInterface $channel */
                 $message->channel->send('Laat het stemmen beginnen! :checkered_flag:');
-                $channel = $message->guild->channels->get($message->channel->id);
-                $channel->overwritePermissions(
-                    $this->roleId,
-                    Channel::ROLE_VIEW_MESSAGES,
-                    Channel::ROLE_SEND_MESSAGES,
-                    'Song of the week nominations closed'
-                );
+                Channel::close($message->channel, $this->roleId);
                 $io->success('Closed nominations');
             }
         );
