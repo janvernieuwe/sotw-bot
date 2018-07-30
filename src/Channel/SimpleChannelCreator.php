@@ -4,6 +4,7 @@
 namespace App\Channel;
 
 use App\Context\CreateSimpleChannelContext;
+use App\Entity\Reaction;
 use App\Message\SimpleJoinableChannelMessage;
 use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
@@ -89,7 +90,7 @@ class SimpleChannelCreator
      */
     protected function addReactions(Message $message): void
     {
-        $message->react(SimpleJoinableChannelMessage::JOIN_REACTION);
-        $message->react(SimpleJoinableChannelMessage::LEAVE_REACTION);
+        $message->react(Reaction::JOIN);
+        $message->react(Reaction::LEAVE);
     }
 }

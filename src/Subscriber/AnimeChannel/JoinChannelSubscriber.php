@@ -6,9 +6,7 @@ use App\Channel\Channel;
 use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableChannelMessage;
-use CharlotteDunois\Yasmin\Models\GuildMember;
-use CharlotteDunois\Yasmin\Models\TextChannel;
-use CharlotteDunois\Yasmin\Models\User;
+use App\Util\Util;
 use Jikan\MyAnimeList\MalClient;
 use Jikan\Request\Anime\AnimeRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -45,11 +43,6 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         return [ReactionAddedEvent::NAME => 'onCommand'];
     }
 
-    /**
-     * @param ReactionAddedEvent $event
-     *
-     * @throws \App\Exception\InvalidChannelException
-     */
     public function onCommand(ReactionAddedEvent $event): void
     {
         $reaction = $event->getReaction();
@@ -63,24 +56,34 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        // Load
-        $channelMessage = new JoinableChannelMessage($reaction->message);
-        $anime = $this->mal->getAnime(new AnimeRequest($channelMessage->getAnimeId()));
-        /** @var User $user */
-        $user = $reaction->users->last();
-        /** @var GuildMember $member */
-        $member = $reaction->message->guild->members->get($user->id);
-        /** @var TextChannel $channel */
-        $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-        if (Channel::hasAccess($reaction->message, $user->id)) {
-            $io->writeln(sprintf('User %s already has joined %s', $user->username, $channel->name));
-            $reaction->remove($reaction->users->last());
-
-            return;
-        }
-        // Join
-        $channelMessage->addUser($anime, $member);
-        $reaction->remove($reaction->users->last());
-        $io->success($user->username.' joined #'.$channel->name);
+        Channel::addUserFromReaction($reaction)
+            ->then(
+                function (int $members) use ($reaction, $io) {
+                    $channel = Channel::getTextChannel($reaction->message);
+                    $user = $reaction->users->last();
+                    $channelMessage = new JoinableChannelMessage($reaction->message);
+                    $anime = $this->mal->getAnime(new AnimeRequest($channelMessage->getAnimeId()));
+                    $channelMessage->updateWatchers($anime, $channel->id, $members);
+                    $channel->send(
+                        sprintf(
+                            ':inbox_tray:  %s kijkt nu mee naar %s',
+                            Util::mention((int)$user->id),
+                            Util::channelLink((int)$channel->id)
+                        )
+                    );
+                    $io->success($user->username.' joined #'.$channel->name);
+                }
+            )
+            ->otherwise(
+                function (string $error) use ($io) {
+                    $io->error($error);
+                }
+            )
+            ->always(
+                function () use ($reaction) {
+                    $user = $reaction->users->last();
+                    $reaction->remove($user);
+                }
+            );
     }
 }

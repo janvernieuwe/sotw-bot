@@ -69,7 +69,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         $channel = $reaction->message->guild->channels->get($channelId);
         $subs = Channel::getUserCount($channel);
         $manga = $this->mal->getManga(new MangaRequest($channelMessage->getMangaId()));
-        $channelMessage->updateWatchers($manga, $subs);
+        $channelMessage->updateWatchers($manga, $channelId, $subs);
         $reaction->message->react(Reaction::JOIN);
         $reaction->message->react(Reaction::LEAVE);
         $reaction->remove($reaction->users->last());

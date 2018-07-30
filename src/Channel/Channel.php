@@ -2,15 +2,19 @@
 
 namespace App\Channel;
 
+use App\Exception\RuntimeException;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\GuildMember;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\MessageReaction;
 use CharlotteDunois\Yasmin\Models\PermissionOverwrite;
 use CharlotteDunois\Yasmin\Models\Permissions;
 use CharlotteDunois\Yasmin\Models\Role;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use CharlotteDunois\Yasmin\Models\User;
+use React\Promise\Deferred;
+use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 
 /**
@@ -163,5 +167,60 @@ class Channel
         );
 
         return count($view) > 0;
+    }
+
+    public static function isJoinable(Message $message): bool
+    {
+        return self::getChannelId($message) !== null;
+    }
+
+    public static function addUserFromReaction(MessageReaction $reaction): Promise
+    {
+        $d = new Deferred();
+        try {
+            /** @var User $user */
+            $user = $reaction->users->last();
+            // No double joins
+            if (self::hasAccess($reaction->message, $user->id)) {
+                throw new RuntimeException('User already joined');
+            }// Join channel
+            $channel = self::getTextChannel($reaction->message);
+            $channel->overwritePermissions(
+                $user->id,
+                self::ROLE_VIEW_MESSAGES,
+                0,
+                'User joined the channel'
+            );// Update the member count
+            $d->resolve(self::getUserCount($channel) + 1);
+        } catch (\Exception $e) {
+            $d->reject($e->getMessage());
+        }
+
+        return $d->promise();
+    }
+
+    public static function removeUserFromReaction(MessageReaction $reaction): Promise
+    {
+        $d = new Deferred();
+        try {
+            /** @var User $user */
+            $user = $reaction->users->last();
+            // No double joins
+            if (!self::hasAccess($reaction->message, $user->id)) {
+                throw new RuntimeException('User already left');
+            }// Join channel
+            $channel = self::getTextChannel($reaction->message);
+            $channel->overwritePermissions(
+                $user->id,
+                0,
+                self::ROLE_VIEW_MESSAGES,
+                'User left the channel'
+            );// Update the member count
+            $d->resolve(self::getUserCount($channel) - 1);
+        } catch (\Exception $e) {
+            $d->reject($e->getMessage());
+        }
+
+        return $d->promise();
     }
 }
