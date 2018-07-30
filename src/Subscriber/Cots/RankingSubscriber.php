@@ -67,6 +67,7 @@ class RankingSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $cotsChannel = new CotsChannel($this->jikan, $message->client->channels->get($this->cotsChannelId));
+        $message->channel->startTyping();
         $cotsChannel->getLastNominations()
             ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
     }
@@ -99,6 +100,7 @@ class RankingSubscriber implements EventSubscriberInterface
                 $nomination->getAnime()->getScore()
             );
         }
+        $message->channel->stopTyping(true);
         $message->channel->send(implode(PHP_EOL, $output));
         $io->success('Ranking displayed');
     }

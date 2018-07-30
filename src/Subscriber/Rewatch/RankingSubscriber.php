@@ -70,6 +70,7 @@ class RankingSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
 
         $rewatch = new RewatchChannel($message->client->channels->get($this->rewatchChannelId), $this->jikan);
+        $message->channel->startTyping();
         $rewatch->getNominations()
             ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
     }
@@ -102,6 +103,7 @@ class RankingSubscriber implements EventSubscriberInterface
                 (string)$anime->getAired()
             );
         }
+        $message->channel->stopTyping(true);
         $message->channel->send(implode(PHP_EOL, $output));
         $io->success('Ranking displayed');
     }
