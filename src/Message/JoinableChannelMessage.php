@@ -6,7 +6,6 @@ use App\Channel\Channel;
 use App\Exception\InvalidChannelException;
 use App\Util\Util;
 use CharlotteDunois\Yasmin\Models\GuildMember;
-use CharlotteDunois\Yasmin\Models\PermissionOverwrite;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Jikan\Model\Anime\Anime;
 
@@ -112,11 +111,11 @@ class JoinableChannelMessage
     public function addUser(Anime $anime, GuildMember $member): void
     {
         // No double joins
-        if ($this->hasAccess($member->id)) {
+        if (Channel::hasAccess($this->message, $member->id)) {
             return;
         }
         // Join channel
-        $channel = $this->getChannelFromMessage();
+        $channel = Channel::getTextChannel($this->message);
         $channel->overwritePermissions(
             $member->id,
             Channel::ROLE_VIEW_MESSAGES,
@@ -124,36 +123,17 @@ class JoinableChannelMessage
             'User joined the channel'
         );
         // Update the member counf
+        $channel = Channel::getTextChannel($this->message);
         $count = Channel::getUserCount($channel) + 1;
-        $this->updateWatchers($anime, $count);
+        $this->updateWatchers($anime, $channel->id, $count);
         // Announce join
-        $joinMessage = sprintf(
-            ':inbox_tray:  %s kijkt nu mee naar %s',
-            Util::mention((int)$member->id),
-            Util::channelLink((int)$channel->id)
+        $channel->send(
+            sprintf(
+                ':inbox_tray:  %s kijkt nu mee naar %s',
+                Util::mention((int)$member->id),
+                Util::channelLink((int)$channel->id)
+            )
         );
-        $channel->send($joinMessage);
-    }
-
-    /**
-     * @param int $memberid
-     *
-     * @return bool
-     * @throws InvalidChannelException
-     */
-    public function hasAccess(int $memberid): bool
-    {
-        $permissions = $this->getChannelFromMessage()->permissionOverwrites->all();
-        $view = array_filter(
-            $permissions,
-            function (PermissionOverwrite $o) use ($memberid) {
-                return $o->allow->has(Channel::ROLE_VIEW_MESSAGES)
-                    && $memberid === (int)$o->id
-                    && $o->type === 'member';
-            }
-        );
-
-        return count($view) > 0;
     }
 
     /**
@@ -194,13 +174,12 @@ class JoinableChannelMessage
 
     /**
      * @param Anime $anime
+     * @param int   $channelId
      * @param int   $subs
      */
-    public function updateWatchers(Anime $anime, int $subs = 0): void
+    public function updateWatchers(Anime $anime, int $channelId, int $subs = 0): void
     {
-        preg_match('/c=(\d+)/', $this->getEmbeddedAnimeLink(), $channelid);
-        $channelid = (int)$channelid[1];
-        $embed = self::generateRichChannelMessage($anime, $channelid, $this->getEmbeddedAnimeLink(), $subs);
+        $embed = self::generateRichChannelMessage($anime, $channelId, $this->getEmbeddedAnimeLink(), $subs);
         $this->message->edit(self::TEXT_MESSAGE, $embed);
     }
 
@@ -285,11 +264,11 @@ class JoinableChannelMessage
     public function removeUser(Anime $anime, GuildMember $member): void
     {
         // No double joins
-        if (!$this->hasAccess($member->id)) {
+        if (!Channel::hasAccess($this->message, $member->id)) {
             return;
         }
         // Remove member
-        $channel = $this->getChannelFromMessage();
+        $channel = Channel::getTextChannel($this->message);
         $channel->overwritePermissions(
             $member->id,
             0,
@@ -298,7 +277,7 @@ class JoinableChannelMessage
         );
         // Update member count
         $count = Channel::getUserCount($channel) - 1;
-        $this->updateWatchers($anime, $count);
+        $this->updateWatchers($anime, $channel->id, $count);
         // Announce leave
         $channel->send(
             sprintf(

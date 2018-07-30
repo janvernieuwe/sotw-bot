@@ -43,6 +43,8 @@ class UpdatePostSubscriber implements EventSubscriberInterface
 
     /**
      * @param ReactionAddedEvent $event
+     *
+     * @throws \App\Exception\InvalidChannelException
      */
     public function onCommand(ReactionAddedEvent $event): void
     {
@@ -66,10 +68,9 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         if (!$reaction->message->editable) {
             $io->error('Message is not editable.');
         }
-        $channelId = $channelMessage->getChannelId();
-        $channel = $reaction->message->guild->channels->get($channelId);
+        $channel = Channel::getTextChannel($reaction->message);
         $subs = Channel::getUserCount($channel);
-        $channelMessage->updateWatchers($anime, $subs);
+        $channelMessage->updateWatchers($anime, $channel->id, $subs);
         $reaction->message->react(Reaction::JOIN);
         $reaction->message->react(Reaction::LEAVE);
         $reaction->remove($reaction->users->last());

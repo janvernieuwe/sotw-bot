@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\AnimeChannel;
 
+use App\Channel\Channel;
 use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableChannelMessage;
@@ -71,7 +72,7 @@ class JoinChannelSubscriber implements EventSubscriberInterface
         $member = $reaction->message->guild->members->get($user->id);
         /** @var TextChannel $channel */
         $channel = $reaction->message->guild->channels->get($channelMessage->getChannelId());
-        if ($channelMessage->hasAccess($user->id)) {
+        if (Channel::hasAccess($reaction->message, $user->id)) {
             $io->writeln(sprintf('User %s already has joined %s', $user->username, $channel->name));
             $reaction->remove($reaction->users->last());
 
