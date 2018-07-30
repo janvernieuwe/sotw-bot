@@ -110,7 +110,7 @@ class AnimeChannelCreator
         $embed = JoinableChannelMessage::generateRichChannelMessage(
             $this->context->getAnime(),
             (int)$channel->id,
-            $this->context->getAnime()->getUrl().'?c='.$channel->id
+            $this->context->getAnime()->getUrl()
         );
         $this->context->getChannel()
             ->send(JoinableChannelMessage::TEXT_MESSAGE, $embed)

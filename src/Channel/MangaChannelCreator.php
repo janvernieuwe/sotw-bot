@@ -90,7 +90,7 @@ class MangaChannelCreator
         $embed = JoinableMangaChannelMessage::generateRichChannelMessage(
             $this->context->getManga(),
             (int)$channel->id,
-            $this->context->getManga()->getUrl().'?c='.$channel->id
+            $this->context->getManga()->getUrl()
         );
         $this->context->getChannel()
             ->send(JoinableChannelMessage::TEXT_MESSAGE, $embed)
