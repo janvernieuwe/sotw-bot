@@ -2,6 +2,8 @@
 
 namespace App\Channel;
 
+use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+
 /**
  * Class Channel
  *

@@ -18,9 +18,24 @@ use CharlotteDunois\Yasmin\Models\TextChannel;
 class AnimeChannelCreator
 {
     /**
+     * @var int
+     */
+    private $miraiRole;
+
+    /**
      * @var CreateAnimeChannelContext
      */
     private $context;
+
+    /**
+     * AnimeChannelCreator constructor.
+     *
+     * @param int $miraiRole
+     */
+    public function __construct(int $miraiRole)
+    {
+        $this->miraiRole = $miraiRole;
+    }
 
     /**
      * @param CreateAnimeChannelContext $context
@@ -53,6 +68,11 @@ class AnimeChannelCreator
                         'id'    => $this->context->getClient()->user->id,
                         'allow' => Channel::ROLE_VIEW_MESSAGES,
                         'type'  => 'member',
+                    ],
+                    [
+                        'id'    => $this->miraiRole,
+                        'allow' => Channel::ROLE_VIEW_MESSAGES,
+                        'type'  => 'role',
                     ],
                 ],
                 'parent'               => $this->context->getParent(),

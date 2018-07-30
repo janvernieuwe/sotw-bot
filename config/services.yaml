@@ -26,6 +26,7 @@ services:
             $sotwChannelId:       '%env(SOTW_CHANNEL_ID)%'
             $cotsChannelId:       '%env(COTS_CHANNEL_ID)%'
             $rewatchChannelId:    '%env(REWATCH_CHANNEL_ID)%'
+            $miraiRole:           '%env(MIRAI_ROLE)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
