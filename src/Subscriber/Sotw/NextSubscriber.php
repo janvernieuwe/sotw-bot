@@ -6,12 +6,10 @@ use App\Channel\Channel;
 use App\Channel\SongOfTheWeekChannel;
 use App\Entity\SotwWinner;
 use App\Event\MessageReceivedEvent;
-use App\Exception\RuntimeException;
 use App\Formatter\BBCodeFormatter;
 use App\Message\SotwNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Models\Message;
-use CharlotteDunois\Yasmin\Models\Permissions;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -104,17 +102,11 @@ class NextSubscriber implements EventSubscriberInterface
         $this->io = $event->getIo();
 
         $channel = new SongOfTheWeekChannel($this->sotwChannel = $message->client->channels->get($this->sotwChannelId));
-        $channel->getNominations(
-            function (array $nominations) {
-                $this->onNominationsLoaded($nominations);
-            }
-        );
+        $channel->getNominations(\Closure::fromCallable([$this, 'onNominationsLoaded']));
     }
 
     /**
      * @param SotwNomination[] $nominations
-     *
-     * @throws RuntimeException
      */
     private function onNominationsLoaded(array $nominations): void
     {
@@ -151,15 +143,7 @@ class NextSubscriber implements EventSubscriberInterface
         // Announce the winner and unlock the channel
         $this->io->writeln((string)$winner);
         //$this->sotw->addMedals($nominations); // no medals for now
-        $permissions = new Permissions();
-        $permissions->add(Channel::ROLE_VIEW_MESSAGES);
-        $permissions->add(Channel::ROLE_SEND_MESSAGES);
-        $this->sotwChannel->overwritePermissions(
-            $this->roleId,
-            $permissions,
-            0,
-            'Song of the week nominations opened'
-        );
+        Channel::open($this->sotwChannel, $this->roleId);
         $this->sotwChannel->send(
             sprintf(
                 ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s> `%s`\n",

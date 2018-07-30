@@ -9,7 +9,6 @@ use App\Error\Messenger;
 use App\Event\MessageReceivedEvent;
 use App\Exception\RuntimeException;
 use App\Message\RewatchNomination;
-use CharlotteDunois\Yasmin\Models\TextChannel;
 use Doctrine\ORM\EntityManagerInterface;
 use Jikan\MyAnimeList\MalClient;
 use Jikan\Request\Anime\AnimeRequest;
@@ -161,14 +160,7 @@ class AutoValidateSubscriber implements EventSubscriberInterface
             return;
         }
         // Enough nominees, start it
-        /** @var TextChannel $channel */
-        $channel = $message->channel;
-        $channel->overwritePermissions(
-            $event->getPermissionsRole(),
-            Channel::ROLE_VIEW_MESSAGES,
-            Channel::ROLE_SEND_MESSAGES,
-            'Closed nominations'
-        );
+        Channel::close($message->channel, $event->getPermissionsRole());
         $message->channel->send('Laat het stemmen beginnen :checkered_flag: Enkel stemmen als je mee wil kijken!');
         $message->channel->send('We maken de winnaar zondag namiddag bekend.');
         $io->success('Closed nominations');

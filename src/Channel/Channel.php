@@ -2,7 +2,6 @@
 
 namespace App\Channel;
 
-use App\Exception\InvalidChannelException;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\GuildMember;
@@ -52,7 +51,6 @@ class Channel
      * @param Message $message
      *
      * @return int|null
-     * @throws InvalidChannelException
      */
     public static function getChannelId(Message $message): ?int
     {
@@ -68,7 +66,6 @@ class Channel
      * @param Message $message
      *
      * @return GuildChannelInterface
-     * @throws InvalidChannelException
      */
     public static function getGuildChannel(Message $message): GuildChannelInterface
     {
@@ -79,7 +76,6 @@ class Channel
      * @param Message $message
      *
      * @return TextChannelInterface|TextChannel
-     * @throws InvalidChannelException
      */
     public static function getTextChannel(Message $message): TextChannelInterface
     {
@@ -92,7 +88,6 @@ class Channel
      * @param string  $key
      *
      * @return null|string
-     * @throws InvalidChannelException
      */
     public static function getFieldValue(Message $message, string $key): ?string
     {
@@ -114,12 +109,12 @@ class Channel
     }
 
     /**
-     * @param GuildChannelInterface   $channel
-     * @param string|GuildMember|Role $role
+     * @param GuildChannelInterface|TextChannelInterface $channel
+     * @param string|GuildMember|Role                    $role
      *
      * @return PromiseInterface
      */
-    public static function open(GuildChannelInterface $channel, $role): PromiseInterface
+    public static function open($channel, $role): PromiseInterface
     {
         $permissions = new Permissions();
         $permissions->add(self::ROLE_SEND_MESSAGES);
@@ -134,12 +129,12 @@ class Channel
     }
 
     /**
-     * @param GuildChannelInterface   $channel
-     * @param string|GuildMember|Role $role
+     * @param GuildChannelInterface|TextChannelInterface $channel
+     * @param string|GuildMember|Role                    $role
      *
      * @return PromiseInterface
      */
-    public static function close(GuildChannelInterface $channel, $role): PromiseInterface
+    public static function close($channel, $role): PromiseInterface
     {
         return $channel->overwritePermissions(
             $role,
@@ -154,7 +149,6 @@ class Channel
      * @param int     $memberid
      *
      * @return bool
-     * @throws InvalidChannelException
      */
     public static function hasAccess(Message $message, int $memberid): bool
     {

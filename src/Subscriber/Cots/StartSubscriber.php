@@ -6,7 +6,6 @@ use App\Channel\Channel;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
-use CharlotteDunois\Yasmin\Models\Permissions;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -37,9 +36,9 @@ class StartSubscriber implements EventSubscriberInterface
     /**
      * ValidateSubscriber constructor.
      *
-     * @param string    $season
-     * @param int       $cotsChannelId
-     * @param int       $roleId
+     * @param string $season
+     * @param int    $cotsChannelId
+     * @param int    $roleId
      */
     public function __construct(
         string $season,
@@ -74,15 +73,7 @@ class StartSubscriber implements EventSubscriberInterface
 
         /** @var GuildChannelInterface $guildChannel */
         $guildChannel = $message->guild->channels->get($this->cotsChannelId);
-        $permissions = new Permissions();
-        $permissions->add(Channel::ROLE_VIEW_MESSAGES);
-        $permissions->add(Channel::ROLE_SEND_MESSAGES);
-        $guildChannel->overwritePermissions(
-            $this->roleId,
-            $permissions,
-            0,
-            'Opened Cots nominaions'
-        );
+        Channel::open($guildChannel, $this->roleId);
         /** @var TextChannelInterface $cotsChannel */
         $cotsChannel = $message->client->channels->get($this->cotsChannelId);
         $cotsChannel->send(sprintf('Bij deze zijn de nominaties voor season  %s geopend!', $this->season));

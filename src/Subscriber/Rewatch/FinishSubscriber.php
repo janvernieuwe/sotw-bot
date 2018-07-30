@@ -6,7 +6,6 @@ use App\Channel\Channel;
 use App\Channel\RewatchChannel;
 use App\Event\MessageReceivedEvent;
 use App\Message\RewatchNomination;
-use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -116,14 +115,7 @@ class FinishSubscriber implements EventSubscriberInterface
             )
         );
         $io->success('Annouced the winner');
-        /** @var GuildChannelInterface $guildChannel */
-        $guildChannel = $message->guild->channels->get($this->rewatchChannelId);
-        $guildChannel->overwritePermissions(
-            $this->roleId,
-            Channel::ROLE_VIEW_MESSAGES,
-            Channel::ROLE_SEND_MESSAGES,
-            'Closed nominations'
-        );
+        Channel::close($rewatchChannel, $this->roleId);
         $io->success('Closed channel');
     }
 }
