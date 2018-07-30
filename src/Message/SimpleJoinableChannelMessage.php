@@ -41,7 +41,7 @@ class SimpleJoinableChannelMessage
         /** @noinspection CallableParameterUseCaseInTypeContextInspection */
         $message = new self($message);
 
-        return $message->getFieldValue('Description') !== null;
+        return $message->getFieldValue('description') !== null;
     }
 
     /**
