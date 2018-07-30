@@ -124,7 +124,7 @@ class JoinableChannelMessage
             'User joined the channel'
         );
         // Update the member counf
-        $count = $this->getSubsciberCount($channel) + 1;
+        $count = Channel::getUserCount($channel) + 1;
         $this->updateWatchers($anime, $count);
         // Announce join
         $joinMessage = sprintf(
@@ -189,22 +189,7 @@ class JoinableChannelMessage
      */
     public function getSubsciberCount(TextChannel $channel): int
     {
-        return count($this->getSubscribers($channel)) - 1;
-    }
-
-    /**
-     * @param TextChannel $channel
-     *
-     * @return array
-     */
-    public function getSubscribers(TextChannel $channel): array
-    {
-        return array_filter(
-            $channel->permissionOverwrites->all(),
-            function (PermissionOverwrite $o) {
-                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES;
-            }
-        );
+        return Channel::getUserCount($channel);
     }
 
     /**
@@ -227,7 +212,7 @@ class JoinableChannelMessage
         return $this->message->embeds[0]->url;
     }
 
-        /**
+    /**
      * @param Anime  $anime
      * @param int    $channelId
      * @param string $link
@@ -283,7 +268,7 @@ class JoinableChannelMessage
         return $this->message->embeds[0]->title ?? $this->message->embeds[0]->author['name'];
     }
 
-/**
+    /**
      * @return string
      */
     public function getAnimeImageUrl(): string
@@ -312,7 +297,7 @@ class JoinableChannelMessage
             'User left the channel'
         );
         // Update member count
-        $count = $this->getSubsciberCount($channel) - 1;
+        $count = Channel::getUserCount($channel) -1;
         $this->updateWatchers($anime, $count);
         // Announce leave
         $channel->send(

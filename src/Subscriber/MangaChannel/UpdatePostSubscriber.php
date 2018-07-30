@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\MangaChannel;
 
+use App\Channel\Channel;
 use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableMangaChannelMessage;
@@ -66,7 +67,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         }
         $channelId = $channelMessage->getChannelId();
         $channel = $reaction->message->guild->channels->get($channelId);
-        $subs = $channelMessage->getSubsciberCount($channel);
+        $subs = Channel::getUserCount($channel);
         $manga = $this->mal->getManga(new MangaRequest($channelMessage->getMangaId()));
         $channelMessage->updateWatchers($manga, $subs);
         $reaction->message->react(Reaction::JOIN);

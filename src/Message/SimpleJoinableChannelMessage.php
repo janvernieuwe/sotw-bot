@@ -87,6 +87,8 @@ class SimpleJoinableChannelMessage
 
     /**
      * @param GuildMember $member
+     *
+     * @throws InvalidChannelException
      */
     public function addUser(GuildMember $member): void
     {
@@ -103,7 +105,7 @@ class SimpleJoinableChannelMessage
             'User joined the channel'
         );
         // Update the member counf
-        $count = $this->getSubsciberCount() + 1;
+        $count = Channel::getUserCount($channel) + 1;
         $this->updateWatchers($count);
         // Announce join
         $joinMessage = sprintf(
@@ -118,6 +120,7 @@ class SimpleJoinableChannelMessage
      * @param int $memberid
      *
      * @return bool
+     * @throws InvalidChannelException
      */
     public function hasAccess(int $memberid): bool
     {
@@ -241,6 +244,8 @@ class SimpleJoinableChannelMessage
 
     /**
      * @param GuildMember $member
+     *
+     * @throws InvalidChannelException
      */
     public function removeUser(GuildMember $member): void
     {
@@ -257,7 +262,7 @@ class SimpleJoinableChannelMessage
             'User left the channel'
         );
         // Update member count
-        $count = $this->getSubsciberCount() - 1;
+        $count = Channel::getUserCount($channel) - 1;
         $this->updateWatchers($count);
         // Announce leave
         $channel->send(

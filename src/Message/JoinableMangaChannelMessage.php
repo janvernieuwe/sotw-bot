@@ -128,7 +128,7 @@ class JoinableMangaChannelMessage
             'User joined the channel'
         );
         // Update the member counf
-        $count = $this->getSubsciberCount($channel) + 1;
+        $count = Channel::getUserCount($channel) + 1;
         $this->updateWatchers($manga, $count);
         // Announce join
         $joinMessage = sprintf(
@@ -318,7 +318,7 @@ class JoinableMangaChannelMessage
             'User left the channel'
         );
         // Update member count
-        $count = $this->getSubsciberCount($channel) - 1;
+        $count = Channel::getUserCount($channel) - 1;
         $this->updateWatchers($manga, $count);
         // Announce leave
         $channel->send(

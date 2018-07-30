@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\AnimeChannel;
 
+use App\Channel\Channel;
 use App\Entity\Reaction;
 use App\Event\ReactionAddedEvent;
 use App\Message\JoinableChannelMessage;
@@ -67,7 +68,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         }
         $channelId = $channelMessage->getChannelId();
         $channel = $reaction->message->guild->channels->get($channelId);
-        $subs = $channelMessage->getSubsciberCount($channel);
+        $subs = Channel::getUserCount($channel);
         $channelMessage->updateWatchers($anime, $subs);
         $reaction->message->react(Reaction::JOIN);
         $reaction->message->react(Reaction::LEAVE);

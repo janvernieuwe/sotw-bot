@@ -2,6 +2,7 @@
 
 namespace App\Subscriber\SimpleChannel;
 
+use App\Channel\Channel;
 use App\Event\ReactionAddedEvent;
 use App\Message\SimpleJoinableChannelMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -48,7 +49,7 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         }
         $channelId = $channelMessage->getChannelId();
         $channel = $reaction->message->guild->channels->get($channelId);
-        $channelMessage->updateWatchers($channelMessage->getSubsciberCount());
+        $channelMessage->updateWatchers(Channel::getUserCount($channel));
         $reaction->message->react(SimpleJoinableChannelMessage::JOIN_REACTION);
         $reaction->message->react(SimpleJoinableChannelMessage::LEAVE_REACTION);
         $reaction->remove($reaction->users->last());
