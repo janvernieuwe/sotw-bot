@@ -96,6 +96,11 @@ class AnimeChannelCreator
                         $announcement->pin();
                     }
                 );
+                $preview = $this->context->getAnime()->getPreviewVideoUrl();
+                if ($preview !== null) {
+                    $preview = preg_replace('#https://www.youtube.com/embed/(.*)\?.*#', '$1', $preview);
+                    $channel->send('https://www.youtube.com/watch?v='.$preview);
+                }
 
                 $this->sendJoinMessage($channel);
             }
