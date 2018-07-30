@@ -73,7 +73,6 @@ class SimpleJoinableChannelMessage
      */
     public function getChannelId(): ?int
     {
-        return (int)preg_replace('/\D*/', '', $this->getFieldValue('Channel'));
         return Channel::getChannelId($this->message);
     }
 
@@ -113,7 +112,7 @@ class SimpleJoinableChannelMessage
                 ],
                 'fields' => [
                     [
-                        'name'   => 'Description',
+                        'name'   => 'description',
                         'value'  => $message,
                         'inline' => false,
                     ],
@@ -123,7 +122,7 @@ class SimpleJoinableChannelMessage
                         'inline' => true,
                     ],
                     [
-                        'name'   => 'Members',
+                        'name'   => 'members',
                         'value'  => $subsciberCount,
                         'inline' => true,
                     ],
