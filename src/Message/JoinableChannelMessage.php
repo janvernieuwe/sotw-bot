@@ -147,7 +147,7 @@ class JoinableChannelMessage
         $view = array_filter(
             $permissions,
             function (PermissionOverwrite $o) use ($memberid) {
-                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES
+                return $o->allow->has(Channel::ROLE_VIEW_MESSAGES)
                     && $memberid === (int)$o->id
                     && $o->type === 'member';
             }
@@ -297,7 +297,7 @@ class JoinableChannelMessage
             'User left the channel'
         );
         // Update member count
-        $count = Channel::getUserCount($channel) -1;
+        $count = Channel::getUserCount($channel) - 1;
         $this->updateWatchers($anime, $count);
         // Announce leave
         $channel->send(

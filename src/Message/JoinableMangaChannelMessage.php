@@ -152,7 +152,7 @@ class JoinableMangaChannelMessage
         $view = array_filter(
             $permissions,
             function (PermissionOverwrite $o) use ($memberid) {
-                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES
+                return $o->allow->has(Channel::ROLE_VIEW_MESSAGES)
                     && $memberid === (int)$o->id
                     && $o->type === 'member';
             }

@@ -128,7 +128,7 @@ class SimpleJoinableChannelMessage
         $view = array_filter(
             $permissions,
             function (PermissionOverwrite $o) use ($memberid) {
-                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES
+                return $o->allow->has(Channel::ROLE_VIEW_MESSAGES)
                     && $memberid === (int)$o->id
                     && $o->type === 'member';
             }
@@ -157,27 +157,6 @@ class SimpleJoinableChannelMessage
     public function getChannelId(): ?int
     {
         return (int)preg_replace('/\D*/', '', $this->getFieldValue('Channel'));
-    }
-
-    /**
-     * @return int
-     */
-    public function getSubsciberCount(): int
-    {
-        return count($this->getSubscribers()) - 1;
-    }
-
-    /**
-     * @return array
-     */
-    public function getSubscribers(): array
-    {
-        return array_filter(
-            $this->getChannel()->permissionOverwrites->all(),
-            function (PermissionOverwrite $o) {
-                return $o->allow->bitfield === Channel::ROLE_VIEW_MESSAGES;
-            }
-        );
     }
 
     /**
