@@ -73,6 +73,7 @@ class SimpleJoinableChannelMessage
      */
     public function getChannelId(): ?int
     {
+        return (int)preg_replace('/\D*/', '', $this->getFieldValue('Channel'));
         return Channel::getChannelId($this->message);
     }
 
