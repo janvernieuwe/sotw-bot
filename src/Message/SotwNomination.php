@@ -2,6 +2,7 @@
 
 namespace App\Message;
 
+use App\Entity\Reaction;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\MessageReaction;
 use Psr\Log\InvalidArgumentException;
@@ -72,9 +73,9 @@ class SotwNomination
         $nominee->author = $message->author->username;
         $nominee->authorId = $message->author->id;
 
-        /** @var MessageReaction $reactions */
-        $nominee->votes = $message->reactions->get('🔼');
-        $nominee->votes = $nominee->votes ? $nominee->votes->count - 1 : 0;
+        /** @var MessageReaction $votes */
+        $votes = $message->reactions->get(Reaction::VOTE);
+        $nominee->votes = $votes ? $votes->users->count() - 1 : 0;
 
         return $nominee;
     }

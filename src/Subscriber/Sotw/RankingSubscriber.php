@@ -5,6 +5,7 @@ namespace App\Subscriber\Sotw;
 use App\Channel\SongOfTheWeekChannel;
 use App\Event\MessageReceivedEvent;
 use App\Message\SotwNomination;
+use App\Util\Util;
 use CharlotteDunois\Yasmin\Models\Message;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -80,7 +81,7 @@ class RankingSubscriber implements EventSubscriberInterface
 
             return;
         }
-        $output = ['De huidige song of the week ranking is'];
+        $output = [sprintf('De huidige %s ranking is', Util::channelLink($this->sotwChannelId))];
         foreach ($nominations as $i => $nomination) {
             $output[] = sprintf(
                 ":radio: %s) **%s** - **%s**\nvotes: **%s** | anime: *%s* | door: %s",
