@@ -75,7 +75,7 @@ class SotwNomination
 
         /** @var MessageReaction $votes */
         $votes = $message->reactions->get(Reaction::VOTE);
-        $nominee->votes = $votes ? $votes->users->count() - 1 : 0;
+        $nominee->votes = $votes ? $votes->count - 1 : 0;
 
         return $nominee;
     }
