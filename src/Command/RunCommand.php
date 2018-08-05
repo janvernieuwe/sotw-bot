@@ -8,6 +8,7 @@ use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\DMChannel;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\MessageReaction;
+use CharlotteDunois\Yasmin\Models\User;
 use React\EventLoop\Factory;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -91,8 +92,8 @@ class RunCommand extends ContainerAwareCommand
 
         $client->on(
             'messageReactionAdd',
-            function (MessageReaction $reaction) use ($dispatcher, $io, $adminRole) {
-                if ($reaction->me) {
+            function (MessageReaction $reaction, User $user) use ($dispatcher, $io, $adminRole) {
+                if ($user->bot) {
                     return;
                 }
                 if ($reaction->message->channel instanceof DMChannel) {
