@@ -47,6 +47,8 @@ channel <channel-name> <mal-anime-link>
     
 simplechannel <channelname> <description>
     Same as the command above but with a simple description that will be linked to the channel description.
+    
+mangachannel <channelname> <mal-mango-link>    
 
 cots ranking            (shows the character of the season ranking)
 cots start              (start the next character of the season round)
