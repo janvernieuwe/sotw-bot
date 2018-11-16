@@ -85,7 +85,7 @@ class CreateSubscriber implements EventSubscriberInterface
 
         // Create context
         $context = new CreateSimpleChannelContext(
-            (int)$message->channel->parentID,
+            $parsedMessage->getCategoryId() ?? (int)$message->channel->parentID,
             $channelName,
             $description,
             (int)$this->everyoneRole,
