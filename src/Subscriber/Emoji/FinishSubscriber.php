@@ -11,7 +11,6 @@ use CharlotteDunois\Yasmin\Models\TextChannel;
 use CharlotteDunois\Yasmin\Utils\Collection;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use function React\Promise\all;
 
 /**
  * Display the current bikkel ranking
@@ -89,7 +88,7 @@ class FinishSubscriber implements EventSubscriberInterface
                 $nominations = $this->filter($result->all());
                 self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
                 self::$winners = \array_slice($nominations, 0, 50);
-                $this->removeLosers(\array_slice($nominations, 49));
+                $this->removeLosers(\array_slice($nominations, 50));
             }
         );
     }
@@ -128,56 +127,80 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     private function removeLosers(array $losers): void
     {
-        $promises = [];
-        foreach ($losers as $loser) {
-            if (!$loser->isOnServer()) {
-                continue;
-            }
-            self::$io->writeln(sprintf('Loser: %s %s', $loser->getContent(), $loser->getVotes()));
-            self::$message->channel->send(
-                sprintf(':put_litter_in_its_place:  %s', $loser->getContent())
-            );
+        // Start adding winners when losers are all removed
+        if (!count($losers)) {
+            $this->addWinners(self::$winners);
 
-            try {
-                /** @var Emoji $emoji */
-                $emoji = self::$message->guild->emojis->keyBy('name')->get($loser->getEmojiName());
-                $promises[] = $promise = $emoji->delete();
-                $promise->done(
-                    function () use ($loser) {
-                        self::$io->success(sprintf('Emoji %s removed', $loser->getEmojiName()));
-                    }
-                );
-            } catch (\Exception $e) {
-                self::$io->error($e->getMessage());
-                continue;
-            }
+            return;
         }
-        all($promises)->then(
-            function () {
-                $this->addWinners();
+
+        // Remove the next loser
+        $loser = array_shift($losers);
+
+        // But is it on the server?
+        if (!$loser->isOnServer()) {
+            self::$io->writeln('Not on server');
+            $this->removeLosers($losers);
+
+            return;
+        }
+
+        // Delet the emoji
+        self::$io->writeln(sprintf('Loser: %s %s', $loser->getContent(), $loser->getVotes()));
+        self::$message->channel->send(
+            sprintf(':put_litter_in_its_place:  %s', $loser->getContent())
+        );
+
+        /** @var Emoji $emoji */
+        $emoji = self::$message->guild->emojis->keyBy('name')->get($loser->getEmojiName());
+        $promises[] = $promise = $emoji->delete();
+        $promise->done(
+            function () use ($loser, $losers) {
+                self::$io->success(sprintf('Emoji %s removed', $loser->getEmojiName()));
+                // Next
+                $this->removeLosers($losers);
             }
         );
     }
 
-    private function addWinners(): void
+    /**
+     * @param array $winners
+     */
+    private function addWinners(array $winners): void
     {
-        foreach (self::$winners as $winner) {
-            if ($winner->isOnServer()) {
-                continue;
-            }
-            self::$io->writeln(sprintf('Winner: %s %s', $winner->getContent(), $winner->getVotes()));
-            //self::$message->channel->send($winner->getUrl());
-
-            self::$message->guild->createEmoji($winner->getUrl(), $winner->getEmojiName())->done(
-                function (Emoji $emoji) {
-                    self::$message->channel->send(':new: '.Util::emojiToString($emoji))->done(
-                        function (Message $emojiPost) use ($emoji) {
-                            $emojiPost->react(Util::emojiToString($emoji));
-                            self::$io->success(sprintf('Emoji %s added', $emoji->name));
-                        }
-                    );
-                }
-            );
+        // No more winners?
+        if (!count($winners)) {
+            return;
         }
+
+        // Next winner
+        $winner = array_shift($winners);
+        self::$io->writeln(sprintf('Winner: %s %s', $winner->getContent(), $winner->getVotes()));
+
+        // Old emoji?
+        if ($winner->isOnServer()) {
+            self::$io->writeln('Already on server');
+            $this->addWinners($winners);
+
+            return;
+        }
+
+        // Add it
+        self::$message->guild->createEmoji($winner->getUrl(), $winner->getEmojiName())->done(
+            function (Emoji $emoji) use ($winners) {
+                self::$message->channel->send(':new: '.Util::emojiToString($emoji))->done(
+                    function (Message $emojiPost) use ($emoji, $winners) {
+                        $emojiPost->react(Util::emojiToString($emoji))
+                            ->done(
+                                function () use ($emoji, $winners) {
+                                    self::$io->success(sprintf('Emoji %s added', $emoji->name));
+                                    // Next
+                                    $this->addWinners($winners);
+                                }
+                            );
+                    }
+                );
+            }
+        );
     }
 }

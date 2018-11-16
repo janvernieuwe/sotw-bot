@@ -10,6 +10,7 @@ use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
 use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use CharlotteDunois\Yasmin\Models\Emoji;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\TextChannel;
 use CharlotteDunois\Yasmin\Utils\Collection;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -25,7 +26,7 @@ class NominationSubscriber implements EventSubscriberInterface
 {
     private const ERROR_ATTACHMENT_COUNT = ':x: 1 afbeelding per bericht';
     private const DELETE_TIMEOUT = 5;
-
+    private const COOLDOWN = 15;
     /**
      * @var MessageReceivedEvent
      */
@@ -76,6 +77,7 @@ class NominationSubscriber implements EventSubscriberInterface
     {
         $this->event = $event;
         $message = $event->getMessage();
+
         /** @noinspection PhpUndefinedFieldInspection */
         if ($this->channelId !== (int)$message->channel->id) {
             return;
@@ -118,24 +120,15 @@ class NominationSubscriber implements EventSubscriberInterface
         $message->guild
             ->createEmoji($attachment->getUrl(), $attachment->getName())
             ->done(
-                function (Emoji $emoji) use ($message, $io, $channel, $emojiChannel) {
+                function (Emoji $emoji) use ($message, $io, $emojiChannel) {
                     $message->channel->send(Util::emojiToString($emoji))->done(
-                        function (Message $emojiPost) use ($message, $emoji, $io, $channel, $emojiChannel) {
+                        function (Message $emojiPost) use ($message, $emoji, $io, $emojiChannel) {
                             $emojiPost->react(Util::emojiToString($emoji));
                             $message->delete();
                             $emoji->delete();
                             $io->success(sprintf('Emoji %s nominated', $emoji->name));
-                            $channel->overwritePermissions(
-                                $this->roleId,
-                                Channel::ROLE_SEND_MESSAGES,
-                                0,
-                                'Processing emoji'
-                            )->done(
-                                function () use ($emojiChannel) {
-                                    $emojiChannel->fetchMessages(['limit' => 100])
-                                        ->done(\Closure::fromCallable([$this, 'countMessages']));
-                                }
-                            );
+                            $emojiChannel->fetchMessages(['limit' => 100])
+                                ->done(\Closure::fromCallable([$this, 'countMessages']));
                         }
                     );
                 }
@@ -158,26 +151,48 @@ class NominationSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function countMessages(Collection $messages)
+    /**
+     * @param Collection $messages
+     */
+    private function countMessages(Collection $messages): void
     {
         $io = $this->event->getIo();
         $count = $messages->count();
         $message = $this->event->getMessage();
 
+        /** @var TextChannel $emojiChannel */
         $emojiChannel = $message->client->channels->get($this->channelId);
 
         if ($count < 100) {
+            // Send a lock message and unlock channel + delete it when cooldown is done
             $io->writeln(sprintf('Not closing yet, %s nominations', $count));
+            $emojiChannel->send(sprintf('Volgende nominatie in %s seconden.', self::COOLDOWN))
+                ->done(
+                    function (Message $lockMessage) use ($emojiChannel) {
+                        $lockMessage->client->getLoop()->addTimer(
+                            self::COOLDOWN,
+                            function () use ($emojiChannel, $lockMessage) {
+                                $emojiChannel->overwritePermissions(
+                                    $this->roleId,
+                                    Channel::ROLE_SEND_MESSAGES,
+                                    0,
+                                    'emoji cooldown finished'
+                                );
+                                $lockMessage->delete();
+                            }
+                        );
+                    }
+                );
+
 
             return;
         }
         $emojiChannel->send('Laat het stemmen beginnen');
-        /** @var GuildChannelInterface $emojiChannel */
-        $channel = $message->guild->channels->get($this->channelId);
-        $channel->overwritePermissions(
+        $emojiChannel->overwritePermissions(
             $this->roleId,
             0,
-            Channel::ROLE_SEND_MESSAGES
+            Channel::ROLE_SEND_MESSAGES,
+            'Closed nominations'
         );
         $io->success('Closed nominations');
     }

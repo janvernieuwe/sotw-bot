@@ -6,6 +6,8 @@ use App\Event\MessageReceivedEvent;
 use App\Util\Util;
 use CharlotteDunois\Yasmin\Models\Emoji;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\TextChannel;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -17,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ServerNominationsSubscriber implements EventSubscriberInterface
 {
     private const CMD = '!haamc emoji server';
+    private static $emoji;
 
     /**
      * @var int
@@ -58,15 +61,34 @@ class ServerNominationsSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
 
         $channel = $message->guild->channels->get($this->channelId);
-        /** @var Emoji $emoji */
-        foreach ($message->guild->emojis->all() as $emoji) {
-            $channel->send(Util::emojiToString($emoji))->done(
-                function (Message $emojiPost) use ($emoji, $io) {
-                    $emojiPost->react(Util::emojiToString($emoji));
-                    $io->success(sprintf('Emoji %s nominated', $emoji->name));
-                }
-            );
+        $emoji = $message->guild->emojis->all();
+        if (count($emoji)) {
+            $this->addEmoji($emoji, $channel, $io);
         }
         $message->delete();
+    }
+
+    /**
+     * @param array        $stack
+     * @param TextChannel  $channel
+     * @param SymfonyStyle $io
+     */
+    public function addEmoji(array $stack, TextChannel $channel, SymfonyStyle $io): void
+    {
+        if (!count($stack)) {
+            return;
+        }
+        $emoji = array_shift($stack);
+        $channel->send(Util::emojiToString($emoji))->done(
+            function (Message $emojiPost) use ($emoji, $io, $channel, $stack) {
+                $emojiPost->react(Util::emojiToString($emoji))
+                    ->done(
+                        function () use ($emoji, $io, $channel, $stack) {
+                            $io->success(sprintf('Emoji %s nominated', $emoji->name));
+                            $this->addEmoji($stack, $channel, $io);
+                        }
+                    );
+            }
+        );
     }
 }

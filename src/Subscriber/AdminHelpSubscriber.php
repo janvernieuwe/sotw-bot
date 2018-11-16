@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class AdminHelpSubscriber implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc adminhelp';
+    public const COMMAND = '!haamc adminhelp';
 
     /**
      * @inheritdoc
@@ -40,6 +40,7 @@ class AdminHelpSubscriber implements EventSubscriberInterface
 ```        
 All commands are prefixed with !haamc
 
+### Channel commands ###
 channel <channel-name> <mal-anime-link>
     This command creates an anime channel link in the channel you type it in, channel in the category it is in.
     Users can join the channel by clicking the reactions below it.
@@ -48,8 +49,11 @@ channel <channel-name> <mal-anime-link>
 simplechannel <channelname> <description>
     Same as the command above but with a simple description that will be linked to the channel description.
     
-mangachannel <channelname> <mal-mango-link>    
+mangachannel <channelname> <mal-mango-link>
 
+--category=12345 can be added to this message    
+
+### Other commands ###
 cots ranking            (shows the character of the season ranking)
 cots start              (start the next character of the season round)
 cots finish             (finish and anounce winner of character of the season)

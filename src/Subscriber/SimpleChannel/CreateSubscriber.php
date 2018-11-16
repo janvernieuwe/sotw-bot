@@ -3,6 +3,7 @@
 namespace App\Subscriber\SimpleChannel;
 
 use App\Channel\SimpleChannelCreator;
+use App\Command\CommandParser;
 use App\Context\CreateSimpleChannelContext;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Client;
@@ -71,8 +72,9 @@ class CreateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $this->message = $message = $event->getMessage();
+        $parsedMessage = new CommandParser($message);
         /** @var Client client */
-        $matchCommand = preg_match('/^(\!haamc simplechannel )([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc simplechannel )([\S]*)\s?(.*)$/', $parsedMessage, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }

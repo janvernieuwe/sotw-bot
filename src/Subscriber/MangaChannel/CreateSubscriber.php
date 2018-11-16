@@ -3,6 +3,7 @@
 namespace App\Subscriber\MangaChannel;
 
 use App\Channel\MangaChannelCreator;
+use App\Command\CommandParser;
 use App\Context\CreateMangaChannelContext;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Client;
@@ -87,8 +88,9 @@ class CreateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $this->message = $message = $event->getMessage();
+        $parsedMessage = new CommandParser($message);
         /** @var Client client */
-        $matchCommand = preg_match('/^(\!haamc mangachannel )([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc mangachannel )([\S]*)\s?(.*)$/', $parsedMessage, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
@@ -103,7 +105,7 @@ class CreateSubscriber implements EventSubscriberInterface
         // Create context
         $context = new CreateMangaChannelContext(
             $anime,
-            (int)$message->channel->parentID,
+            $parsedMessage->getCategoryId() ?? (int)$message->channel->parentID,
             $channelName,
             $this->everyoneRole,
             $message->guild,

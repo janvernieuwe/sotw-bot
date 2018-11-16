@@ -3,6 +3,7 @@
 namespace App\Subscriber\AnimeChannel;
 
 use App\Channel\AnimeChannelCreator;
+use App\Command\CommandParser;
 use App\Context\CreateAnimeChannelContext;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Client;
@@ -93,8 +94,9 @@ class CreateSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $this->message = $message = $event->getMessage();
+        $parsedMessage = new CommandParser($message);
         /** @var Client client */
-        $matchCommand = preg_match('/^(\!haamc channel )([\S]*)\s?(.*)$/', $message->content, $name);
+        $matchCommand = preg_match('/^(\!haamc channel )([\S]*)\s?(.*)$/', $parsedMessage, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
@@ -110,7 +112,7 @@ class CreateSubscriber implements EventSubscriberInterface
         /** @noinspection PhpUndefinedFieldInspection */
         $context = new CreateAnimeChannelContext(
             $anime,
-            (int)$message->channel->parentID,
+            $parsedMessage->getCategoryId() ?? (int)$message->channel->parentID,
             $channelName,
             $this->everyoneRole,
             $message->guild,
