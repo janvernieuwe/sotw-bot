@@ -8,6 +8,7 @@ use App\Context\CreateSimpleChannelContext;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Client;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\TextChannel;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -17,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package App\Subscriber
  */
-class CreateSubscriber implements EventSubscriberInterface
+class ReCreateSubscriber implements EventSubscriberInterface
 {
     /**
      * @var Client
@@ -66,29 +67,31 @@ class CreateSubscriber implements EventSubscriberInterface
         $this->message = $message = $event->getMessage();
         $parsedMessage = new CommandParser($message);
         /** @var Client client */
-        $matchCommand = preg_match('/^(\!haamc simplechannel )([\S]*)\s?(.*)$/', $parsedMessage, $name);
+        $matchCommand = preg_match('/^(\!haamc rechannel )(\d+)$/', $parsedMessage, $name);
         if (!$matchCommand || !$event->isAdmin()) {
             return;
         }
         $this->io = $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-        [$cmd, $cmd, $channelName, $description] = $name;
+        [$cmd, $cmd, $channelId] = $name;
+        /** @var TextChannel $channel */
+        $channel = $message->guild->channels->get($channelId);
 
         // Create context
         $context = new CreateSimpleChannelContext(
             $parsedMessage->getCategoryId() ?? (int)$message->channel->parentID,
-            $channelName,
-            $description,
+            $channel->name,
+            $channel->topic,
             (int)$this->everyoneRole,
             $message->guild,
             $message->client,
             $message->channel
         );
-        $channelCreator = new SimpleChannelCreator($context);
         // Create channel from context
-        $channelCreator->create($context);
-        $io->success(sprintf('Simple joinable channel %s created for %s', $channelName, $description));
+        $channelCreator = new SimpleChannelCreator($context);
+        $channelCreator->sendJoinMessage($channel);
+        $io->success(sprintf('Simple joinable channel %s recreated for %s', $channel->name, $channel->topic));
         $message->delete();
     }
 }

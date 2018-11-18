@@ -23,13 +23,22 @@ class SimpleChannelCreator
     private $context;
 
     /**
+     * SimpleChannelCreator constructor.
+     *
+     * @param CreateSimpleChannelContext $context
+     */
+    public function __construct(CreateSimpleChannelContext $context)
+    {
+        $this->context = $context;
+    }
+
+    /**
      * @param CreateSimpleChannelContext $context
      *
      * @internal param MessageReceivedEvent $event
      */
     public function create(CreateSimpleChannelContext $context): void
     {
-        $this->context = $context;
         $this->createChannel($context->getGuild(), $context->getChannelName());
     }
 
@@ -69,7 +78,7 @@ class SimpleChannelCreator
     /**
      * @param TextChannel $channel
      */
-    protected function sendJoinMessage(TextChannel $channel): void
+    public function sendJoinMessage(TextChannel $channel): void
     {
         $embed = SimpleJoinableChannelMessage::generateRichChannelMessage(
             (int)$channel->id,

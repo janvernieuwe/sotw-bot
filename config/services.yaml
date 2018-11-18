@@ -84,3 +84,7 @@ services:
     App\Channel\RewatchChannel:
         class: App\Channel\RewatchChannel
         autowire: false
+
+    App\Channel\SimpleChannelCreator:
+        class: App\Channel\SimpleChannelCreator
+        autowire: false
