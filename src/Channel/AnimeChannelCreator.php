@@ -6,6 +6,7 @@ namespace App\Channel;
 use App\Context\CreateAnimeChannelContext;
 use App\Entity\Reaction;
 use App\Message\JoinableChannelMessage;
+use CharlotteDunois\Yasmin\Models\CategoryChannel;
 use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\TextChannel;
@@ -54,27 +55,29 @@ class AnimeChannelCreator
      */
     protected function createChannel(Guild $guild, string $name): void
     {
+        /** @var CategoryChannel $category */
+        $category = $guild->channels->get($this->context->getParent());
+        $permissions = $category->permissionOverwrites->all();
+        $permissions = array_merge(
+            $permissions,
+            [
+                [
+                    'id'   => $this->context->getEveryoneRole(),
+                    'deny' => Channel::ROLE_VIEW_MESSAGES,
+                    'type' => 'role',
+                ],
+                [
+                    'id'    => $this->context->getClient()->user->id,
+                    'allow' => Channel::ROLE_VIEW_MESSAGES,
+                    'type'  => 'member',
+                ]
+            ]
+        );
         $guild->createChannel(
             [
                 'name'                 => $name,
                 'topic'                => $name,
-                'permissionOverwrites' => [
-                    [
-                        'id'   => $this->context->getEveryoneRole(),
-                        'deny' => Channel::ROLE_VIEW_MESSAGES,
-                        'type' => 'role',
-                    ],
-                    [
-                        'id'    => $this->context->getClient()->user->id,
-                        'allow' => Channel::ROLE_VIEW_MESSAGES,
-                        'type'  => 'member',
-                    ],
-                    [
-                        'id'    => $this->miraiRole,
-                        'allow' => Channel::ROLE_VIEW_MESSAGES,
-                        'type'  => 'role',
-                    ],
-                ],
+                'permissionOverwrites' => $permissions,
                 'parent'               => $this->context->getParent(),
                 'nsfw'                 => false,
             ]
