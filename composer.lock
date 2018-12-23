@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a1ca335183aa33cc6b1e2ef62f27893",
+    "content-hash": "14924ca205cb32da6d420364f975d3a3",
     "packages": [
         {
             "name": "charlottedunois/eventemitter",
@@ -1395,16 +1395,16 @@
         },
         {
             "name": "jikan-me/jikan",
-            "version": "dev-master",
+            "version": "v2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jikan-me/jikan.git",
-                "reference": "2a24fc71aea579025ea3903419ce81552880300c"
+                "reference": "b70d411073b0e51df1d48e5e9f35c5d38370847e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/2a24fc71aea579025ea3903419ce81552880300c",
-                "reference": "2a24fc71aea579025ea3903419ce81552880300c",
+                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/b70d411073b0e51df1d48e5e9f35c5d38370847e",
+                "reference": "b70d411073b0e51df1d48e5e9f35c5d38370847e",
                 "shasum": ""
             },
             "require": {
@@ -1436,11 +1436,11 @@
             "authors": [
                 {
                     "name": "Irfan",
-                    "email": "irfan@jikan.moe"
+                    "email": "irfan@dahir.co"
                 }
             ],
             "description": "Jikan is an unofficial MyAnimeList API",
-            "time": "2018-08-05T19:02:17+00:00"
+            "time": "2018-12-17T06:33:03+00:00"
         },
         {
             "name": "kevinrob/guzzle-cache-middleware",
@@ -3532,6 +3532,7 @@
             ],
             "description": "Enforces Long Term Supported versions of Symfony components",
             "homepage": "https://symfony.com",
+            "abandoned": "symfony/flex",
             "time": "2018-04-03T05:04:16+00:00"
         },
         {
@@ -5892,7 +5893,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "charlottedunois/yasmin": 20,
-        "jikan-me/jikan": 20,
         "symfony/lts": 20,
         "roave/security-advisories": 20
     },
