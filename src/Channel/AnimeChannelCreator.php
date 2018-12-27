@@ -70,7 +70,7 @@ class AnimeChannelCreator
                     'id'    => $this->context->getClient()->user->id,
                     'allow' => Channel::ROLE_VIEW_MESSAGES,
                     'type'  => 'member',
-                ]
+                ],
             ]
         );
         $guild->createChannel(
@@ -99,11 +99,12 @@ class AnimeChannelCreator
                         $announcement->pin();
                     }
                 );
-                $preview = $this->context->getAnime()->getPreviewVideoUrl();
+                $preview = $this->context->getAnime()->getTrailerUrl();
                 if ($preview !== null) {
                     $preview = preg_replace('#https://www.youtube.com/embed/(.*)\?.*#', '$1', $preview);
                     $channel->send('https://www.youtube.com/watch?v='.$preview);
                 }
+                $channel->send(sprintf('`m.airing notify channel %s`', $this->context->getAnime()->getTitle()));
 
                 $this->sendJoinMessage($channel);
             }
