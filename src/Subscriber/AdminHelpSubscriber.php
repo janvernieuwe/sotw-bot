@@ -66,6 +66,7 @@ rewatch finish          (finish the rewatch round, admins only)
 rewatch ranking         (show the current ranking)
 bikkel ranking          (Bikkel ranking)
 season ranking          (Seasonal anime ranking)
+export                  (Export the channel and firt reaction count to a csv)
 ```
 HELP;
         $message->channel->send($help);
