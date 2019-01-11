@@ -37,7 +37,7 @@ class ExportSubscriber implements EventSubscriberInterface
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $message->channel->fetchMessages()
+        $message->channel->fetchMessages(['limit' => 100])
             ->done(
                 function ($messages) use ($io, $message) {
                     if (!$fp = fopen('php://memory', 'wb')) {
