@@ -39,25 +39,33 @@ class ExportSubscriber implements EventSubscriberInterface
 
         $message->channel->fetchMessages()
             ->done(
-                function ($messages) use ($io) {
+                function ($messages) use ($io, $message) {
                     if (!$fp = fopen('php://memory', 'wb')) {
                         $io->error('Cannot open fp');
                     }
-                    /** @var Message $message */
-                    foreach ($messages as $message) {
+                    /** @var Message $msg */
+                    foreach ($messages as $msg) {
                         $count = 0;
-                        if ($message->reactions->count()) {
+                        if ($msg->reactions->count()) {
                             /** @var MessageReaction $reaction */
-                            $reaction = $message->reactions->first();
+                            $reaction = $msg->reactions->first();
                             $count = $reaction->count;
                         }
-                        fputcsv($fp, [$count, str_replace(',', '\,', $message->content)]);
+                        fputcsv(
+                            $fp,
+                            [
+                                $count,
+                                $msg->author->username,
+                                str_replace(',', '\,', $msg->content),
+                                $msg->createdAt->format('Y-m-d H:i:s')
+                            ]
+                        );
                     }
                     rewind($fp);
                     $contents = stream_get_contents($fp);
                     $message->reply(
                         'Here is your export ',
-                        ['files' => [['name' => 'export.csv', 'data' => $contents]]]
+                        ['files' => [['name' => $message->channel->name.'_export.csv', 'data' => $contents]]]
                     );
                 }
             );
