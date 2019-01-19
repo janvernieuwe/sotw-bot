@@ -2,9 +2,11 @@
 
 namespace App\Subscriber;
 
+use App\Command\CommandParser;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\MessageReaction;
+use CharlotteDunois\Yasmin\Models\TextChannel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -30,16 +32,21 @@ class ExportSubscriber implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if ($message->content !== self::COMMAND || !$event->isAdmin()) {
+        if (strpos($message->content, self::COMMAND) !== 0 || !$event->isAdmin()) {
             return;
         }
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
 
-        $message->channel->fetchMessages(['limit' => 100])
+        $command = new CommandParser($message);
+        $channelId = $command->parseArgument('channel') ?? $message->channel->getId();
+        /** @var TextChannel $channel */
+        $channel = $message->client->channels->get($channelId);
+
+        $channel->fetchMessages(['limit' => 100])
             ->done(
-                function ($messages) use ($io, $message) {
+                function ($messages) use ($io, $message, $channel) {
                     if (!$fp = fopen('php://memory', 'wb')) {
                         $io->error('Cannot open fp');
                     }
@@ -65,11 +72,11 @@ class ExportSubscriber implements EventSubscriberInterface
                     $contents = stream_get_contents($fp);
                     $message->reply(
                         'Here is your export ',
-                        ['files' => [['name' => $message->channel->name.'_export.csv', 'data' => $contents]]]
+                        ['files' => [['name' => $channel->name.'_export.csv', 'data' => $contents]]]
                     );
                 }
             );
 
-        $io->success('Exported the channel');
+        $io->success('Exported channel: '.$channel->name);
     }
 }

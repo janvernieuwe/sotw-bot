@@ -67,4 +67,18 @@ class CommandParser
     {
         return $this->command;
     }
+
+    /**
+     * @param string $arg
+     *
+     * @return int|null
+     */
+    public function parseArgument(string $arg):?int
+    {
+        if (preg_match('/\s?--'.$arg.'=(\d+)/', $this->command, $matches)) {
+            return (int)$matches[1];
+        }
+
+        return null;
+    }
 }
