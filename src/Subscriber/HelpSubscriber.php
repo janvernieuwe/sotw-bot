@@ -47,6 +47,7 @@ Nani TF doet deze bot allemaal?
 !bikkelpunt                    (Claim je bikkel punt, enkel in bikkeltijd)
 !haamc setmal JouwMalAccount   (Claim je MAL account)
 !haamc getmal :mention:        (Indien gementionde user een mal geset heeft toont deze de account)
+!haamc anime <title></title>   (Get anime info from mal)
 ```
 HELP;
         $message->channel->send($help);

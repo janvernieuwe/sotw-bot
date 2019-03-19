@@ -4,6 +4,7 @@ namespace App\Subscriber\Anime;
 
 use App\Event\MessageReceivedEvent;
 use Jikan\JikanPHP\JikanPHPClient;
+use JikanPHP\Request\Anime\AnimeRequest;
 use JikanPHP\Request\Search\AnimeSearchRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -51,22 +52,20 @@ class AnimeInfo implements EventSubscriberInterface
         $searchRequest = new AnimeSearchRequest($name);
         $searchResult = $this->jikanphp->getAnimeSearch($searchRequest);
 
-        $anime = $searchResult->getResults()[0] ?? null;
+        $animeSearch = $searchResult->getResults()[0] ?? null;
 
-        if ($anime === null) {
+        if ($animeSearch === null) {
             $message->reply(sprintf('No anime found for %s', $name));
         }
 
+        $animeRequest = new AnimeRequest($animeSearch->getMalId());
+        $anime = $this->jikanphp->getAnime($animeRequest);
+
         $embed = [
             'embed' => [
-                'author'    => [
-                    'name'     => $anime->getTitle(),
-                    'icon_url' => $anime->getImageUrl(),
-                    'url'      => $anime->getUrl(),
-                ],
                 'url'       => $anime->getUrl(),
                 'thumbnail' => ['url' => $anime->getImageUrl()],
-                //'title' => $anime->getTitle(),
+                'title'     => $anime->getTitle(),
                 'fields'    => [
                     [
                         'name'   => 'Format',
@@ -75,29 +74,40 @@ class AnimeInfo implements EventSubscriberInterface
                     ],
                     [
                         'name'   => 'Episodes',
-                        'value'  => $anime->getEpisodes(),
+                        'value'  => $anime->getEpisodes() ?? 'n/a',
                         'inline' => true,
                     ],
                     [
-                        'name'   => 'Airing',
-                        'value'  => $anime->isAiring() ? 'yes' : 'no',
+                        'name'   => 'Status',
+                        'value'  => $anime->getStatus(),
                         'inline' => true,
                     ],
                     [
-                        'name'   => 'score',
-                        'value'  => $anime->getScore(),
+                        'name'   => 'Score',
+                        'value'  => (string)$anime->getScore(),
+                        'inline' => true,
+                    ],
+                    [
+                        'name'   => 'Season',
+                        'value'  => $anime->getPremiered(),
+                        'inline' => true,
+                    ],
+                    [
+                        'name'   => 'Genres',
+                        'value'  => implode(', ', $anime->getGenres()),
                         'inline' => true,
                     ],
                     [
                         'name'   => 'Description',
-                        'value'  => $anime->getSynopsis(),
+                        'value'  => substr($anime->getSynopsis(), 0, 1000),
                         'inline' => false,
                     ],
                 ],
             ],
         ];
 
-        $message->reply($anime->getTitle(), $embed);
+        $channel = $message->guild->channels->get($message->channel->getId());
+        $channel->send($anime->getTitle(), $embed);
 
         echo sprintf('displayed info for %s', $name).PHP_EOL;
     }
