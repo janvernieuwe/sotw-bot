@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AnimeInfo implements EventSubscriberInterface
 {
-    const COMMAND = '!haamc anime ';
+    private const COMMAND = '!haamc anime ';
 
     /**
      * @var JikanPHPClient
@@ -49,17 +49,22 @@ class AnimeInfo implements EventSubscriberInterface
         $event->stopPropagation();
 
         $name = str_replace(self::COMMAND, '', $message->content);
-        $searchRequest = new AnimeSearchRequest($name);
-        $searchResult = $this->jikanphp->getAnimeSearch($searchRequest);
 
-        $animeSearch = $searchResult->getResults()[0] ?? null;
 
-        if ($animeSearch === null) {
-            $message->reply(sprintf('No anime found for %s', $name));
+        try {
+            $searchRequest = new AnimeSearchRequest($name);
+            $searchResult = $this->jikanphp->getAnimeSearch($searchRequest);
+            $animeSearch = $searchResult->getResults()[0] ?? null;
+            if ($animeSearch === null) {
+                throw new \Exception(sprintf('No anime found for %s', $name));
+            }
+            $animeRequest = new AnimeRequest($animeSearch->getMalId());
+            $anime = $this->jikanphp->getAnime($animeRequest);
+        } catch (\Exception $e) {
+            $message->reply(':x: Something wenth wrong, try again later');
+
+            return;
         }
-
-        $animeRequest = new AnimeRequest($animeSearch->getMalId());
-        $anime = $this->jikanphp->getAnime($animeRequest);
 
         $embed = [
             'embed' => [
@@ -106,8 +111,7 @@ class AnimeInfo implements EventSubscriberInterface
             ],
         ];
 
-        $channel = $message->guild->channels->get($message->channel->getId());
-        $channel->send($anime->getTitle(), $embed);
+        $message->channel->send('', $embed);
 
         echo sprintf('displayed info for %s', $name).PHP_EOL;
     }
