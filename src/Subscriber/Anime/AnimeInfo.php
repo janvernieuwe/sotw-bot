@@ -84,7 +84,7 @@ class AnimeInfo implements EventSubscriberInterface
                     ],
                     [
                         'name'   => 'Score',
-                        'value'  => (string)$anime->getScore(),
+                        'value'  => (string)($anime->getScore() ?? 'n/a'),
                         'inline' => true,
                     ],
                     [
