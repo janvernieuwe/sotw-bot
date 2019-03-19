@@ -62,7 +62,6 @@ class AnimeInfo implements EventSubscriberInterface
             $anime = $this->jikanphp->getAnime($animeRequest);
         } catch (\Exception $e) {
             $message->reply(':x: Something wenth wrong, try again later');
-            $message->delete();
 
             return;
         }
@@ -114,7 +113,6 @@ class AnimeInfo implements EventSubscriberInterface
         ];
 
         $message->channel->send('', $embed);
-        $message->delete();
 
         echo sprintf('displayed info for %s', $name).PHP_EOL;
     }

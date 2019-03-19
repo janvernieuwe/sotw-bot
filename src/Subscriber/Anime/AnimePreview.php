@@ -68,7 +68,6 @@ class AnimePreview implements EventSubscriberInterface
 
         if (null === $anime->getTrailerUrl()) {
             $message->channel->send(':x: No trailer available');
-            $message->delete();
 
             return;
         }
@@ -77,7 +76,6 @@ class AnimePreview implements EventSubscriberInterface
         $message->channel->send(
             sprintf(":movie_camera: **%s** trailer\nhttps://www.youtube.com/watch?v=%s", $anime->getTitle(), $preview)
         );
-        $message->delete();
 
         echo sprintf('displayed trailer for %s', $name).PHP_EOL;
     }
