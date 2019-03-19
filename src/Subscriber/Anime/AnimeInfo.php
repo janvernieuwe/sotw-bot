@@ -99,7 +99,7 @@ class AnimeInfo implements EventSubscriberInterface
                     ],
                     [
                         'name'   => 'Description',
-                        'value'  => substr($anime->getSynopsis(), 0, 1000),
+                        'value'  => substr($anime->getSynopsis(), 0, 900),
                         'inline' => false,
                     ],
                 ],
