@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AnimePreview implements EventSubscriberInterface
 {
     private const COMMAND = '!haamc trailer ';
+    private const COMMAND2 = '!ht ';
 
     /**
      * @var JikanPHPClient
@@ -41,15 +42,13 @@ class AnimePreview implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
+        if (strpos($message->content, self::COMMAND) !== 0 && strpos($message->content, self::COMMAND2) !== 0) {
             return;
         }
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-
-        $name = str_replace(self::COMMAND, '', $message->content);
-
+        $name = str_replace([self::COMMAND, self::COMMAND2], '', $message->content);
 
         try {
             $searchRequest = new AnimeSearchRequest($name);

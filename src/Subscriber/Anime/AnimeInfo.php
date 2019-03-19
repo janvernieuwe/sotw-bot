@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AnimeInfo implements EventSubscriberInterface
 {
     private const COMMAND = '!haamc anime ';
+    private const COMMAND2 = '!ha ';
 
     /**
      * @var JikanPHPClient
@@ -41,15 +42,13 @@ class AnimeInfo implements EventSubscriberInterface
     public function onCommand(MessageReceivedEvent $event): void
     {
         $message = $event->getMessage();
-        if (strpos($message->content, self::COMMAND) !== 0) {
+        if (strpos($message->content, self::COMMAND) !== 0 && strpos($message->content, self::COMMAND2) !== 0) {
             return;
         }
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
-
-        $name = str_replace(self::COMMAND, '', $message->content);
-
+        $name = str_replace(array(self::COMMAND2, self::COMMAND), '', $message->content);
 
         try {
             $searchRequest = new AnimeSearchRequest($name);
@@ -75,7 +74,7 @@ class AnimeInfo implements EventSubscriberInterface
                 'fields'    => [
                     [
                         'name'   => 'Format',
-                        'value'  => $anime->getType() ??  'n/a',
+                        'value'  => $anime->getType() ?? 'n/a',
                         'inline' => true,
                     ],
                     [
