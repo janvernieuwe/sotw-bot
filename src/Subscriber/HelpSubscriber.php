@@ -48,6 +48,7 @@ Nani TF doet deze bot allemaal?
 !haamc setmal JouwMalAccount   (Claim je MAL account)
 !haamc getmal :mention:        (Indien gementionde user een mal geset heeft toont deze de account)
 !haamc anime <title></title>   (Get anime info from mal)
+!haamc trailer <title></title> (Get anime trailer from mal)
 ```
 HELP;
         $message->channel->send($help);

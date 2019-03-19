@@ -62,10 +62,12 @@ class AnimeInfo implements EventSubscriberInterface
             $anime = $this->jikanphp->getAnime($animeRequest);
         } catch (\Exception $e) {
             $message->reply(':x: Something wenth wrong, try again later');
+            $message->delete();
 
             return;
         }
 
+        $genres = implode(', ', $anime->getGenres());
         $embed = [
             'embed' => [
                 'url'       => $anime->getUrl(),
@@ -74,17 +76,17 @@ class AnimeInfo implements EventSubscriberInterface
                 'fields'    => [
                     [
                         'name'   => 'Format',
-                        'value'  => $anime->getType(),
+                        'value'  => $anime->getType() ??  'n/a',
                         'inline' => true,
                     ],
                     [
                         'name'   => 'Episodes',
-                        'value'  => $anime->getEpisodes() ?? 'n/a',
+                        'value'  => (string)($anime->getEpisodes() ?? 'n/a'),
                         'inline' => true,
                     ],
                     [
                         'name'   => 'Status',
-                        'value'  => $anime->getStatus(),
+                        'value'  => $anime->getStatus() ?? 'n/a',
                         'inline' => true,
                     ],
                     [
@@ -94,12 +96,12 @@ class AnimeInfo implements EventSubscriberInterface
                     ],
                     [
                         'name'   => 'Season',
-                        'value'  => $anime->getPremiered(),
+                        'value'  => $anime->getPremiered() ?? 'n/a',
                         'inline' => true,
                     ],
                     [
                         'name'   => 'Genres',
-                        'value'  => implode(', ', $anime->getGenres()),
+                        'value'  => $genres ? $genres : 'n/a',
                         'inline' => true,
                     ],
                     [
@@ -112,6 +114,7 @@ class AnimeInfo implements EventSubscriberInterface
         ];
 
         $message->channel->send('', $embed);
+        $message->delete();
 
         echo sprintf('displayed info for %s', $name).PHP_EOL;
     }
