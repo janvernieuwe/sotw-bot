@@ -87,3 +87,7 @@ services:
     App\Channel\SimpleChannelCreator:
         class: App\Channel\SimpleChannelCreator
         autowire: false
+
+    Jikan\JikanPHP\JikanPHPClient:
+        class: Jikan\JikanPHP\JikanPHPClient
+        autowire: false

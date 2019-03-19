@@ -8,6 +8,7 @@
         "ext-iconv": "*",
         "charlottedunois/yasmin": "^0.5",
         "jikan-me/jikan": "^2.6",
+        "jikan/jikan-php": "^0.0.2",
         "kevinrob/guzzle-cache-middleware": "^3.2",
         "symfony/console": "^4.0",
         "symfony/dotenv": "^4.0",
@@ -24,7 +25,8 @@
         "phpro/grumphp": "^0.13.1",
         "phpspec/phpspec": "^4.3",
         "roave/security-advisories": "dev-master",
-        "squizlabs/php_codesniffer": "^3.2"
+        "squizlabs/php_codesniffer": "^3.2",
+        "symfony/var-dumper": "^4.0"
     },
     "config": {
         "preferred-install": {
