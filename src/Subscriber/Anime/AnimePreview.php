@@ -75,7 +75,7 @@ class AnimePreview implements EventSubscriberInterface
 
         $preview = preg_replace('#https://www.youtube.com/embed/(.*)\?.*#', '$1', $anime->getTrailerUrl());
         $message->channel->send(
-            sprintf(":movie_camera: *%s* trailer\nhttps://www.youtube.com/watch?v=%s", $anime->getTitle(), $preview)
+            sprintf(":movie_camera: **%s** trailer\nhttps://www.youtube.com/watch?v=%s", $anime->getTitle(), $preview)
         );
         $message->delete();
 
