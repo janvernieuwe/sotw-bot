@@ -65,49 +65,75 @@ class AnimeInfo implements EventSubscriberInterface
             return;
         }
 
+        $anilist = sprintf('https://anilist.co/anime/%s', $anime->getMalId());
         $genres = implode(', ', $anime->getGenres());
+        $descriptionParts = explode(PHP_EOL, wordwrap($anime->getSynopsis(), 1000));
+        $i = 0;
+        $descriptionParts = array_map(
+            function ($p) use (&$i) {
+                $i++;
+
+                return [
+                    'name'   => 'Description'.($i > 1 ? $i : ''),
+                    'value'  => $p,
+                    'inline' => false,
+                ];
+            },
+            $descriptionParts
+        );
+
+        $fields = [
+            [
+                'name'   => 'Format',
+                'value'  => $anime->getType() ?? 'n/a',
+                'inline' => true,
+            ],
+            [
+                'name'   => 'Episodes',
+                'value'  => (string)($anime->getEpisodes() ?? 'n/a'),
+                'inline' => true,
+            ],
+            [
+                'name'   => 'Status',
+                'value'  => $anime->getStatus() ?? 'n/a',
+                'inline' => true,
+            ],
+            [
+                'name'   => 'Score',
+                'value'  => (string)($anime->getScore() ?? 'n/a'),
+                'inline' => true,
+            ],
+            [
+                'name'   => 'Season',
+                'value'  => $anime->getPremiered() ?? 'n/a',
+                'inline' => true,
+            ],
+            [
+                'name'   => 'Genres',
+                'value'  => $genres ? $genres : 'n/a',
+                'inline' => true,
+            ],
+        ];
+
+        $links = [
+            [
+                'name'   => 'Links',
+                'value'  => sprintf(
+                    '[MyAnimeList](%s) | [Anilist](%s)',
+                    $anime->getUrl(),
+                    $anilist
+                ),
+                'inline' => false,
+            ],
+        ];
+
+        $fields = array_merge($fields, $descriptionParts, $links);
         $embed = [
             'embed' => [
                 'url'       => $anime->getUrl(),
                 'thumbnail' => ['url' => $anime->getImageUrl()],
                 'title'     => $anime->getTitle(),
-                'fields'    => [
-                    [
-                        'name'   => 'Format',
-                        'value'  => $anime->getType() ?? 'n/a',
-                        'inline' => true,
-                    ],
-                    [
-                        'name'   => 'Episodes',
-                        'value'  => (string)($anime->getEpisodes() ?? 'n/a'),
-                        'inline' => true,
-                    ],
-                    [
-                        'name'   => 'Status',
-                        'value'  => $anime->getStatus() ?? 'n/a',
-                        'inline' => true,
-                    ],
-                    [
-                        'name'   => 'Score',
-                        'value'  => (string)($anime->getScore() ?? 'n/a'),
-                        'inline' => true,
-                    ],
-                    [
-                        'name'   => 'Season',
-                        'value'  => $anime->getPremiered() ?? 'n/a',
-                        'inline' => true,
-                    ],
-                    [
-                        'name'   => 'Genres',
-                        'value'  => $genres ? $genres : 'n/a',
-                        'inline' => true,
-                    ],
-                    [
-                        'name'   => 'Description',
-                        'value'  => substr($anime->getSynopsis(), 0, 1000),
-                        'inline' => false,
-                    ],
-                ],
+                'fields'    => $fields,
             ],
         ];
 
