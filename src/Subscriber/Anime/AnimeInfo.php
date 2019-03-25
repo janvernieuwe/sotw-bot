@@ -122,7 +122,7 @@ class AnimeInfo implements EventSubscriberInterface
                 'inline' => true,
             ],
             [
-                'name' => 'Premiered',
+                'name' => 'Premiere',
                 'value' => $anime->getPremiered() ?? 'n/a',
                 'inline' => true,
             ],
