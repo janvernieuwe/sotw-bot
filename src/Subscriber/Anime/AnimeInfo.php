@@ -46,7 +46,7 @@ class AnimeInfo implements EventSubscriberInterface
             return;
         }
         $io = $event->getIo();
-        $io->writeln(__CLASS__.' dispatched');
+        $io->writeln(__CLASS__ . ' dispatched');
         $event->stopPropagation();
         $name = str_replace(array(self::COMMAND2, self::COMMAND), '', $message->content);
 
@@ -65,7 +65,10 @@ class AnimeInfo implements EventSubscriberInterface
             return;
         }
 
-        $anilist = sprintf('https://anilist.co/anime/%s', $anime->getMalId());
+        $anilist = sprintf(
+            'https://anilist.co/search/anime?sort=SEARCH_MATCH&search=%s',
+            urlencode($anime->getTitle())
+        );
         $genres = implode(', ', $anime->getGenres());
         $descriptionParts = explode(PHP_EOL, wordwrap($anime->getSynopsis(), 1000));
         $i = 0;
@@ -74,51 +77,71 @@ class AnimeInfo implements EventSubscriberInterface
                 $i++;
 
                 return [
-                    'name'   => 'Description'.($i > 1 ? $i : ''),
-                    'value'  => $p,
+                    'name' => 'Description' . ($i > 1 ? $i : ''),
+                    'value' => $p,
                     'inline' => false,
                 ];
             },
             $descriptionParts
         );
 
+        $episodes = $anime->getEpisodes() ?? 'n/a';
+        if ($anime->getDuration()) {
+            $episodes .= ' (' . $anime->getDuration() . ')';
+        }
+
         $fields = [
             [
-                'name'   => 'Format',
-                'value'  => $anime->getType() ?? 'n/a',
+                'name' => 'Format',
+                'value' => $anime->getType() ?? 'n/a',
                 'inline' => true,
             ],
             [
-                'name'   => 'Episodes',
-                'value'  => (string)($anime->getEpisodes() ?? 'n/a'),
+                'name' => 'Episodes',
+                'value' => $episodes,
                 'inline' => true,
             ],
             [
-                'name'   => 'Status',
-                'value'  => $anime->getStatus() ?? 'n/a',
+                'name' => 'Status',
+                'value' => $anime->getStatus() ?? 'n/a',
                 'inline' => true,
             ],
             [
-                'name'   => 'Score',
-                'value'  => (string)($anime->getScore() ?? 'n/a'),
+                'name' => 'Score',
+                'value' => (string)($anime->getScore() ?? 'n/a'),
                 'inline' => true,
             ],
             [
-                'name'   => 'Season',
-                'value'  => $anime->getPremiered() ?? 'n/a',
+                'name' => 'Popularity',
+                'value' => $anime->getPopularity() ?? 'n/a',
                 'inline' => true,
             ],
             [
-                'name'   => 'Genres',
-                'value'  => $genres ? $genres : 'n/a',
+                'name' => 'Broadcast',
+                'value' => $anime->getBroadcast() ?? 'n/a',
                 'inline' => true,
+            ],
+            [
+                'name' => 'Premiered',
+                'value' => $anime->getPremiered() ?? 'n/a',
+                'inline' => true,
+            ],
+            [
+                'name' => 'Source',
+                'value' => $anime->getSource() ?? 'n/a',
+                'inline' => true,
+            ],
+            [
+                'name' => 'Genres',
+                'value' => $genres ? $genres : 'n/a',
+                'inline' => false,
             ],
         ];
 
         $links = [
             [
-                'name'   => 'Links',
-                'value'  => sprintf(
+                'name' => 'Links',
+                'value' => sprintf(
                     '[MyAnimeList](%s) | [Anilist](%s)',
                     $anime->getUrl(),
                     $anilist
@@ -130,15 +153,14 @@ class AnimeInfo implements EventSubscriberInterface
         $fields = array_merge($fields, $descriptionParts, $links);
         $embed = [
             'embed' => [
-                'url'       => $anime->getUrl(),
+                'url' => $anime->getUrl(),
                 'thumbnail' => ['url' => $anime->getImageUrl()],
-                'title'     => $anime->getTitle(),
-                'fields'    => $fields,
+                'title' => $anime->getTitle(),
+                'fields' => $fields,
             ],
         ];
-
         $message->channel->send('', $embed);
 
-        echo sprintf('displayed info for %s', $name).PHP_EOL;
+        echo sprintf('displayed info for %s', $name) . PHP_EOL;
     }
 }
