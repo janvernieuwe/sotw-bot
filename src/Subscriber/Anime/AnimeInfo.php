@@ -70,7 +70,7 @@ class AnimeInfo implements EventSubscriberInterface
             urlencode($anime->getTitle())
         );
         $genres = implode(', ', $anime->getGenres());
-        $descriptionParts = explode(PHP_EOL, wordwrap($anime->getSynopsis(), 1000));
+        $descriptionParts = explode(PHP_EOL, wordwrap($anime->getSynopsis() ?? 'n/a', 1000));
         $i = 0;
         $descriptionParts = array_map(
             function ($p) use (&$i) {
