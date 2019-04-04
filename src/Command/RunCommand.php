@@ -44,6 +44,7 @@ class RunCommand extends ContainerAwareCommand
         self::$start = time();
         $container = $this->getContainer();
         $adminRole = $container->getParameter('adminRole');
+        $animeModRole = $container->getParameter('modRole');
         $permissionsRole = $container->getParameter('permissionsRole');
         $dispatcher = $container->get('event_dispatcher');
         $io = new SymfonyStyle($input, $output);
@@ -92,7 +93,7 @@ class RunCommand extends ContainerAwareCommand
 
         $client->on(
             'messageReactionAdd',
-            function (MessageReaction $reaction, User $user) use ($dispatcher, $io, $adminRole) {
+            function (MessageReaction $reaction, User $user) use ($dispatcher, $io, $adminRole, $animeModRole) {
                 if ($user->bot) {
                     return;
                 }
@@ -108,7 +109,7 @@ class RunCommand extends ContainerAwareCommand
                 if ($io->isVerbose()) {
                     $io->writeln($logMessage);
                 }
-                $event = new ReactionAddedEvent($reaction, $io, $adminRole);
+                $event = new ReactionAddedEvent($reaction, $io, $adminRole, $animeModRole);
                 $event->setLogMessage($logMessage);
                 $dispatcher->dispatch(ReactionAddedEvent::NAME, $event);
             }

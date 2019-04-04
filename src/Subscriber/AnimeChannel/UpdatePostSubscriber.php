@@ -43,13 +43,13 @@ class UpdatePostSubscriber implements EventSubscriberInterface
 
     /**
      * @param ReactionAddedEvent $event
-     *
-     * @throws \App\Exception\InvalidChannelException
+     * @throws \HttpResponseException
+     * @throws \Jikan\Exception\ParserException
      */
     public function onCommand(ReactionAddedEvent $event): void
     {
         $reaction = $event->getReaction();
-        if (!$event->isAdmin()) {
+        if (!$event->isMod()) {
             return;
         }
         if ($reaction->emoji->name !== Reaction::REFRESH || !$event->isBotMessage()) {

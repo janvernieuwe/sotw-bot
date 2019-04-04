@@ -23,19 +23,25 @@ class ReactionAddedEvent extends Event
      * @var int
      */
     private $adminRole;
+    /**
+     * @var int
+     */
+    private $modRole;
 
     /**
      * MessageReceivedEvent constructor.
      *
-     * @param MessageReaction   $reaction
+     * @param MessageReaction $reaction
      * @param SymfonyStyle|null $io
-     * @param int               $adminRole
+     * @param int $adminRole
+     * @param int $modRole
      */
-    public function __construct(MessageReaction $reaction, SymfonyStyle $io, int $adminRole)
+    public function __construct(MessageReaction $reaction, SymfonyStyle $io, int $adminRole, int $modRole)
     {
         parent::__construct($io);
         $this->reaction = $reaction;
         $this->adminRole = $adminRole;
+        $this->modRole = $modRole;
     }
 
     /**
@@ -47,6 +53,17 @@ class ReactionAddedEvent extends Event
         $member = $this->reaction->message->guild->members->get($user->id);
 
         return $member->roles->has($this->adminRole);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMod(): bool
+    {
+        $user = $this->reaction->users->last();
+        $member = $this->reaction->message->guild->members->get($user->id);
+
+        return $member->roles->has($this->adminRole) || $member->roles->has($this->modRole);
     }
 
     /**

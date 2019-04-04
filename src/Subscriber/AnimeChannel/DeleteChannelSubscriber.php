@@ -30,7 +30,7 @@ class DeleteChannelSubscriber implements EventSubscriberInterface
     public function onCommand(ReactionAddedEvent $event): void
     {
         $reaction = $event->getReaction();
-        if (!$event->isAdmin() || !$event->isBotMessage()) {
+        if (!$event->isMod() || !$event->isBotMessage()) {
             return;
         }
         if ($reaction->emoji->name !== Reaction::DELETE) {

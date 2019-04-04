@@ -4,6 +4,7 @@ parameters:
     token:            '%env(TOKEN)%'
     adminRole:        '%env(ADMIN_ROLE)%'
     permissionsRole:  '%env(PERMISSIONS_ROLE)%'
+    modRole:          '%env(ANIMEMOD_ROLE)%'
 
 services:
     # default configuration for services in *this* file
@@ -26,6 +27,7 @@ services:
             $cotsChannelId:       '%env(COTS_CHANNEL_ID)%'
             $rewatchChannelId:    '%env(REWATCH_CHANNEL_ID)%'
             $miraiRole:           '%env(MIRAI_ROLE)%'
+            $modRole:             '%env(ANIMEMOD_ROLE)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
