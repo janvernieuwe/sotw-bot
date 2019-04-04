@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce1f1d27f0fce45d23ba79047840e89a",
+    "content-hash": "1c882fefaa1878f208e9ae221eb634af",
     "packages": [
         {
             "name": "cakephp/core",
@@ -2697,16 +2697,16 @@
         },
         {
             "name": "jikan/jikan-php",
-            "version": "0.0.2",
+            "version": "0.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/janvernieuwe/jikan-jikanPHP.git",
-                "reference": "06f717d72edd30903149370291708df3d27d138a"
+                "reference": "886e950f07525aa1e59e0feab8fcff49a1c98428"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/janvernieuwe/jikan-jikanPHP/zipball/06f717d72edd30903149370291708df3d27d138a",
-                "reference": "06f717d72edd30903149370291708df3d27d138a",
+                "url": "https://api.github.com/repos/janvernieuwe/jikan-jikanPHP/zipball/886e950f07525aa1e59e0feab8fcff49a1c98428",
+                "reference": "886e950f07525aa1e59e0feab8fcff49a1c98428",
                 "shasum": ""
             },
             "require": {
@@ -2753,7 +2753,7 @@
                 "MIT"
             ],
             "description": "PHP client for jikan rest",
-            "time": "2019-03-19T09:20:25+00:00"
+            "time": "2019-04-03T11:19:41+00:00"
         },
         {
             "name": "jms/metadata",
