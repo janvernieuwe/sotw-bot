@@ -91,3 +91,6 @@ services:
     Jikan\JikanPHP\JikanPHPClient:
         class: Jikan\JikanPHP\JikanPHPClient
         autowire: false
+
+    Mal2Anilist\Converter:
+        class: Mal2Anilist\Converter

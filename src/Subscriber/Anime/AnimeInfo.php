@@ -6,6 +6,7 @@ use App\Event\MessageReceivedEvent;
 use Jikan\JikanPHP\JikanPHPClient;
 use JikanPHP\Request\Anime\AnimeRequest;
 use JikanPHP\Request\Search\AnimeSearchRequest;
+use Mal2Anilist\Converter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AnimeInfo implements EventSubscriberInterface
@@ -19,13 +20,20 @@ class AnimeInfo implements EventSubscriberInterface
     private $jikanphp;
 
     /**
+     * @var Converter
+     */
+    private $mal2anilist;
+
+    /**
      * AnimeInfo constructor.
      *
      * @param JikanPHPClient $jikanphp
+     * @param Converter $mal2anilist
      */
-    public function __construct(JikanPHPClient $jikanphp)
+    public function __construct(JikanPHPClient $jikanphp, Converter $mal2anilist)
     {
         $this->jikanphp = $jikanphp;
+        $this->mal2anilist = $mal2anilist;
     }
 
     /**
@@ -65,10 +73,7 @@ class AnimeInfo implements EventSubscriberInterface
             return;
         }
 
-        $anilist = sprintf(
-            'https://anilist.co/search/anime?sort=SEARCH_MATCH&search=%s',
-            urlencode($anime->getTitle())
-        );
+        $anilist = $this->mal2anilist->getAnilistUrl($anime->getMalId()) ?? '#';
         $genres = implode(', ', $anime->getGenres());
         $descriptionParts = explode(PHP_EOL, wordwrap($anime->getSynopsis() ?? 'n/a', 1000));
         $i = 0;

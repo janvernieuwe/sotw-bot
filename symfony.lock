@@ -158,6 +158,9 @@
     "jakub-onderka/php-parallel-lint": {
         "version": "v0.9.2"
     },
+    "janvernieuwe/mal2anilist": {
+        "version": "0.0.1"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
