@@ -16,7 +16,6 @@ parameters:
         no_check_publish: true
       phpparser:
         visitors:
-          no_exit_statements: ~
           never_use_else: ~
           forbidden_function_calls:
-            blacklist: [var_dump, echo, print, dump, exit, print_r, var_export]
+            blacklist: [var_dump, echo, print, dump, print_r, var_export]

@@ -33,7 +33,7 @@ class RunCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return int|null|void
@@ -57,7 +57,7 @@ class RunCommand extends ContainerAwareCommand
             'ready',
             function () use ($client, $io) {
                 $io->writeln(
-                    'Logged in as '.$client->user->tag.' created on '.$client->user->createdAt->format(
+                    'Logged in as ' . $client->user->tag . ' created on ' . $client->user->createdAt->format(
                         'd.m.Y H:i:s'
                     )
                 );
@@ -72,14 +72,14 @@ class RunCommand extends ContainerAwareCommand
                     return;
                 }
                 if ($message->channel instanceof DMChannel) {
-                    $io->writeln('Ignoring DM: '.$message->content.' from '.$message->author->username);
+                    $io->writeln('Ignoring DM: ' . $message->content . ' from ' . $message->author->username);
 
                     return;
                 }
                 /** @noinspection PhpUndefinedFieldInspection */
-                $logMessage = 'Received Message from '.$message->author->tag.' in '.
-                    ($message->channel->type === 'text' ? 'channel #'.$message->channel->name : 'DM').' with '
-                    .$message->attachments->count().' attachment(s) and '.\count($message->embeds).' embed(s)';
+                $logMessage = 'Received Message from ' . $message->author->tag . ' in ' .
+                    ($message->channel->type === 'text' ? 'channel #' . $message->channel->name : 'DM') . ' with '
+                    . $message->attachments->count() . ' attachment(s) and ' . \count($message->embeds) . ' embed(s)';
 
                 if ($io->isVerbose()) {
                     /** @noinspection PhpUndefinedFieldInspection */
@@ -88,6 +88,10 @@ class RunCommand extends ContainerAwareCommand
                 $event = new MessageReceivedEvent($message, $io, $adminRole, $permissionsRole);
                 $event->setLogMessage($logMessage);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
+
+                if ((time() - self::$start) > (60 * 60 * 6)) {
+                    exit('Max execution time reached, restarting');
+                }
             }
         );
 
@@ -103,8 +107,8 @@ class RunCommand extends ContainerAwareCommand
                     return;
                 }
                 /** @noinspection PhpUndefinedFieldInspection */
-                $logMessage = 'Received messageReactionAdd '.$reaction->emoji->name.' from '
-                    .$reaction->users->last()->username.' in channel #'.$reaction->message->channel->name;
+                $logMessage = 'Received messageReactionAdd ' . $reaction->emoji->name . ' from '
+                    . $reaction->users->last()->username . ' in channel #' . $reaction->message->channel->name;
 
                 if ($io->isVerbose()) {
                     $io->writeln($logMessage);
