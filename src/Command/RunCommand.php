@@ -53,6 +53,9 @@ class RunCommand extends ContainerAwareCommand
 
         // Run the bot
         $io->section('Start listening');
+        $client->loop->addTimer(60 * 60 * 6, static function () {
+            exit('Max execution time reached, restarting');
+        });
         $client->on(
             'ready',
             function () use ($client, $io) {
@@ -88,10 +91,6 @@ class RunCommand extends ContainerAwareCommand
                 $event = new MessageReceivedEvent($message, $io, $adminRole, $permissionsRole);
                 $event->setLogMessage($logMessage);
                 $dispatcher->dispatch(MessageReceivedEvent::NAME, $event);
-
-                if ((time() - self::$start) > (60 * 60 * 6)) {
-                    exit('Max execution time reached, restarting');
-                }
             }
         );
 
