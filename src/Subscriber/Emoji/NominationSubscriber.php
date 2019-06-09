@@ -123,10 +123,13 @@ class NominationSubscriber implements EventSubscriberInterface
                 function (Emoji $emoji) use ($message, $io, $emojiChannel) {
                     $message->channel->send(Util::emojiToString($emoji))->done(
                         function (Message $emojiPost) use ($message, $emoji, $io, $emojiChannel) {
-                            $emojiPost->react(Util::emojiToString($emoji));
-                            $message->delete();
-                            $emoji->delete();
-                            $io->success(sprintf('Emoji %s nominated', $emoji->name));
+                            $emojiPost->react(Util::emojiToString($emoji))
+                                ->done(function () use ($message, $io, $emoji) {
+                                    $message->delete();
+                                    $emoji->delete();
+                                    $io->success(sprintf('Emoji %s nominated', $emoji->name));
+                                });
+
                             /*
                             $emojiChannel->fetchMessages(['limit' => 100])
                                 ->done(\Closure::fromCallable([$this, 'countMessages']));
