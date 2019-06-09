@@ -87,8 +87,8 @@ class FinishSubscriber implements EventSubscriberInterface
             function (Collection $result) {
                 $nominations = $this->filter($result->all());
                 self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
-                self::$winners = \array_slice($nominations, 0, 50);
-                $this->removeLosers(\array_slice($nominations, 50));
+                self::$winners = \array_slice($nominations, 0, 30);
+                //$this->removeLosers(\array_slice($nominations, 50));
             }
         );
     }
@@ -127,6 +127,8 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     private function removeLosers(array $losers): void
     {
+        return;
+
         // Start adding winners when losers are all removed
         if (!count($losers)) {
             $this->addWinners(self::$winners);
