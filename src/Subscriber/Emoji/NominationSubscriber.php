@@ -50,9 +50,9 @@ class NominationSubscriber implements EventSubscriberInterface
     /**
      * NominationSubscriber constructor.
      *
-     * @param int                $emojiChannelId
+     * @param int $emojiChannelId
      * @param ValidatorInterface $validator
-     * @param int                $roleId
+     * @param int $roleId
      */
     public function __construct(int $emojiChannelId, ValidatorInterface $validator, int $roleId)
     {
@@ -87,7 +87,7 @@ class NominationSubscriber implements EventSubscriberInterface
         }
         $event->stopPropagation();
         $io = $event->getIo();
-        $io->writeln(__CLASS__.' dispatched');
+        $io->writeln(__CLASS__ . ' dispatched');
 
         // Validate single attachment
         if ($message->attachments->count() !== 1) {
@@ -102,7 +102,7 @@ class NominationSubscriber implements EventSubscriberInterface
             $this->error(
                 $io,
                 $message,
-                "\n:x: ".Util::errorsToString($errors, "\n:x: ")
+                "\n:x: " . Util::errorsToString($errors, "\n:x: ")
             );
 
             return;
@@ -127,8 +127,10 @@ class NominationSubscriber implements EventSubscriberInterface
                             $message->delete();
                             $emoji->delete();
                             $io->success(sprintf('Emoji %s nominated', $emoji->name));
+                            /*
                             $emojiChannel->fetchMessages(['limit' => 100])
                                 ->done(\Closure::fromCallable([$this, 'countMessages']));
+                            */
                         }
                     );
                 }
@@ -137,8 +139,8 @@ class NominationSubscriber implements EventSubscriberInterface
 
     /**
      * @param SymfonyStyle $io
-     * @param Message      $message
-     * @param string       $error
+     * @param Message $message
+     * @param string $error
      */
     private function error(SymfonyStyle $io, Message $message, string $error): void
     {
@@ -156,6 +158,8 @@ class NominationSubscriber implements EventSubscriberInterface
      */
     private function countMessages(Collection $messages): void
     {
+        return;
+
         $io = $this->event->getIo();
         $count = $messages->count();
         $message = $this->event->getMessage();
