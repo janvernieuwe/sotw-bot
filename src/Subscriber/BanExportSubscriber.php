@@ -45,7 +45,6 @@ class BanExportSubscriber implements EventSubscriberInterface
                     fputcsv(
                         $fp,
                         [
-                            'count',
                             'username',
                             'userid',
                             'reason'
@@ -53,11 +52,9 @@ class BanExportSubscriber implements EventSubscriberInterface
                     );
                     /** @var GuildBan $ban */
                     foreach ($bans as $ban) {
-                        $count = 0;
                         fputcsv(
                             $fp,
                             [
-                                ++$count,
                                 $ban->user->username,
                                 $ban->user->id,
                                 $ban->reason
