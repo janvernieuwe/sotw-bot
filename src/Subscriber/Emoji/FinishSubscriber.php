@@ -79,11 +79,11 @@ class FinishSubscriber implements EventSubscriberInterface
         }
         $event->stopPropagation();
         self::$io = $io = $event->getIo();
-        $io->writeln(__CLASS__.' dispatched');
+        $io->writeln(__CLASS__ . ' dispatched');
 
         /** @var TextChannel $channel */
         self::$channel = $channel = $message->guild->channels->get($this->channelId);
-        $channel->fetchMessages(['limit' => 100])->done(
+        $channel->fetchMessages(['limit' => 100, 'before' => 592115612197584907])->done(
             function (Collection $result) {
                 $nominations = $this->filter($result->all());
                 self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
@@ -121,6 +121,47 @@ class FinishSubscriber implements EventSubscriberInterface
         );
 
         return $valid;
+    }
+
+    /**
+     * @param array $winners
+     */
+    private function addWinners(array $winners): void
+    {
+        // No more winners?
+        if (!count($winners)) {
+            return;
+        }
+
+        // Next winner
+        $winner = array_shift($winners);
+        self::$io->writeln(sprintf('Winner: %s %s', $winner->getContent(), $winner->getVotes()));
+
+        // Old emoji?
+        if ($winner->isOnServer()) {
+            self::$io->writeln('Already on server');
+            $this->addWinners($winners);
+
+            return;
+        }
+
+        // Add it
+        self::$message->guild->createEmoji($winner->getUrl(), $winner->getEmojiName())->done(
+            function (Emoji $emoji) use ($winners) {
+                self::$message->channel->send(':new: ' . Util::emojiToString($emoji))->done(
+                    function (Message $emojiPost) use ($emoji, $winners) {
+                        $emojiPost->react(Util::emojiToString($emoji))
+                            ->done(
+                                function () use ($emoji, $winners) {
+                                    self::$io->success(sprintf('Emoji %s added', $emoji->name));
+                                    // Next
+                                    $this->addWinners($winners);
+                                }
+                            );
+                    }
+                );
+            }
+        );
     }
 
     /**
@@ -162,47 +203,6 @@ class FinishSubscriber implements EventSubscriberInterface
                 self::$io->success(sprintf('Emoji %s removed', $loser->getEmojiName()));
                 // Next
                 $this->removeLosers($losers);
-            }
-        );
-    }
-
-    /**
-     * @param array $winners
-     */
-    private function addWinners(array $winners): void
-    {
-        // No more winners?
-        if (!count($winners)) {
-            return;
-        }
-
-        // Next winner
-        $winner = array_shift($winners);
-        self::$io->writeln(sprintf('Winner: %s %s', $winner->getContent(), $winner->getVotes()));
-
-        // Old emoji?
-        if ($winner->isOnServer()) {
-            self::$io->writeln('Already on server');
-            $this->addWinners($winners);
-
-            return;
-        }
-
-        // Add it
-        self::$message->guild->createEmoji($winner->getUrl(), $winner->getEmojiName())->done(
-            function (Emoji $emoji) use ($winners) {
-                self::$message->channel->send(':new: '.Util::emojiToString($emoji))->done(
-                    function (Message $emojiPost) use ($emoji, $winners) {
-                        $emojiPost->react(Util::emojiToString($emoji))
-                            ->done(
-                                function () use ($emoji, $winners) {
-                                    self::$io->success(sprintf('Emoji %s added', $emoji->name));
-                                    // Next
-                                    $this->addWinners($winners);
-                                }
-                            );
-                    }
-                );
             }
         );
     }
