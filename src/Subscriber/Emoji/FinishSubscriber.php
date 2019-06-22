@@ -89,6 +89,7 @@ class FinishSubscriber implements EventSubscriberInterface
                 self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
                 self::$winners = \array_slice($nominations, 0, 30);
                 //$this->removeLosers(\array_slice($nominations, 50));
+                $this->addWinners(self::$winners);
             }
         );
     }
