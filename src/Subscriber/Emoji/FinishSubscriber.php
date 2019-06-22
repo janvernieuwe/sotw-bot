@@ -116,7 +116,7 @@ class FinishSubscriber implements EventSubscriberInterface
                     return 0;
                 }
 
-                return $a->getVotes() > $b->getVotes() ? 1 : -1;
+                return $a->getVotes() < $b->getVotes() ? 1 : -1;
             }
         );
 
