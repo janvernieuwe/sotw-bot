@@ -60,7 +60,7 @@ class YasminEmojiNominationAttachment
     }
 
     /**
-     * @Assert\IsFalse(message="Geen gifs")
+     * @Assert\IsTrue(message="Alleen gifs")
      * @return bool
      */
     public function isGif(): bool

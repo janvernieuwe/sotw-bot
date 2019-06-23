@@ -109,21 +109,21 @@ class NominationSubscriber implements EventSubscriberInterface
         }
         /** @var GuildChannelInterface $channel */
         $channel = $message->guild->channels->get($this->channelId);
-        $channel->overwritePermissions(
-            $this->roleId,
-            0,
-            Channel::ROLE_SEND_MESSAGES,
-            'Processing emoji'
-        );
+//        $channel->overwritePermissions(
+//            $this->roleId,
+//            0,
+//            Channel::ROLE_SEND_MESSAGES,
+//            'Processing emoji'
+//        );
         /** @var TextChannelInterface $emojiChannel */
         $emojiChannel = $message->client->channels->get($this->channelId);
         $message->guild
             ->createEmoji($attachment->getUrl(), $attachment->getName())
             ->done(
                 function (Emoji $emoji) use ($message, $io, $emojiChannel) {
-                    $message->channel->send(Util::emojiToString($emoji))->done(
+                    $message->channel->send(Util::animatedEmojiToString($emoji))->done(
                         function (Message $emojiPost) use ($message, $emoji, $io, $emojiChannel) {
-                            $emojiPost->react(Util::emojiToString($emoji))
+                            $emojiPost->react(Util::animatedEmojiToString($emoji))
                                 ->done(function () use ($message, $io, $emoji) {
                                     $message->delete();
                                     $emoji->delete();

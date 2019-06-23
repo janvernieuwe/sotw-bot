@@ -78,4 +78,14 @@ class Util
     {
         return sprintf('<:%s:%s>', $emoji->name, $emoji->id);
     }
+
+    /**
+     * @param Emoji $emoji
+     *
+     * @return string
+     */
+    public static function animatedEmojiToString(Emoji $emoji): string
+    {
+        return sprintf('<a:%s:%s>', $emoji->name, $emoji->id);
+    }
 }

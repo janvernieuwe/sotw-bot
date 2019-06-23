@@ -73,7 +73,7 @@ class FinishSubscriber implements EventSubscriberInterface
      */
     public function onCommand(MessageReceivedEvent $event): void
     {
-        self::$message = $message = $event->getMessage();
+        self::$message = $message = clone $event->getMessage();
         if ($message->content !== self::CMD || !$event->isAdmin()) {
             return;
         }
@@ -83,11 +83,11 @@ class FinishSubscriber implements EventSubscriberInterface
 
         /** @var TextChannel $channel */
         self::$channel = $channel = $message->guild->channels->get($this->channelId);
-        $channel->fetchMessages(['limit' => 100, 'before' => 592115612197584907])->done(
+        $channel->fetchMessages(['limit' => 100])->done(
             function (Collection $result) {
                 $nominations = $this->filter($result->all());
                 self::$io->writeln(sprintf('#nominations %s', \count($nominations)));
-                self::$winners = \array_slice($nominations, 26, 4);
+                self::$winners = \array_slice($nominations, 0, 50);
                 //$this->removeLosers(\array_slice($nominations, 50));
                 $this->addWinners(self::$winners);
             }
