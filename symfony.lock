@@ -5,20 +5,14 @@
     "cakephp/utility": {
         "version": "3.8.0"
     },
-    "charlottedunois/collection": {
-        "version": "v0.2.0"
-    },
     "charlottedunois/eventemitter": {
         "version": "v0.1.6"
     },
     "charlottedunois/validator": {
-        "version": "v0.3.1"
+        "version": "v0.2.2"
     },
     "charlottedunois/yasmin": {
-        "version": "v0.6.1"
-    },
-    "clue/buzz-react": {
-        "version": "v2.6.0"
+        "version": "v0.5.1"
     },
     "composer/ca-bundle": {
         "version": "1.1.0"
@@ -263,9 +257,6 @@
     "react/filesystem": {
         "version": "v0.1.2"
     },
-    "react/http-client": {
-        "version": "v0.5.9"
-    },
     "react/promise": {
         "version": "v2.7.1"
     },
@@ -280,9 +271,6 @@
     },
     "react/stream": {
         "version": "v1.1.0"
-    },
-    "ringcentral/psr7": {
-        "version": "1.2.2"
     },
     "roave/security-advisories": {
         "version": "dev-master"

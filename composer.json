@@ -6,7 +6,7 @@
     "require": {
         "php": "^7.1.3",
         "ext-iconv": "*",
-        "charlottedunois/yasmin": "^0.6.1",
+        "charlottedunois/yasmin": "^0.5",
         "janvernieuwe/mal2anilist": "^0.0.1",
         "jikan-me/jikan": "^2.6",
         "jikan/jikan-php": "~0.0",
