@@ -65,9 +65,6 @@ class UpdatePostSubscriber implements EventSubscriberInterface
         // Load
         $channelMessage = new JoinableChannelMessage($reaction->message);
         $anime = $this->mal->getAnime(new AnimeRequest($channelMessage->getAnimeId()));
-        if (!$reaction->message->editable) {
-            $io->error('Message is not editable.');
-        }
         $channel = Channel::getTextChannel($reaction->message);
         $subs = Channel::getUserCount($channel);
         $channelMessage->updateWatchers($anime, $channel->id, $subs);
