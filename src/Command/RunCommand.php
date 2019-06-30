@@ -81,7 +81,7 @@ class RunCommand extends ContainerAwareCommand
                 }
                 /** @noinspection PhpUndefinedFieldInspection */
                 $logMessage = 'Received Message from ' . $message->author->tag . ' in ' .
-                    ($message->channel->type === 'text' ? 'channel #' . $message->channel->name : 'DM') . ' with '
+                    'channel #' . $message->channel->name . ' with '
                     . $message->attachments->count() . ' attachment(s) and ' . \count($message->embeds) . ' embed(s)';
 
                 if ($io->isVerbose()) {
