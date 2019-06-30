@@ -58,7 +58,7 @@ class RunCommand extends ContainerAwareCommand
         });
         $client->on(
             'ready',
-            function () use ($client, $io) {
+            static function () use ($client, $io) {
                 $io->writeln(
                     'Logged in as ' . $client->user->tag . ' created on ' . $client->user->createdAt->format(
                         'd.m.Y H:i:s'
@@ -69,7 +69,7 @@ class RunCommand extends ContainerAwareCommand
 
         $client->on(
             'message',
-            function (Message $message) use ($io, $dispatcher, $adminRole, $permissionsRole) {
+            static function (Message $message) use ($io, $dispatcher, $adminRole, $permissionsRole) {
                 // Don't listen to bots (and myself)
                 if ($message->author->bot) {
                     return;
@@ -96,7 +96,7 @@ class RunCommand extends ContainerAwareCommand
 
         $client->on(
             'messageReactionAdd',
-            function (MessageReaction $reaction, User $user) use ($dispatcher, $io, $adminRole, $animeModRole) {
+            static function (MessageReaction $reaction, User $user) use ($dispatcher, $io, $adminRole, $animeModRole) {
                 if ($user->bot) {
                     return;
                 }
