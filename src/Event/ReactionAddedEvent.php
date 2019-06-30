@@ -39,7 +39,7 @@ class ReactionAddedEvent extends Event
     public function __construct(MessageReaction $reaction, SymfonyStyle $io, int $adminRole, int $modRole)
     {
         parent::__construct($io);
-        $this->reaction = $reaction;
+        $this->reaction = clone $reaction;
         $this->adminRole = $adminRole;
         $this->modRole = $modRole;
     }

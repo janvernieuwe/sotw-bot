@@ -40,7 +40,7 @@ class MessageReceivedEvent extends Event
     public function __construct(Message $message, SymfonyStyle $io, int $adminRole, int $permissionsRole)
     {
         parent::__construct($io);
-        $this->message = $message;
+        $this->message = clone $message;
         $this->adminRole = $adminRole;
         $this->permissionsRole = $permissionsRole;
     }
