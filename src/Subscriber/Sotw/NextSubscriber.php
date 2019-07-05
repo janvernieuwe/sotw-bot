@@ -9,6 +9,7 @@ use App\Event\MessageReceivedEvent;
 use App\Formatter\BBCodeFormatter;
 use App\Message\SotwNomination;
 use CharlotteDunois\Yasmin\Interfaces\GuildChannelInterface;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface as TextChannelInterfaceAlias;
 use CharlotteDunois\Yasmin\Models\Message;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,6 +67,11 @@ class NextSubscriber implements EventSubscriberInterface
     private $channel;
 
     /**
+     * @var TextChannelInterfaceAlias
+     */
+    private $cmdChannel;
+
+    /**
      * ValidateSubscriber constructor.
      *
      * @param EntityManagerInterface $doctrine
@@ -97,6 +103,7 @@ class NextSubscriber implements EventSubscriberInterface
         if ($message->content !== self::COMMAND || !$event->isAdmin()) {
             return;
         }
+        $this->cmdChannel = clone $message->channel;
         $event->getIo()->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $this->io = $event->getIo();
@@ -174,7 +181,7 @@ MESSAGE;
         $bbcode = '```'.$formatter->createMessage().'```'.PHP_EOL;
         $bbcode .= '<https://myanimelist.net/forum/?topicid=1680313>'.PHP_EOL;
         $bbcode .= sprintf('t€scores add %s 1500', $winner->getAuthorId()).PHP_EOL;
-        $this->message->channel->send($bbcode);
+        $this->cmdChannel->send($bbcode);
         $this->io->success('Showed forum post');
     }
 }

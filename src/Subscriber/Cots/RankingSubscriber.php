@@ -5,6 +5,7 @@ namespace App\Subscriber\Cots;
 use App\Channel\CotsChannel;
 use App\Event\MessageReceivedEvent;
 use App\Message\CotsNomination;
+use CharlotteDunois\Yasmin\Interfaces\TextChannelInterface;
 use Jikan\MyAnimeList\MalClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -32,6 +33,11 @@ class RankingSubscriber implements EventSubscriberInterface
      * @var MalClient
      */
     private $jikan;
+
+    /**
+     * @var TextChannelInterface
+     */
+    private $channel;
 
     /**
      * RankingSubscriber constructor.
@@ -63,11 +69,12 @@ class RankingSubscriber implements EventSubscriberInterface
         if (strpos($message->content, self::COMMAND) !== 0) {
             return;
         }
+        $this->channel = clone $message->channel;
         $io = $event->getIo();
         $io->writeln(__CLASS__.' dispatched');
         $event->stopPropagation();
         $cotsChannel = new CotsChannel($this->jikan, $message->client->channels->get($this->cotsChannelId));
-        $message->channel->startTyping();
+        $this->channel->startTyping();
         $cotsChannel->getLastNominations()
             ->then(\Closure::fromCallable([$this, 'onMessagesLoaded']));
     }
@@ -100,8 +107,8 @@ class RankingSubscriber implements EventSubscriberInterface
                 $nomination->getAnime()->getScore()
             );
         }
-        $message->channel->stopTyping(true);
-        $message->channel->send(implode(PHP_EOL, $output));
+        $this->channel->stopTyping(true);
+        $this->channel->send(implode(PHP_EOL, $output));
         $io->success('Ranking displayed');
     }
 }
