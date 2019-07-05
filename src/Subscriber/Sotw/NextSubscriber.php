@@ -146,7 +146,7 @@ class NextSubscriber implements EventSubscriberInterface
         Channel::open($this->sotwChannel, $this->roleId);
         $this->sotwChannel->send(
             sprintf(
-                ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s> `%s`\n",
+                ":trophy: De winnaar van week %s is: %s - %s (%s) door <@!%s> <%s>\n",
                 (int)date('W'),
                 $winner->getArtist(),
                 $winner->getTitle(),
@@ -171,7 +171,9 @@ MESSAGE;
 
         // Output post for the forum
         $formatter = new BBCodeFormatter($nominations);
-        $bbcode = '```'.$formatter->createMessage().'```';
+        $bbcode = '```'.$formatter->createMessage().'```'.PHP_EOL;
+        $bbcode .= '<https://myanimelist.net/forum/?topicid=1680313>'.PHP_EOL;
+        $bbcode .= sprintf('t€scores add %s 1500', $winner->getAuthorId()).PHP_EOL;
         $this->message->channel->send($bbcode);
         $this->io->success('Showed forum post');
     }
