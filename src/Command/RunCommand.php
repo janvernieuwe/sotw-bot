@@ -80,7 +80,8 @@ class RunCommand extends ContainerAwareCommand
                     return;
                 }
                 /** @noinspection PhpUndefinedFieldInspection */
-                $logMessage = 'Received Message from ' . $message->author->tag . ' in ' .
+                $logMessage = '[' . date(\DateTime::ATOM) . '] Received Message from ' .
+                    $message->author->tag . ' in ' .
                     'channel #' . $message->channel->name . ' with '
                     . $message->attachments->count() . ' attachment(s) and ' . \count($message->embeds) . ' embed(s)';
 
@@ -106,7 +107,8 @@ class RunCommand extends ContainerAwareCommand
                     return;
                 }
                 /** @noinspection PhpUndefinedFieldInspection */
-                $logMessage = 'Received messageReactionAdd ' . $reaction->emoji->name . ' from '
+                $logMessage = '[' . date(\DateTime::ATOM) . '] Received messageReactionAdd '
+                    . $reaction->emoji->name . ' from '
                     . $reaction->users->last()->username . ' in channel #' . $reaction->message->channel->name;
 
                 if ($io->isVerbose()) {
