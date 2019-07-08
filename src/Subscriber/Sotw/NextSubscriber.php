@@ -180,7 +180,7 @@ MESSAGE;
         $formatter = new BBCodeFormatter($nominations);
         $bbcode = '```'.$formatter->createMessage().'```'.PHP_EOL;
         $bbcode .= '<https://myanimelist.net/forum/?topicid=1680313>'.PHP_EOL;
-        $bbcode .= sprintf('t€scores add %s 1500', $winner->getAuthorId()).PHP_EOL;
+        $bbcode .= sprintf('`t€scores add %s 1500`', $winner->getAuthorId()).PHP_EOL;
         $this->cmdChannel->send($bbcode);
         $this->io->success('Showed forum post');
     }
