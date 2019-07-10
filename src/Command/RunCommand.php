@@ -49,7 +49,7 @@ class RunCommand extends ContainerAwareCommand
         $dispatcher = $container->get('event_dispatcher');
         $io = new SymfonyStyle($input, $output);
         $loop = Factory::create();
-        $client = new Client(['disableClones' => false], $loop);
+        $client = new Client([], $loop);
 
         // Run the bot
         $io->section('Start listening');
@@ -83,7 +83,8 @@ class RunCommand extends ContainerAwareCommand
                 $logMessage = '[' . date(\DateTime::ATOM) . '] Received Message from ' .
                     $message->author->tag . ' in ' .
                     'channel #' . $message->channel->name . ' with '
-                    . $message->attachments->count() . ' attachment(s) and ' . \count($message->embeds) . ' embed(s)';
+                    . $message->attachments->count() . ' attachment(s) and ' . \count($message->embeds) . ' embed(s)'
+                    . PHP_EOL . $message->content;
 
                 if ($io->isVerbose()) {
                     /** @noinspection PhpUndefinedFieldInspection */
