@@ -78,9 +78,9 @@ class Event extends \Symfony\Component\EventDispatcher\Event
         if ($this->logged) {
             return;
         }
+        $this->logged = true;
         if (!$this->io->isVerbose()) {
             $this->io->writeln($this->logMessage);
         }
-        $this->logged = true;
     }
 }
