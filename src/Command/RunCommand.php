@@ -49,7 +49,7 @@ class RunCommand extends ContainerAwareCommand
         $dispatcher = $container->get('event_dispatcher');
         $io = new SymfonyStyle($input, $output);
         $loop = Factory::create();
-        $client = new Client([], $loop);
+        $client = new Client(['disableClones' => false], $loop);
 
         // Run the bot
         $io->section('Start listening');
