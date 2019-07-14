@@ -53,9 +53,9 @@ class RunCommand extends ContainerAwareCommand
 
         // Run the bot
         $io->section('Start listening');
-//        $client->loop->addTimer(60 * 60 * 6, static function () {
-//            exit('Max execution time reached, restarting');
-//        });
+        $client->loop->addTimer(60 * 60 * 6, static function () {
+            exit('Max execution time reached, restarting');
+        });
         $client->on(
             'ready',
             static function () use ($client, $io) {
