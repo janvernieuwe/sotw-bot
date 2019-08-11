@@ -137,7 +137,7 @@ class SotwNomination
      */
     public static function isContenter(string $data): bool
     {
-        return preg_match('#url:\s*https?://(www\.|m.)?(youtube\.com|youtu\.be)#im', $data);
+        return preg_match('#https?://(www\.|m.)?(youtube\.com|youtu\.be)#im', $data);
     }
 
     /**
