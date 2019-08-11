@@ -48,7 +48,7 @@ class SongOfTheWeekChannel
                             break;
                         }
                         if (!SotwNomination::isContenter($message->content)
-                            && stripos('url:', $message->content) !== false) {
+                            || stripos('url:', $message->content) === false) {
                             continue;
                         }
                         $nominations[] = SotwNomination::fromMessage($message);
