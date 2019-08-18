@@ -47,8 +47,10 @@ class SongOfTheWeekChannel
                         if (strpos($message->content, 'Nomineer volgens onderstaande template') !== false) {
                             break;
                         }
-                        if (!SotwNomination::isContenter($message->content)
-                            || stripos('url:', $message->content) === false) {
+                        if (strpos($message->content, 'De winnaar van week') !== false) {
+                            break;
+                        }
+                        if (!SotwNomination::isContenter($message->content)) {
                             continue;
                         }
                         $nominations[] = SotwNomination::fromMessage($message);
