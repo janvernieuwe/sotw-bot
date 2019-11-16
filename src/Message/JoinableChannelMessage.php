@@ -147,7 +147,6 @@ class JoinableChannelMessage
                     ],
                     [
                         'name' => str_pad('genres', 122, ' ').'ᅠ',
-
                         'value'  => implode(', ', $anime->getGenres()),
                         'inline' => false,
                     ],

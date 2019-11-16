@@ -77,14 +77,6 @@ class SimpleJoinableChannelMessage
     }
 
     /**
-     * @return TextChannel
-     */
-    public function getChannel(): TextChannel
-    {
-        return $this->message->guild->channels->get($this->getChannelId());
-    }
-
-    /**
      * Update the the channel message
      *
      * @param int $count
@@ -112,7 +104,7 @@ class SimpleJoinableChannelMessage
                 ],
                 'fields' => [
                     [
-                        'name'   => 'description',
+                        'name'   => str_pad('description', 122, ' ').'ᅠ',
                         'value'  => $message,
                         'inline' => false,
                     ],
@@ -137,5 +129,13 @@ class SimpleJoinableChannelMessage
     public function getChannelTopic(): string
     {
         return $this->getChannel()->topic;
+    }
+
+    /**
+     * @return TextChannel
+     */
+    public function getChannel(): TextChannel
+    {
+        return $this->message->guild->channels->get($this->getChannelId());
     }
 }
