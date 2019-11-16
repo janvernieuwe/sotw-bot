@@ -144,6 +144,11 @@ class JoinableChannelMessage
                 ],
                 'fields'    => [
                     [
+                        'name'   => 'studio',
+                        'value'  => implode(', ', $anime->getStudios()),
+                        'inline' => true,
+                    ],
+                    [
                         'name'   => 'datum',
                         'value'  => (string)$anime->getAired(),
                         'inline' => true,
@@ -151,7 +156,7 @@ class JoinableChannelMessage
                     [
                         'name'   => 'genres',
                         'value'  => implode(', ', $anime->getGenres()),
-                        'inline' => true,
+                        'inline' => false,
                     ],
                     [
                         'name'   => Channel::CHANNEL_KEY,
