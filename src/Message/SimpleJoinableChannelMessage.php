@@ -41,6 +41,10 @@ class SimpleJoinableChannelMessage
         /** @noinspection CallableParameterUseCaseInTypeContextInspection */
         $message = new self($message);
 
+        if ($message->getFieldValue('description') !== null) {
+            return true;
+        }
+
         return $message->getFieldValue(str_pad('description', 122, ' ').'ᅠ') !== null;
     }
 
