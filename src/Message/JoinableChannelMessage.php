@@ -113,14 +113,6 @@ class JoinableChannelMessage
     }
 
     /**
-     * @return string
-     */
-    public function getEmbeddedAnimeLink(): string
-    {
-        return $this->message->embeds[0]->url;
-    }
-
-    /**
      * @param Anime  $anime
      * @param int    $channelId
      * @param string $link
@@ -154,7 +146,8 @@ class JoinableChannelMessage
                         'inline' => true,
                     ],
                     [
-                        'name'   => 'genres',
+                        'name' => str_pad('genres', 122, ' ').'ᅠ',
+
                         'value'  => implode(', ', $anime->getGenres()),
                         'inline' => false,
                     ],
@@ -171,6 +164,14 @@ class JoinableChannelMessage
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmbeddedAnimeLink(): string
+    {
+        return $this->message->embeds[0]->url;
     }/** @noinspection MoreThanThreeArgumentsInspection */
 
     /**
