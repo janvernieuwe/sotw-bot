@@ -109,7 +109,7 @@ class SimpleJoinableChannelMessage
                 'fields' => [
                     [
                         'name'   => str_pad('description', 122, ' ').'ᅠ',
-                        'value'  => $message,
+                        'value'  => wordwrap($message, 75),
                         'inline' => false,
                     ],
                     [
