@@ -105,14 +105,6 @@ class JoinableMangaChannelMessage
     }
 
     /**
-     * @return string
-     */
-    public function getEmbeddedMangaLink(): string
-    {
-        return $this->message->embeds[0]->url;
-    }
-
-    /**
      * @param Manga  $manga
      * @param int    $channelId
      * @param string $link
@@ -132,7 +124,7 @@ class JoinableMangaChannelMessage
                 'url'       => $link,
                 'thumbnail' => ['url' => $manga->getImageUrl()],
                 'footer'    => [
-                    'text' => 'Druk op de reactions om te joinen / leaven',
+                    'text' => str_pad('Druk op de reactions om te joinen / leaven', 122, ' ').'ᅠ',
                 ],
                 'fields'    => [
                     [
@@ -144,6 +136,11 @@ class JoinableMangaChannelMessage
                         'name'   => 'rank',
                         'value'  => $manga->getRank(),
                         'inline' => true,
+                    ],
+                    [
+                        'name'   => 'author',
+                        'value'  => implode(', ', $manga->getAuthors()),
+                        'inline' => false,
                     ],
                     [
                         'name'   => Channel::CHANNEL_KEY,
@@ -158,5 +155,13 @@ class JoinableMangaChannelMessage
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmbeddedMangaLink(): string
+    {
+        return $this->message->embeds[0]->url;
     }
 }
