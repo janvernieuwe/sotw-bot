@@ -8,7 +8,7 @@
         "ext-iconv": "*",
         "charlottedunois/yasmin": "^0.5",
         "janvernieuwe/mal2anilist": "^0.0.1",
-        "jikan-me/jikan": "^2.6",
+        "jikan-me/jikan": "^2.15",
         "jikan/jikan-php": "~0.0",
         "kevinrob/guzzle-cache-middleware": "^3.2",
         "symfony/console": "^4.0",
@@ -68,6 +68,7 @@
     },
     "extra": {
         "symfony": {
+            "require": "4.4.*",
             "id": "01C41ZKMVEYHR1WKW4BJT3FXDK",
             "allow-contrib": false
         }
