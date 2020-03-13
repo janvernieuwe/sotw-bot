@@ -67,6 +67,7 @@ rewatch ranking         (show the current ranking)
 bikkel ranking          (Bikkel ranking)
 season ranking          (Seasonal anime ranking)
 export                  (Export the channel and first reaction count to a csv, select another channel with --channel=)
+addreaction <emoji>     Add <emoji> as a reaction to the last 100 messages in the channel
 ```
 HELP;
         $message->channel->send($help);
