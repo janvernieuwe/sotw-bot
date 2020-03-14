@@ -51,6 +51,7 @@ class AddReactionSubscriber implements EventSubscriberInterface
                     /** @var Message $msg */
                     foreach ($messages as $msg) {
                         $msg->react($emoji);
+                        sleep(1); // rate limiting
                     }
                 }
             );
