@@ -5,7 +5,6 @@ namespace App\Subscriber;
 use App\Command\CommandParser;
 use App\Event\MessageReceivedEvent;
 use CharlotteDunois\Yasmin\Models\Message;
-use CharlotteDunois\Yasmin\Models\MessageReaction;
 use CharlotteDunois\Yasmin\Models\TextChannel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -44,6 +43,7 @@ class AddReactionSubscriber implements EventSubscriberInterface
         /** @var TextChannel $channel */
         $channel = $message->client->channels->get($channelId);
         $emoji = trim(preg_replace('/!haamc addreaction /', '', $message->content));
+        $message->delete();
 
         $channel->fetchMessages(['limit' => 100])
             ->done(
