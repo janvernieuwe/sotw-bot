@@ -150,7 +150,6 @@
                 "event",
                 "events"
             ],
-            "abandoned": true,
             "time": "2019-04-14T15:44:49+00:00"
         },
         {
@@ -194,7 +193,6 @@
             "keywords": [
                 "validation"
             ],
-            "abandoned": true,
             "time": "2018-11-03T21:10:38+00:00"
         },
         {
@@ -230,7 +228,7 @@
             },
             "suggest": {
                 "charlottedunois/athena": "For Redis-backed ratelimit bucket",
-                "charlottedunois/kimberly": "For WS encoding etf 🚀"
+                "charlottedunois/kimberly": "For WS encoding etf ?"
             },
             "type": "library",
             "autoload": {
@@ -249,7 +247,6 @@
                 }
             ],
             "description": "Yasmin is a Discord API library for PHP.",
-            "abandoned": true,
             "time": "2018-10-21T12:03:34+00:00"
         },
         {
@@ -2659,16 +2656,16 @@
         },
         {
             "name": "jikan-me/jikan",
-            "version": "v2.15.0",
+            "version": "v2.16.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jikan-me/jikan.git",
-                "reference": "a16706b770b45eda2c04d00e2428eee26d7ae5d4"
+                "reference": "3a10a26973caad084237b345100bbeb32bcafedd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/a16706b770b45eda2c04d00e2428eee26d7ae5d4",
-                "reference": "a16706b770b45eda2c04d00e2428eee26d7ae5d4",
+                "url": "https://api.github.com/repos/jikan-me/jikan/zipball/3a10a26973caad084237b345100bbeb32bcafedd",
+                "reference": "3a10a26973caad084237b345100bbeb32bcafedd",
                 "shasum": ""
             },
             "require": {
@@ -2705,7 +2702,7 @@
                 }
             ],
             "description": "Jikan is an unofficial MyAnimeList API",
-            "time": "2020-01-10T06:40:16+00:00"
+            "time": "2020-04-01T05:12:25+00:00"
         },
         {
             "name": "jikan/jikan-php",
